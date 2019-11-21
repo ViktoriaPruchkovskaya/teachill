@@ -14,11 +14,13 @@
   "dependencies": {
     "koa": "^2.11.0",
     "koa-router": "^7.4.0",
+    "slonik": "^21.4.1",
     "typescript": "^3.7.2"
   },
   "devDependencies": {
     "@types/koa": "^2.0.52",
     "@types/koa-router": "^7.0.42",
+    "@types/slonik": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
     "eslint": "^6.6.0",
