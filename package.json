@@ -12,12 +12,14 @@
   "author": "Pruchkovskaya Viktoria",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "koa": "^2.11.0",
     "koa-router": "^7.4.0",
     "slonik": "^21.4.1",
     "typescript": "^3.7.2"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/koa": "^2.0.52",
     "@types/koa-router": "^7.0.42",
     "@types/slonik": "^19.0.1",
