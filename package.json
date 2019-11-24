@@ -12,6 +12,7 @@
   "author": "Pruchkovskaya Viktoria",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "koa": "^2.11.0",
     "koa-router": "^7.4.0",
     "slonik": "^21.4.1",
@@ -24,7 +25,6 @@
     "@types/slonik": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
-    "dotenv": "^8.2.0",
     "eslint": "^6.6.0",
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-react-hooks": "^2.3.0",
