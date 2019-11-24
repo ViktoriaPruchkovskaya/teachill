@@ -18,11 +18,13 @@
     "typescript": "^3.7.2"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/koa": "^2.0.52",
     "@types/koa-router": "^7.0.42",
     "@types/slonik": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.6.0",
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-react-hooks": "^2.3.0",
