@@ -14,7 +14,7 @@ const dbConfig = {
   user: process.env.POSTGRES_USER,
   database: process.env.POSTGRES_DATABASE,
 };
-// TODO: pass DatabaseConnection object as an argument and fill it with db credentaials from env in this file.
+
 DatabaseConnection.initConnection(dbConfig);
 
 app.use(router.routes());

@@ -1,3 +1,13 @@
-// TODO: create two function controllers for GET and POST for /
-// GET for / should return all users from the database (make sure not to include password in GET output)
-// POST will accept JSON body {"username": "", "password": "", "fullName": ""} and will create user with provided data.
+import { DatabaseConnection } from '../db/connection';
+import { sql } from 'slonik';
+
+export const addUser = async (ctx, next) => {
+  await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(
+      sql`INSERT INTO users (username, password_hash, full_name) VALUES (${ctx.body.username}, ${ctx.body.password}, ${ctx.body.fullName})`
+    );
+  });
+  ctx.body = {};
+  ctx.response.status = 201;
+  await next();
+};
