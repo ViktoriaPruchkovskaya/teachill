@@ -1,8 +1,9 @@
 import Router = require('koa-router');
-import { addUser } from './controllers/indexController';
+import { getUsers, addUser } from './controllers/indexController';
 
 const router = new Router();
 
+router.get('/', getUsers);
 router.post('/', addUser);
 
 export { router };
