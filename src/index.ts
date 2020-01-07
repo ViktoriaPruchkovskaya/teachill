@@ -7,8 +7,15 @@ dotenv.config();
 
 const app = new Koa();
 
+const dbConfig = {
+  host: process.env.POSTGRES_HOST,
+  port: process.env.POSTGRES_PORT,
+  password: process.env.POSTGRES_PASSWORD,
+  user: process.env.POSTGRES_USER,
+  database: process.env.POSTGRES_DATABASE,
+};
 // TODO: pass DatabaseConnection object as an argument and fill it with db credentaials from env in this file.
-DatabaseConnection.initConnection();
+DatabaseConnection.initConnection(dbConfig);
 
 app.use(router.routes());
 app.listen(3000, () => console.log('Server started'));
