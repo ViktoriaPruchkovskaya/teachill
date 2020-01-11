@@ -11,15 +11,9 @@ export interface DatabaseConfiguration {
 export class DatabaseConnection {
   private static connectionPool: DatabasePoolType = null;
 
-  public static initConnection(DatabaseConfiguration: {
-    host: string;
-    port: string;
-    password: string;
-    user: string;
-    database: string;
-  }) {
+  public static initConnection(dbConfig: DatabaseConfiguration) {
     this.connectionPool = createPool(
-      `postgresql://${DatabaseConfiguration.user}:${DatabaseConfiguration.password}@${DatabaseConfiguration.host}:${DatabaseConfiguration.port}/${DatabaseConfiguration.database}`
+      `postgresql://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`
     );
   }
 
