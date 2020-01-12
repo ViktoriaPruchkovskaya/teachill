@@ -12,7 +12,3 @@ export class SignupService {
     return await passwordService.hashPassword(password);
   }
 }
-
-// export class SinginService {
-//   private async doSignin(username: string, password: string) {}
-// }

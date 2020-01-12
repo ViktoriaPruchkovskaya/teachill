@@ -15,12 +15,12 @@ export async function createUser(username: string, passwordHash: string, fullNam
   });
 }
 
-export async function findUserAccount(recievedUsername: string) {
-  await DatabaseConnection.getConnectionPool().connect(async connection => {
+export async function getUserByUsername(username: string): Promise<User | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
     SELECT *
     FROM users
-    WHERE username = ${recievedUsername}`);
+    WHERE username = ${username}`);
     if (res) {
       const user: User = {
         username: res.username as string,
