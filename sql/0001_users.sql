@@ -23,3 +23,6 @@ CREATE TABLE IF NOT EXISTS user_roles
 
     CONSTRAINT user_roles_pk PRIMARY KEY (user_id, role_id)
 );
+
+-- Create predefined default roles
+INSERT INTO roles (name) VALUES ('Administrator'), ('Member')
