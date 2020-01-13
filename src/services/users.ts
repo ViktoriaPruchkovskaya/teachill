@@ -1,5 +1,5 @@
-import * as bcrypt from 'bcrypt';
 import { createUser } from '../repositories/users';
+import { PasswordService } from './password';
 
 export class SignupService {
   public async doSignup(username: string, password: string, fullName: string): Promise<void> {
@@ -8,7 +8,7 @@ export class SignupService {
   }
 
   private async createPasswordHash(password: string): Promise<string> {
-    const hash = await bcrypt.hash(password, 10);
-    return hash;
+    const passwordService = new PasswordService();
+    return await passwordService.hashPassword(password);
   }
 }
