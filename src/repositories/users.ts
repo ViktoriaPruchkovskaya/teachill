@@ -28,6 +28,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         fullName: res.full_name as string,
       };
       return user;
-    } else return null;
+    }
+    return null;
   });
 }
