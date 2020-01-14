@@ -15,11 +15,12 @@ export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signupService = new SignupService();
-  await signupService.doSignup(
+  const userId = await signupService.doSignup(
     ctx.request.body.username,
     ctx.request.body.password,
     ctx.request.body.fullName
   );
+  await signupService.createUserRole(userId);
   ctx.body = {};
   ctx.response.status = httpCodes.CREATED;
   await next();
@@ -35,7 +36,7 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
     ctx.response.body = { token: authorize };
     ctx.response.status = httpCodes.OK;
   } else {
-    ctx.response.status = httpCodes.UNAUTHORIZED;
+    ctx.response.status = httpCodes.BAD_REQUEST;
   }
   await next();
 }

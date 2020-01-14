@@ -1,11 +1,15 @@
-import { createUser, getUserByUsername } from '../repositories/users';
+import { createUser, getUserByUsername, createUserRole } from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 
 export class SignupService {
-  public async doSignup(username: string, password: string, fullName: string): Promise<void> {
+  public async doSignup(username: string, password: string, fullName: string): Promise<number> {
     const passwordHash = await this.createPasswordHash(password);
-    await createUser(username, passwordHash, fullName);
+    return await createUser(username, passwordHash, fullName);
+  }
+
+  public async createUserRole(userId: number): Promise<void> {
+    await createUserRole(userId);
   }
 
   private async createPasswordHash(password: string): Promise<string> {
