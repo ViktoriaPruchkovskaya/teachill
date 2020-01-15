@@ -2,14 +2,20 @@ import { createUser, getUserByUsername, createUserRole } from '../repositories/u
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 
+enum RoleType {
+  Administrator = 1,
+  Member = 2,
+}
+
 export class SignupService {
-  public async doSignup(username: string, password: string, fullName: string): Promise<number> {
+  public async doSignup(username: string, password: string, fullName: string): Promise<void> {
     const passwordHash = await this.createPasswordHash(password);
-    return await createUser(username, passwordHash, fullName);
+    const userId = await createUser(username, passwordHash, fullName);
+    await this.createUserRole(userId, RoleType.Administrator);
   }
 
-  public async createUserRole(userId: number): Promise<void> {
-    await createUserRole(userId);
+  private async createUserRole(userId: number, roleType: RoleType): Promise<void> {
+    await createUserRole(userId, roleType);
   }
 
   private async createPasswordHash(password: string): Promise<string> {

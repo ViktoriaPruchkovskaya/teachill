@@ -15,12 +15,11 @@ export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signupService = new SignupService();
-  const userId = await signupService.doSignup(
+  await signupService.doSignup(
     ctx.request.body.username,
     ctx.request.body.password,
     ctx.request.body.fullName
   );
-  await signupService.createUserRole(userId);
   ctx.body = {};
   ctx.response.status = httpCodes.CREATED;
   await next();

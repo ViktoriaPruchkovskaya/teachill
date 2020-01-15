@@ -5,7 +5,7 @@ interface User {
   username: string;
   passwordHash: string;
   fullName: string;
-  role: string;
+  role: string | null;
 }
 
 export async function createUser(
@@ -14,16 +14,18 @@ export async function createUser(
   fullName: string
 ): Promise<number> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const userId = await connection.one(
+    const rows = await connection.one(
       sql`INSERT INTO users (username, password_hash, full_name) VALUES (${username}, ${passwordHash}, ${fullName}) RETURNING id`
     );
-    return userId.id as number;
+    return rows.id as number;
   });
 }
 
-export async function createUserRole(userId: number): Promise<void> {
+export async function createUserRole(userId: number, roleType: number): Promise<void> {
   await DatabaseConnection.getConnectionPool().connect(async connection => {
-    await connection.query(sql`INSERT INTO user_roles (user_id, role_id) VALUES (${userId}, 1)`);
+    await connection.query(
+      sql`INSERT INTO user_roles (user_id, role_id) VALUES (${userId}, ${roleType})`
+    );
   });
 }
 
@@ -40,7 +42,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         username: res.username as string,
         passwordHash: res.password_hash as string,
         fullName: res.full_name as string,
-        role: res.role as string,
+        role: res.role as string | null,
       };
       return user;
     }
