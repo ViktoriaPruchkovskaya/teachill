@@ -35,7 +35,7 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
     ctx.response.body = { token: authorize };
     ctx.response.status = httpCodes.OK;
   } else {
-    ctx.response.status = httpCodes.UNAUTHORIZED;
+    ctx.response.status = httpCodes.BAD_REQUEST;
   }
   await next();
 }
