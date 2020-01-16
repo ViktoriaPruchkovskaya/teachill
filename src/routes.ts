@@ -1,13 +1,13 @@
 import Router = require('koa-router');
 import { getUsers, signupController, signinController } from './controllers/users';
 import { authMiddleware } from './middlewares/authentication';
-import { groupController } from './controllers/education';
+import { createGroupController } from './controllers/education';
 
 const router = new Router();
 
 router.get('/', getUsers);
 router.post('/signup', signupController);
 router.post('/signin', signinController);
-router.post('/groups', authMiddleware, groupController);
+router.post('/groups', authMiddleware, createGroupController);
 
 export { router };
