@@ -10,13 +10,14 @@ enum RoleType {
 export class SignupService {
   public async doSignup(username: string, password: string, fullName: string): Promise<boolean> {
     const user = await getUserByUsername(username);
-    if (!user) {
-      const passwordHash = await this.createPasswordHash(password);
-      const userId = await createUser(username, passwordHash, fullName);
-      await this.createUserRole(userId, RoleType.Administrator);
-      return true;
+    if (user) {
+      return false;
     }
-    return false;
+
+    const passwordHash = await this.createPasswordHash(password);
+    const userId = await createUser(username, passwordHash, fullName);
+    await this.createUserRole(userId, RoleType.Administrator);
+    return true;
   }
 
   private async createUserRole(userId: number, roleType: RoleType): Promise<void> {

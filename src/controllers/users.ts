@@ -3,6 +3,7 @@ import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
 import { SignupService, SigninService } from '../services/users';
+import { SignupValidator } from '../validators/validator';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -14,31 +15,24 @@ export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 }
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  if (
-    ctx.request.body.hasOwnProperty('username') &&
-    ctx.request.body.hasOwnProperty('password') &&
-    ctx.request.body.hasOwnProperty('fullName') &&
-    ctx.request.body.username.replace(/\s/g, '').length >= 3 &&
-    ctx.request.body.password.replace(/\s/g, '').length > 0 &&
-    ctx.request.body.fullName.replace(/\s/g, '').length > 0 &&
-    ctx.request.body.username.replace(/[!()-.?_~;:#&%$*+=@]/g, '').length > 0 &&
-    /^[A-Za-z0-9!()-.?_~;:#&%$*+=@]/.test(ctx.request.body.username) &&
-    ctx.request.body.username[0] !== '.' &&
-    ctx.request.body.username[0] !== '-' &&
-    ctx.request.body.password[0] !== '.' &&
-    ctx.request.body.password[0] !== '-'
-  ) {
-    const signupService = new SignupService();
+  try {
+    new SignupValidator().validate(ctx.request.body);
+  } catch (error) {
+    ctx.body = error.message;
+    return await next();
+  }
 
-    const isUsernameNotExist = await signupService.doSignup(
-      ctx.request.body.username,
-      ctx.request.body.password,
-      ctx.request.body.fullName
-    );
-    if (isUsernameNotExist) {
-      ctx.body = {};
-      ctx.response.status = httpCodes.CREATED;
-    }
+  const signupService = new SignupService();
+
+  const isUsernameNotExist = await signupService.doSignup(
+    ctx.request.body.username,
+    ctx.request.body.password,
+    ctx.request.body.fullName
+  );
+  if (isUsernameNotExist) {
+    ctx.body = {};
+    ctx.response.status = httpCodes.CREATED;
+    return await next();
   }
   ctx.response.status = httpCodes.BAD_REQUEST;
 
