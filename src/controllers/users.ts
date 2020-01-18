@@ -3,7 +3,7 @@ import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
 import { SignupService, SigninService } from '../services/users';
-import { SignupValidator } from '../validators/validator';
+import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -14,16 +14,32 @@ export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   await next();
 }
 
+interface SignupData {
+  username: string;
+  password: string;
+  fullName: string;
+}
+
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const validator = new Validator<SignupData>([
+    shouldHaveField('username', 'string'),
+    shouldHaveField('password', 'string'),
+    shouldHaveField('fullName', 'string'),
+    shouldMatchRegexp('username', '^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'),
+  ]);
   try {
-    new SignupValidator().validate(ctx.request.body);
-  } catch (error) {
-    ctx.body = error.message;
-    return await next();
+    validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
   }
 
   const signupService = new SignupService();
-
   const isUsernameNotExist = await signupService.doSignup(
     ctx.request.body.username,
     ctx.request.body.password,
