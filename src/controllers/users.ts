@@ -3,7 +3,13 @@ import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
 import { SignupService, SigninService } from '../services/users';
-import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
+import {
+  Validator,
+  shouldHaveField,
+  ValidationFailed,
+  shouldMatchRegexp,
+  minLengthShouldBe,
+} from '../validations';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -26,6 +32,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     shouldHaveField('password', 'string'),
     shouldHaveField('fullName', 'string'),
     shouldMatchRegexp('username', '^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'),
+    minLengthShouldBe('password', 6),
   ]);
   try {
     validator.validate(ctx.request.body);
@@ -40,18 +47,22 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
   }
 
   const signupService = new SignupService();
-  const isUsernameNotExist = await signupService.doSignup(
-    ctx.request.body.username,
-    ctx.request.body.password,
-    ctx.request.body.fullName
-  );
-  if (isUsernameNotExist) {
-    ctx.body = {};
-    ctx.response.status = httpCodes.CREATED;
+
+  let userId: number;
+  try {
+    userId = await signupService.doSignup(
+      ctx.request.body.username,
+      ctx.request.body.password,
+      ctx.request.body.fullName
+    );
+  } catch (err) {
+    ctx.body = err.message;
+    ctx.response.status = httpCodes.BAD_REQUEST;
     return await next();
   }
-  ctx.response.status = httpCodes.BAD_REQUEST;
 
+  ctx.body = { userId };
+  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
@@ -61,11 +72,11 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
     ctx.request.body.username,
     ctx.request.body.password
   );
-  if (authorize) {
-    ctx.response.body = { token: authorize };
-    ctx.response.status = httpCodes.OK;
-  } else {
+  if (!authorize) {
     ctx.response.status = httpCodes.BAD_REQUEST;
+    return await next();
   }
+  ctx.body = { token: authorize };
+  ctx.response.status = httpCodes.OK;
   await next();
 }

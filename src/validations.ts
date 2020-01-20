@@ -40,6 +40,15 @@ export function shouldMatchRegexp(field: string, regexpLine: string): ValidatorT
   };
 }
 
+export function minLengthShouldBe(field: string, length: number): ValidatorType {
+  return function(data: object): null | ValidationError {
+    if (data[field].length < length) {
+      return new ValidationError(`${field} length should be more than ${length}`);
+    }
+    return null;
+  };
+}
+
 export class Validator<T> {
   private validators: ValidatorType[];
   private errors: ValidationError[];
