@@ -8,10 +8,16 @@ enum RoleType {
 }
 
 export class SignupService {
-  public async doSignup(username: string, password: string, fullName: string): Promise<void> {
+  public async doSignup(username: string, password: string, fullName: string): Promise<number> {
+    const user = await getUserByUsername(username);
+    if (user) {
+      throw new Error('Username already exists');
+    }
+
     const passwordHash = await this.createPasswordHash(password);
     const userId = await createUser(username, passwordHash, fullName);
     await this.createUserRole(userId, RoleType.Administrator);
+    return userId;
   }
 
   private async createUserRole(userId: number, roleType: RoleType): Promise<void> {

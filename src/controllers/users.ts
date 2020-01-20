@@ -3,6 +3,13 @@ import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
 import { SignupService, SigninService } from '../services/users';
+import {
+  Validator,
+  shouldHaveField,
+  ValidationFailed,
+  shouldMatchRegexp,
+  minLengthShouldBe,
+} from '../validations';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -13,14 +20,48 @@ export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   await next();
 }
 
+interface SignupData {
+  username: string;
+  password: string;
+  fullName: string;
+}
+
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const validator = new Validator<SignupData>([
+    shouldHaveField('username', 'string'),
+    shouldHaveField('password', 'string'),
+    shouldHaveField('fullName', 'string'),
+    shouldMatchRegexp('username', '^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'),
+    minLengthShouldBe('password', 6),
+  ]);
+  try {
+    validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
   const signupService = new SignupService();
-  await signupService.doSignup(
-    ctx.request.body.username,
-    ctx.request.body.password,
-    ctx.request.body.fullName
-  );
-  ctx.body = {};
+
+  let userId: number;
+  try {
+    userId = await signupService.doSignup(
+      ctx.request.body.username,
+      ctx.request.body.password,
+      ctx.request.body.fullName
+    );
+  } catch (err) {
+    ctx.body = err.message;
+    ctx.response.status = httpCodes.BAD_REQUEST;
+    return await next();
+  }
+
+  ctx.body = { userId };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
@@ -31,11 +72,11 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
     ctx.request.body.username,
     ctx.request.body.password
   );
-  if (authorize) {
-    ctx.response.body = { token: authorize };
-    ctx.response.status = httpCodes.OK;
-  } else {
+  if (!authorize) {
     ctx.response.status = httpCodes.BAD_REQUEST;
+    return await next();
   }
+  ctx.body = { token: authorize };
+  ctx.response.status = httpCodes.OK;
   await next();
 }
