@@ -1,11 +1,12 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
 
-interface User {
+export interface User {
   username: string;
   passwordHash: string;
   fullName: string;
   role: string | null;
+  token: string | null;
 }
 
 export async function createUser(
@@ -43,6 +44,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         passwordHash: res.password_hash as string,
         fullName: res.full_name as string,
         role: res.role as string | null,
+        token: null,
       };
       return user;
     }

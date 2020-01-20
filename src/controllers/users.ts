@@ -9,6 +9,7 @@ import {
   ValidationFailed,
   shouldMatchRegexp,
   minLengthShouldBe,
+  rangeShouldBe,
 } from '../validations';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -24,6 +25,7 @@ interface SignupData {
   username: string;
   password: string;
   fullName: string;
+  role: number;
 }
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -31,8 +33,10 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     shouldHaveField('username', 'string'),
     shouldHaveField('password', 'string'),
     shouldHaveField('fullName', 'string'),
+    shouldHaveField('role', 'number'),
     shouldMatchRegexp('username', '^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'),
     minLengthShouldBe('password', 6),
+    rangeShouldBe('role', 1, 2),
   ]);
   try {
     validator.validate(ctx.request.body);
@@ -53,7 +57,8 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     userId = await signupService.doSignup(
       ctx.request.body.username,
       ctx.request.body.password,
-      ctx.request.body.fullName
+      ctx.request.body.fullName,
+      ctx.request.body.role
     );
   } catch (err) {
     ctx.body = err.message;
@@ -68,15 +73,15 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
 
 export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signinService = new SigninService();
-  const authorize = await signinService.doSignin(
+  const userInfo = await signinService.doSignin(
     ctx.request.body.username,
     ctx.request.body.password
   );
-  if (!authorize) {
+  if (!userInfo) {
     ctx.response.status = httpCodes.BAD_REQUEST;
     return await next();
   }
-  ctx.body = { token: authorize };
+  ctx.body = { userInfo };
   ctx.response.status = httpCodes.OK;
   await next();
 }
