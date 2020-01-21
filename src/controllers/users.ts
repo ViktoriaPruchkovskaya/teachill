@@ -73,15 +73,15 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
 
 export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signinService = new SigninService();
-  const userInfo = await signinService.doSignin(
+  const authorize = await signinService.doSignin(
     ctx.request.body.username,
     ctx.request.body.password
   );
-  if (!userInfo) {
+  if (!authorize) {
     ctx.response.status = httpCodes.BAD_REQUEST;
     return await next();
   }
-  ctx.body = { userInfo };
+  ctx.body = { token: authorize };
   ctx.response.status = httpCodes.OK;
   await next();
 }

@@ -1,4 +1,4 @@
-import { createUser, getUserByUsername, createUserRole, User } from '../repositories/users';
+import { createUser, getUserByUsername, createUserRole } from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 
@@ -36,15 +36,14 @@ export class SignupService {
 }
 
 export class SigninService {
-  public async doSignin(username: string, password: string): Promise<User | null> {
+  public async doSignin(username: string, password: string): Promise<string | null> {
     const user = await getUserByUsername(username);
     if (user) {
       const passwordService = new PasswordService();
       const isPasswordCorrect = await passwordService.comparePasswords(password, user.passwordHash);
       if (isPasswordCorrect) {
         const jwtService = new JWTService();
-        user.token = jwtService.getToken(user.username);
-        return user;
+        return jwtService.getToken(user.username);
       }
       return null;
     }
