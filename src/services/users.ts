@@ -2,7 +2,7 @@ import { createUser, getUserByUsername, createUserRole, User } from '../reposito
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 
-enum RoleType {
+export enum RoleType {
   Administrator = 1,
   Member = 2,
 }
