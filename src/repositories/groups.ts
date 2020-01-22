@@ -1,9 +1,15 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
 
-interface Group {
+export interface Group {
   id: number;
   name: string;
+}
+
+export interface GroupMember {
+  username: string;
+  fullName: string;
+  role: string;
 }
 
 export async function createGroup(id: number, name: string): Promise<number> {
@@ -15,9 +21,16 @@ export async function createGroup(id: number, name: string): Promise<number> {
   });
 }
 
-export async function getGroups(): Promise<string[]> {
+export async function getGroups(): Promise<Group[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    return await connection.many(sql`SELECT * FROM groups`);
+    let groups: Group[];
+    groups = await connection.many(sql`SELECT id, name FROM groups`);
+    groups = groups.map(group => {
+      const res: Group = { id: group.id, name: group.name };
+      return res;
+    });
+
+    return groups;
   });
 }
 
@@ -29,9 +42,10 @@ export async function createGroupMember(userId: number, groupId: number): Promis
   });
 }
 
-export async function getGroupMembers(groupId: number): Promise<string[]> {
+export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    return await connection.many(sql`
+    let groupMembers: GroupMember[];
+    groupMembers = await connection.many(sql`
     SELECT users.username, users.full_name, roles.name as role
     FROM users
     JOIN user_groups on users.id = user_groups.user_id
@@ -39,13 +53,23 @@ export async function getGroupMembers(groupId: number): Promise<string[]> {
     JOIN user_roles on users.id = user_roles.user_id
     JOIN roles on user_roles.role_id = roles.id
     WHERE group_id = ${groupId};`);
+
+    groupMembers = groupMembers.map(groupMember => {
+      const res: GroupMember = {
+        username: groupMember.username,
+        fullName: groupMember.fullName,
+        role: groupMember.role,
+      };
+      return res;
+    });
+    return groupMembers;
   });
 }
 
 export async function getGroupById(id: number): Promise<Group | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
-    SELECT *
+    SELECT id, name
     FROM groups
     WHERE id = ${id}`);
     if (res) {
@@ -62,7 +86,7 @@ export async function getGroupById(id: number): Promise<Group | null> {
 export async function getMembershipByUserId(id: number): Promise<number | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
-    SELECT *
+    SELECT user_id, group_id
     FROM user_groups
     JOIN groups on user_groups.group_id = groups.id
     WHERE user_id = ${id}`);

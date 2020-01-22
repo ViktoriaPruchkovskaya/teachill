@@ -5,7 +5,9 @@ import {
   getGroupMembers,
   getGroupById,
   getMembershipByUserId,
-} from '../repositories/education';
+  Group,
+  GroupMember,
+} from '../repositories/groups';
 
 export class GroupService {
   public async createGroup(id: number, name: string): Promise<number> {
@@ -16,7 +18,7 @@ export class GroupService {
     return await createGroup(id, name);
   }
 
-  public async getGroups(): Promise<string[]> {
+  public async getGroups(): Promise<Group[]> {
     return await getGroups();
   }
 
@@ -32,7 +34,7 @@ export class GroupService {
     return await createGroupMember(userId, groupId);
   }
 
-  public async getGroupMembers(groupId: number): Promise<string[]> {
+  public async getGroupMembers(groupId: number): Promise<GroupMember[]> {
     return await getGroupMembers(groupId);
   }
 }

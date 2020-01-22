@@ -6,7 +6,7 @@ import {
   getGroupsController,
   createGroupMemberController,
   getGroupMembersController,
-} from './controllers/education';
+} from './controllers/groups';
 
 const router = new Router();
 
