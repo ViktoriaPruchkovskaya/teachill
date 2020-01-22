@@ -2,13 +2,14 @@ import * as Koa from 'koa';
 import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
-import { SignupService, SigninService } from '../services/users';
+import { SignupService, SigninService, RoleType } from '../services/users';
 import {
   Validator,
   shouldHaveField,
   ValidationFailed,
   shouldMatchRegexp,
   minLengthShouldBe,
+  valueShouldBeInEnum,
 } from '../validations';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -24,6 +25,7 @@ interface SignupData {
   username: string;
   password: string;
   fullName: string;
+  role: number;
 }
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -31,8 +33,10 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     shouldHaveField('username', 'string'),
     shouldHaveField('password', 'string'),
     shouldHaveField('fullName', 'string'),
+    shouldHaveField('role', 'number'),
     shouldMatchRegexp('username', '^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'),
     minLengthShouldBe('password', 6),
+    valueShouldBeInEnum('role', RoleType),
   ]);
   try {
     validator.validate(ctx.request.body);
@@ -53,7 +57,8 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     userId = await signupService.doSignup(
       ctx.request.body.username,
       ctx.request.body.password,
-      ctx.request.body.fullName
+      ctx.request.body.fullName,
+      ctx.request.body.role
     );
   } catch (err) {
     ctx.body = err.message;
