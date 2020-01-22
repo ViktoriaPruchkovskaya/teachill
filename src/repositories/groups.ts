@@ -57,7 +57,7 @@ export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
     groupMembers = groupMembers.map(groupMember => {
       const res: GroupMember = {
         username: groupMember.username,
-        fullName: groupMember.fullName,
+        fullName: groupMember['full_name'],
         role: groupMember.role,
       };
       return res;
