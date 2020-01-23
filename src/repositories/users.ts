@@ -1,7 +1,7 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
 
-interface User {
+export interface User {
   username: string;
   passwordHash: string;
   fullName: string;

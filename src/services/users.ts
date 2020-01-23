@@ -2,13 +2,18 @@ import { createUser, getUserByUsername, createUserRole } from '../repositories/u
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 
-enum RoleType {
+export enum RoleType {
   Administrator = 1,
   Member = 2,
 }
 
 export class SignupService {
-  public async doSignup(username: string, password: string, fullName: string): Promise<number> {
+  public async doSignup(
+    username: string,
+    password: string,
+    fullName: string,
+    role: number
+  ): Promise<number> {
     const user = await getUserByUsername(username);
     if (user) {
       throw new Error('Username already exists');
@@ -16,7 +21,7 @@ export class SignupService {
 
     const passwordHash = await this.createPasswordHash(password);
     const userId = await createUser(username, passwordHash, fullName);
-    await this.createUserRole(userId, RoleType.Administrator);
+    await this.createUserRole(userId, RoleType[RoleType[role]]);
     return userId;
   }
 

@@ -49,6 +49,24 @@ export function minLengthShouldBe(field: string, length: number): ValidatorType 
   };
 }
 
+export function rangeShouldBe(field: string, min: number, max: number): ValidatorType {
+  return function(data: object): null | ValidationError {
+    if (data[field] < min || data[field] > max) {
+      return new ValidationError(`${field} range should be between ${min} and ${max}`);
+    }
+    return null;
+  };
+}
+
+export function valueShouldBeInEnum<E>(field: string, e: E): ValidatorType {
+  return function(data: object): null | ValidationError {
+    if (!Object.values(e).includes(data[field])) {
+      return new ValidationError(`${field} does not exist with value ${data[field]}`);
+    }
+    return null;
+  };
+}
+
 export class Validator<T> {
   private validators: ValidatorType[];
   private errors: ValidationError[];
