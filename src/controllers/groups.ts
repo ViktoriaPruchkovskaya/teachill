@@ -3,6 +3,10 @@ import * as httpCodes from '../constants/httpCodes';
 import { GroupService } from '../services/education';
 import { Validator, shouldHaveField, ValidationFailed } from '../validations';
 
+interface GroupMemberData {
+  userId: number;
+}
+
 export async function createGroupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
 
@@ -30,9 +34,10 @@ export async function getGroupsController(ctx: Koa.ParameterizedContext, next: K
 }
 
 export async function createGroupMemberController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const validator = new Validator([shouldHaveField('userId', 'number')]);
+  let validatedData: GroupMemberData;
+  const validator = new Validator<GroupMemberData>([shouldHaveField('userId', 'number')]);
   try {
-    validator.validate(ctx.request.body);
+    validatedData = validator.validate(ctx.request.body);
   } catch (err) {
     if (err instanceof ValidationFailed) {
       ctx.body = {
@@ -45,7 +50,7 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
 
   const groupService = new GroupService();
   try {
-    await groupService.createGroupMember(ctx.request.body.userId, ctx.params.group_id);
+    await groupService.createGroupMember(validatedData.userId, ctx.params.group_id);
   } catch (err) {
     ctx.body = {
       error: err.message,

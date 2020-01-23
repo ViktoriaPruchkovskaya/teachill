@@ -27,6 +27,7 @@ interface SignupData {
 }
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: SignupData;
   const validator = new Validator<SignupData>([
     shouldHaveField('username', 'string'),
     shouldHaveField('password', 'string'),
@@ -35,7 +36,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     minLengthShouldBe('password', 6),
   ]);
   try {
-    validator.validate(ctx.request.body);
+    validatedData = validator.validate(ctx.request.body);
   } catch (err) {
     if (err instanceof ValidationFailed) {
       ctx.body = {
@@ -51,12 +52,14 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
   let userId: number;
   try {
     userId = await signupService.doSignup(
-      ctx.request.body.username,
-      ctx.request.body.password,
-      ctx.request.body.fullName
+      validatedData.username,
+      validatedData.password,
+      validatedData.fullName
     );
   } catch (err) {
-    ctx.body = err.message;
+    ctx.body = {
+      error: err.message,
+    };
     ctx.response.status = httpCodes.BAD_REQUEST;
     return await next();
   }
