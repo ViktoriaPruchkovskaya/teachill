@@ -21,12 +21,11 @@ export async function createTeacher(fullName: string): Promise<Teacher> {
 
 export async function getTeachers(): Promise<Teacher[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    let teachers: Teacher[];
-    teachers = await connection.many(sql`SELECT id, full_name FROM teachers`);
-    teachers = teachers.map(teacher => {
+    const rows = await connection.many(sql`SELECT id, full_name FROM teachers`);
+    const teachers: Teacher[] = rows.map(teacher => {
       const res: Teacher = {
-        id: teacher.id,
-        fullName: teacher['full_name'],
+        id: teacher.id as number,
+        fullName: teacher.full_name as string,
       };
       return res;
     });

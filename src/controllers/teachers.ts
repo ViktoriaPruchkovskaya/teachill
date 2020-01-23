@@ -1,15 +1,20 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
-import { TeacherService } from '../services/education';
+import { TeacherService } from '../services/teachers';
+
+interface TeacherData {
+  fullName: string;
+}
 
 export async function createTeacherController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const validator = new Validator([
+  let validatedData: TeacherData;
+  const validator = new Validator<TeacherData>([
     shouldHaveField('fullName', 'string'),
     minLengthShouldBe('fullName', 6),
   ]);
   try {
-    validator.validate(ctx.request.body);
+    validatedData = validator.validate(ctx.request.body);
   } catch (err) {
     if (err instanceof ValidationFailed) {
       ctx.body = {
@@ -21,8 +26,8 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
   }
 
   const teacherService = new TeacherService();
-  const teacher = await teacherService.createTeacher(ctx.request.body.fullName);
-  ctx.body = { teacher };
+  const teacher = await teacherService.createTeacher(validatedData.fullName);
+  ctx.body = { ...teacher };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
@@ -30,7 +35,7 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
 export async function getTeachersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const teacherService = new TeacherService();
   const teachers = await teacherService.getTeachers();
-  ctx.body = { teachers };
+  ctx.body = { ...teachers };
   ctx.response.status = httpCodes.OK;
   await next();
 }

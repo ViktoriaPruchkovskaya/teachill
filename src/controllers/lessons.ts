@@ -1,11 +1,11 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
-import { LessonService } from '../services/education';
+import { LessonService } from '../services/lessons';
 import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
 
 interface LessonData {
   name: string;
-  typeId: number;
+  type: number;
   location: number;
   startTime: string;
   duration: number;
@@ -16,7 +16,7 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
   let validatedData: LessonData;
   const validator = new Validator<LessonData>([
     shouldHaveField('name', 'string'),
-    shouldHaveField('typeId', 'number'),
+    shouldHaveField('type', 'number'),
     shouldHaveField('location', 'number'),
     shouldHaveField('startTime', 'string'),
     shouldHaveField('duration', 'number'),
@@ -36,7 +36,7 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
 
   const lessonService = new LessonService();
   const lesson = await lessonService.createLesson(validatedData);
-  ctx.body = { lesson };
+  ctx.body = { ...lesson };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
