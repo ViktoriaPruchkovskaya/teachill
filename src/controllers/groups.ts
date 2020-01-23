@@ -1,6 +1,6 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
-import { GroupService } from '../services/education';
+import { GroupService } from '../services/groups';
 import { Validator, shouldHaveField, ValidationFailed } from '../validations';
 
 interface GroupMemberData {
@@ -29,7 +29,7 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
 export async function getGroupsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
   const groups = await groupService.getGroups();
-  ctx.body = { groups };
+  ctx.body = { ...groups };
   await next();
 }
 
@@ -67,7 +67,7 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
 export async function getGroupMembersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
   const members = await groupService.getGroupMembers(ctx.params.group_id);
-  ctx.body = members;
+  ctx.body = { ...members };
   ctx.response.status = httpCodes.OK;
   await next();
 }
