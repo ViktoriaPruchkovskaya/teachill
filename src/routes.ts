@@ -8,11 +8,11 @@ import { createLessonController } from './controllers/lessons';
 const router = new Router();
 
 router.get('/', getUsers);
-router.post('/signup', signupController);
-router.post('/signin', signinController);
-router.post('/groups', authMiddleware, createGroupController);
-router.post('/api/teachers/', authMiddleware, createTeacherController);
-router.get('/api/teachers/', authMiddleware, getTeachersController);
-router.post('/api/lessons/', authMiddleware, createLessonController);
+router.post('/signup/', signupController);
+router.post('/signin/', signinController);
+router.post('/groups/', authMiddleware, createGroupController);
+router.post('/teachers/', authMiddleware, createTeacherController);
+router.get('/teachers/', authMiddleware, getTeachersController);
+router.post('/lessons/', authMiddleware, createLessonController);
 
 export { router };

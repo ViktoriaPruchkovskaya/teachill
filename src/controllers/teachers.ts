@@ -21,8 +21,8 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
   }
 
   const teacherService = new TeacherService();
-  await teacherService.createTeacher(ctx.request.body.fullName);
-  ctx.body = {};
+  const teacher = await teacherService.createTeacher(ctx.request.body.fullName);
+  ctx.body = { teacher };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }

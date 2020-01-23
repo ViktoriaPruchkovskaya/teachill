@@ -2,6 +2,15 @@ import { createGroup } from '../repositories/education';
 import { createTeacher, Teacher, getTeachers } from '../repositories/teachers';
 import { createLesson } from '../repositories/lessons';
 
+export interface Lesson {
+  name: string;
+  typeId: number;
+  location: number;
+  startTime: string;
+  duration: number;
+  description?: string;
+}
+
 export class GroupService {
   public async createGroup(id: number, name: string): Promise<number> {
     return await createGroup(id, name);
@@ -9,7 +18,7 @@ export class GroupService {
 }
 
 export class TeacherService {
-  public async createTeacher(fullName: string): Promise<void> {
+  public async createTeacher(fullName: string): Promise<Teacher> {
     return await createTeacher(fullName);
   }
 
@@ -19,14 +28,7 @@ export class TeacherService {
 }
 
 export class LessonService {
-  public async createLesson(
-    name: string,
-    typeId: number,
-    location: number,
-    startTime: string,
-    duration: number,
-    description?: string
-  ): Promise<void> {
-    return await createLesson(name, typeId, location, startTime, duration, description);
+  public async createLesson(lesson: Lesson): Promise<Lesson> {
+    return await createLesson(lesson);
   }
 }

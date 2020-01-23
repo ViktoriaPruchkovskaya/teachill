@@ -6,9 +6,16 @@ export interface Teacher {
   fullName: string;
 }
 
-export async function createTeacher(fullName: string): Promise<void> {
+export async function createTeacher(fullName: string): Promise<Teacher> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    await connection.query(sql`INSERT INTO teachers (full_name) VALUES (${fullName})`);
+    const rows = await connection.one(
+      sql`INSERT INTO teachers (full_name) VALUES (${fullName}) RETURNING id, full_name`
+    );
+    const teacher: Teacher = {
+      id: rows.id as number,
+      fullName: rows['full_name'] as string,
+    };
+    return teacher;
   });
 }
 

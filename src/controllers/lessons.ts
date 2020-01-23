@@ -1,18 +1,29 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { LessonService } from '../services/education';
-import { Validator, shouldHaveField, ValidationFailed } from '../validations';
+import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
+
+interface LessonData {
+  name: string;
+  typeId: number;
+  location: number;
+  startTime: string;
+  duration: number;
+  description?: string;
+}
 
 export async function createLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const validator = new Validator([
+  let validatedData: LessonData;
+  const validator = new Validator<LessonData>([
     shouldHaveField('name', 'string'),
     shouldHaveField('typeId', 'number'),
     shouldHaveField('location', 'number'),
     shouldHaveField('startTime', 'string'),
     shouldHaveField('duration', 'number'),
+    minLengthShouldBe('name', 2),
   ]);
   try {
-    validator.validate(ctx.request.body);
+    validatedData = validator.validate(ctx.request.body);
   } catch (err) {
     if (err instanceof ValidationFailed) {
       ctx.body = {
@@ -24,15 +35,8 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
   }
 
   const lessonService = new LessonService();
-  await lessonService.createLesson(
-    ctx.request.body.name,
-    ctx.request.body.typeId,
-    ctx.request.body.location,
-    ctx.request.body.startTime,
-    ctx.request.body.duration,
-    ctx.request.body.description
-  );
-  ctx.body = {};
+  const lesson = await lessonService.createLesson(validatedData);
+  ctx.body = { lesson };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
