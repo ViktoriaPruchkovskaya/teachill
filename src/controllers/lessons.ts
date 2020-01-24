@@ -5,7 +5,7 @@ import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from 
 
 interface LessonData {
   name: string;
-  type: number;
+  typeId: number;
   location: number;
   startTime: string;
   duration: number;
@@ -16,7 +16,7 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
   let validatedData: LessonData;
   const validator = new Validator<LessonData>([
     shouldHaveField('name', 'string'),
-    shouldHaveField('type', 'number'),
+    shouldHaveField('typeId', 'number'),
     shouldHaveField('location', 'number'),
     shouldHaveField('startTime', 'string'),
     shouldHaveField('duration', 'number'),

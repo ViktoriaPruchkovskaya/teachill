@@ -1,8 +1,8 @@
 import { createLesson } from '../repositories/lessons';
 
-export interface Lesson {
+interface Lesson {
   name: string;
-  type: number | string;
+  typeId: number;
   location: number;
   startTime: string;
   duration: number;
@@ -14,7 +14,7 @@ export class LessonService {
     const res = await createLesson(lesson);
     const createdLesson: Lesson = {
       name: res.name,
-      type: res.type,
+      typeId: res.typeId,
       location: res.location,
       startTime: res.startTime,
       duration: res.duration,

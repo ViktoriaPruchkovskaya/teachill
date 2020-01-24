@@ -3,7 +3,7 @@ import { sql } from 'slonik';
 
 interface CreatedLesson {
   name: string;
-  type: string | number;
+  typeId: number;
   location: number;
   startTime: string;
   duration: number;
@@ -15,21 +15,15 @@ export async function createLesson(obj: CreatedLesson): Promise<CreatedLesson> {
     obj.description = obj.description || '';
     const row = await connection.one(sql`
       INSERT INTO lessons (name, type_id, description, location, start_time, duration)
-      VALUES (${obj.name}, ${obj.type},${obj.description}, ${obj.location}, ${obj.startTime}, ${obj.duration}) 
-      RETURNING id`);
-    const rows = await connection.one(sql`
-      SELECT lessons.name, lessons.location, lessons.start_time, lessons.duration, lessons.description, lesson_types.name as type
-      FROM lessons
-      JOIN lesson_types on lessons.type_id = lesson_types.id
-      WHERE lessons.id = ${row.id}`);
-
+      VALUES (${obj.name}, ${obj.typeId},${obj.description}, ${obj.location}, ${obj.startTime}, ${obj.duration}) 
+      RETURNING name, type_id, description, location, start_time, duration`);
     const lesson: CreatedLesson = {
-      name: rows.name as string,
-      type: rows.type as string,
-      location: rows.location as number,
-      startTime: rows.start_time as string,
-      duration: rows.duration as number,
-      description: rows.description as string,
+      name: row.name as string,
+      typeId: row.type_id as number,
+      location: row.location as number,
+      startTime: row.start_time as string,
+      duration: row.duration as number,
+      description: row.description as string,
     };
     return lesson;
   });
