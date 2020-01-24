@@ -3,7 +3,7 @@ import { getUsers, signupController, signinController } from './controllers/user
 import { authMiddleware } from './middlewares/authentication';
 import { createGroupController } from './controllers/education';
 import { createTeacherController, getTeachersController } from './controllers/teachers';
-import { createLessonController } from './controllers/lessons';
+import { createLessonController, getLessonTypesController } from './controllers/lessons';
 
 const router = new Router();
 
@@ -14,5 +14,6 @@ router.post('/groups/', authMiddleware, createGroupController);
 router.post('/teachers/', authMiddleware, createTeacherController);
 router.get('/teachers/', authMiddleware, getTeachersController);
 router.post('/lessons/', authMiddleware, createLessonController);
+router.get('/lessons/types/', authMiddleware, getLessonTypesController);
 
 export { router };

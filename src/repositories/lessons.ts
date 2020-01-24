@@ -10,6 +10,11 @@ interface CreatedLesson {
   description?: string;
 }
 
+interface LessonType {
+  id: number;
+  name: string;
+}
+
 export async function createLesson(obj: CreatedLesson): Promise<CreatedLesson> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     obj.description = obj.description || '';
@@ -26,5 +31,19 @@ export async function createLesson(obj: CreatedLesson): Promise<CreatedLesson> {
       description: row.description as string,
     };
     return lesson;
+  });
+}
+
+export async function getLessonTypes(): Promise<LessonType[]> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const rows = await connection.many(sql`SELECT id, name FROM lesson_types`);
+    const lessonTypes: LessonType[] = rows.map(type => {
+      const res: LessonType = {
+        id: type.id as number,
+        name: type.name as string,
+      };
+      return res;
+    });
+    return lessonTypes;
   });
 }

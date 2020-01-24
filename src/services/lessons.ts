@@ -1,4 +1,4 @@
-import { createLesson } from '../repositories/lessons';
+import { createLesson, getLessonTypes } from '../repositories/lessons';
 
 interface Lesson {
   name: string;
@@ -7,6 +7,11 @@ interface Lesson {
   startTime: string;
   duration: number;
   description?: string;
+}
+
+interface LessonType {
+  id: number;
+  name: string;
 }
 
 export class LessonService {
@@ -21,5 +26,17 @@ export class LessonService {
       description: res.description,
     };
     return createdLesson;
+  }
+
+  public async getLessonTypes(): Promise<LessonType[]> {
+    const res = await getLessonTypes();
+    const lessonTypes: LessonType[] = res.map(type => {
+      const res: LessonType = {
+        id: type.id,
+        name: type.name,
+      };
+      return res;
+    });
+    return lessonTypes;
   }
 }

@@ -40,3 +40,11 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
+
+export async function getLessonTypesController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const lessonService = new LessonService();
+  const lessonTypes = await lessonService.getLessonTypes();
+  ctx.body = { ...lessonTypes };
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
