@@ -1,4 +1,10 @@
-import { createLesson, getLessonTypes } from '../repositories/lessons';
+import {
+  createLesson,
+  getLessonTypes,
+  createGroupLesson,
+  getGroupLessons,
+  getGroupLessonsById,
+} from '../repositories/lessons';
 
 interface Lesson {
   name: string;
@@ -38,5 +44,29 @@ export class LessonService {
       return res;
     });
     return lessonTypes;
+  }
+
+  public async createGroupLesson(lessonId: number, groupId: number): Promise<void> {
+    const lesson = getGroupLessonsById(groupId);
+    if (lesson) {
+      throw new Error('Lesson already added');
+    }
+    return await createGroupLesson(lessonId, groupId);
+  }
+
+  public async getGroupLessons(groupId: number): Promise<Lesson[]> {
+    const res = await getGroupLessons(groupId);
+    const groupLessons: Lesson[] = res.map(lesson => {
+      const res: Lesson = {
+        name: lesson.name as string,
+        typeId: lesson.typeId as number,
+        location: lesson.location as number,
+        startTime: lesson.startTime as string,
+        duration: lesson.duration as number,
+        description: lesson.description as string,
+      };
+      return res;
+    });
+    return groupLessons;
   }
 }
