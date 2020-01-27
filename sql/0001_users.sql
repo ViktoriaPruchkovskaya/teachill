@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users
 -- Create table for roles. Roles define permissions for a application user
 CREATE TABLE IF NOT EXISTS roles
 (
-    id        SERIAL PRIMARY KEY,
+    id   SERIAL PRIMARY KEY,
     name VARCHAR(1024) NOT NULL UNIQUE
 );
 
@@ -25,4 +25,6 @@ CREATE TABLE IF NOT EXISTS user_roles
 );
 
 -- Create predefined default roles
-INSERT INTO roles (name) VALUES ('Administrator'), ('Member')
+INSERT INTO roles (id, name)
+VALUES (1, 'Administrator'),
+       (2, 'Member');

@@ -9,8 +9,18 @@ import {
 interface Lesson {
   name: string;
   typeId: number;
-  location: number;
+  location: string;
   startTime: string;
+  duration: number;
+  description?: string;
+}
+
+interface DBLesson {
+  id: number;
+  name: string;
+  typeId: number;
+  location: string;
+  startTime: Date;
   duration: number;
   description?: string;
 }
@@ -21,9 +31,10 @@ interface LessonType {
 }
 
 export class LessonService {
-  public async createLesson(lesson: Lesson): Promise<Lesson> {
+  public async createLesson(lesson: Lesson): Promise<DBLesson> {
     const res = await createLesson(lesson);
-    const createdLesson: Lesson = {
+    const createdLesson: DBLesson = {
+      id: res.id,
       name: res.name,
       typeId: res.typeId,
       location: res.location,
@@ -54,16 +65,17 @@ export class LessonService {
     return await createGroupLesson(lessonId, groupId);
   }
 
-  public async getGroupLessons(groupId: number): Promise<Lesson[]> {
+  public async getGroupLessons(groupId: number): Promise<DBLesson[]> {
     const res = await getGroupLessons(groupId);
-    const groupLessons: Lesson[] = res.map(lesson => {
-      const res: Lesson = {
-        name: lesson.name as string,
-        typeId: lesson.typeId as number,
-        location: lesson.location as number,
-        startTime: lesson.startTime as string,
-        duration: lesson.duration as number,
-        description: lesson.description as string,
+    const groupLessons: DBLesson[] = res.map(lesson => {
+      const res: DBLesson = {
+        id: lesson.id,
+        name: lesson.name,
+        typeId: lesson.typeId,
+        location: lesson.location,
+        startTime: lesson.startTime,
+        duration: lesson.duration,
+        description: lesson.description,
       };
       return res;
     });
