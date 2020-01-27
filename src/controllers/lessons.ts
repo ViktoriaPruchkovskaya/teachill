@@ -12,6 +12,10 @@ interface LessonData {
   description?: string;
 }
 
+interface GroupLessonData {
+  lessonId: number;
+}
+
 export async function createLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: LessonData;
   const validator = new Validator<LessonData>([
@@ -46,5 +50,41 @@ export async function getLessonTypesController(ctx: Koa.ParameterizedContext, ne
   const lessonTypes = await lessonService.getLessonTypes();
   ctx.body = [...lessonTypes];
   ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function createGroupLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: GroupLessonData;
+  const validator = new Validator<GroupLessonData>([shouldHaveField('lessonId', 'number')]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+  const lessonService = new LessonService();
+  try {
+    await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
+  } catch (err) {
+    ctx.body = {
+      error: err.message,
+    };
+    ctx.response.status = httpCodes.BAD_REQUEST;
+    return await next();
+  }
+
+  ctx.body = {};
+  await next();
+}
+
+export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const lessonService = new LessonService();
+  const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
+  ctx.body = [...groupLessons];
   await next();
 }

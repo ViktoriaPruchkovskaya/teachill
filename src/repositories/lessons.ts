@@ -58,3 +58,48 @@ export async function getLessonTypes(): Promise<LessonType[]> {
     return lessonTypes;
   });
 }
+
+export async function createGroupLesson(lessonId: number, groupId: number): Promise<void> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(
+      sql`INSERT INTO lesson_groups (lesson_id, group_id) VALUES (${lessonId}, ${groupId})`
+    );
+  });
+}
+
+export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const rows = await connection.many(sql`
+      SELECT lessons.name, lessons.description, lessons.type_id, lessons.location, lessons.start_time, lessons.duration 
+      FROM lessons
+      JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
+      WHERE lesson_groups.group_id = ${groupId}
+    `);
+    const groupLessons: DBLesson[] = rows.map(lesson => {
+      const res: DBLesson = {
+        id: lesson.id as number,
+        name: lesson.name as string,
+        typeId: lesson.type_id as number,
+        location: lesson.location as string,
+        startTime: new Date(lesson.start_time as number),
+        duration: lesson.duration as number,
+        description: lesson.description as string,
+      };
+      return res;
+    });
+    return groupLessons;
+  });
+}
+
+export async function getGroupLessonsById(groupId: number): Promise<number | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const row = await connection.maybeOne(sql`
+      SELECT lesson_id 
+      FROM lesson_groups
+      WHERE group_id = ${groupId}`);
+    if (row) {
+      return row.lesson_id as number;
+    }
+    return null;
+  });
+}

@@ -35,7 +35,7 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
 export async function getTeachersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const teacherService = new TeacherService();
   const teachers = await teacherService.getTeachers();
-  ctx.body = { ...teachers };
+  ctx.body = [...teachers];
   ctx.response.status = httpCodes.OK;
   await next();
 }
