@@ -7,12 +7,34 @@ interface GroupMemberData {
   userId: number;
 }
 
+interface GroupData {
+  id: number;
+  name: string;
+}
+
 export async function createGroupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: GroupData;
+  const validator = new Validator<GroupData>([
+    shouldHaveField('id', 'number'),
+    shouldHaveField('name', 'string'),
+  ]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
   const groupService = new GroupService();
 
   let groupId: number;
   try {
-    groupId = await groupService.createGroup(ctx.request.body.id, ctx.request.body.name);
+    groupId = await groupService.createGroup(validatedData.id, validatedData.name);
   } catch (err) {
     ctx.body = {
       error: err.message,
@@ -29,7 +51,7 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
 export async function getGroupsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
   const groups = await groupService.getGroups();
-  ctx.body = { ...groups };
+  ctx.body = [...groups];
   await next();
 }
 
@@ -52,9 +74,11 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
   try {
     await groupService.createGroupMember(validatedData.userId, ctx.params.group_id);
   } catch (err) {
-    ctx.body = {
-      error: err.message,
-    };
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        error: err.message,
+      };
+    }
     ctx.response.status = httpCodes.BAD_REQUEST;
     return await next();
   }
@@ -67,7 +91,7 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
 export async function getGroupMembersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
   const members = await groupService.getGroupMembers(ctx.params.group_id);
-  ctx.body = { ...members };
+  ctx.body = [...members];
   ctx.response.status = httpCodes.OK;
   await next();
 }

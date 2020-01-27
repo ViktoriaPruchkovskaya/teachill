@@ -9,11 +9,7 @@ import {
 } from './controllers/groups';
 import { createTeacherController, getTeachersController } from './controllers/teachers';
 import { createLessonController, getLessonTypesController } from './controllers/lessons';
-import {
-  createAttachmentController,
-  createLessonAttachmentController,
-  getLessonAttachmentsController,
-} from './controllers/attachments';
+import { createAttachmentController } from './controllers/attachments';
 
 const router = new Router();
 
@@ -29,7 +25,5 @@ router.get('/teachers/', authMiddleware, getTeachersController);
 router.post('/lessons/', authMiddleware, createLessonController);
 router.get('/lessons/types/', authMiddleware, getLessonTypesController);
 router.post('/attachments/', authMiddleware, createAttachmentController);
-router.post('/lessons/:lesson_id/attachments/', authMiddleware, createLessonAttachmentController);
-router.get('/lessons/:lesson_id/attachments/', authMiddleware, getLessonAttachmentsController);
 
 export { router };

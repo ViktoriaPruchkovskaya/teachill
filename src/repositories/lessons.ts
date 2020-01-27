@@ -1,11 +1,21 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
 
-interface CreatedLesson {
+interface RawLesson {
   name: string;
   typeId: number;
-  location: number;
+  location: string;
   startTime: string;
+  duration: number;
+  description?: string;
+}
+
+interface DBLesson {
+  id: number;
+  name: string;
+  typeId: number;
+  location: string;
+  startTime: Date;
   duration: number;
   description?: string;
 }
@@ -15,18 +25,19 @@ interface LessonType {
   name: string;
 }
 
-export async function createLesson(obj: CreatedLesson): Promise<CreatedLesson> {
+export async function createLesson(obj: RawLesson): Promise<DBLesson> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     obj.description = obj.description || '';
     const row = await connection.one(sql`
       INSERT INTO lessons (name, type_id, description, location, start_time, duration)
       VALUES (${obj.name}, ${obj.typeId},${obj.description}, ${obj.location}, ${obj.startTime}, ${obj.duration}) 
-      RETURNING name, type_id, description, location, start_time, duration`);
-    const lesson: CreatedLesson = {
+      RETURNING id, name, type_id, description, location, start_time, duration`);
+    const lesson: DBLesson = {
+      id: row.id as number,
       name: row.name as string,
       typeId: row.type_id as number,
-      location: row.location as number,
-      startTime: row.start_time as string,
+      location: row.location as string,
+      startTime: new Date(row.start_time as number),
       duration: row.duration as number,
       description: row.description as string,
     };

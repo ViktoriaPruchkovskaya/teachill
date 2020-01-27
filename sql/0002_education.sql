@@ -46,12 +46,11 @@ CREATE TABLE IF NOT EXISTS lesson_teachers
     CONSTRAINT lesson_teachers_pk PRIMARY KEY (lesson_id, teacher_id)
 );
 
-CREATE TABLE IF NOT EXISTS lesson_attachments
+CREATE TABLE IF NOT EXISTS group_lesson_attachments
 (
-    lesson_id     INT NOT NULL REFERENCES lessons,
-    attachment_id INT NOT NULL REFERENCES attachments,
-
-    CONSTRAINT lesson_attachments_pk PRIMARY KEY (lesson_id, attachment_id)
+    attachment_id INT NOT NULL REFERENCES attachments (id),
+    lesson_id     INT NOT NULL REFERENCES lessons (id),
+    group_id      INT NOT NULL REFERENCES groups (id)
 );
 
 CREATE TABLE IF NOT EXISTS user_groups

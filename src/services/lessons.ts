@@ -3,8 +3,18 @@ import { createLesson, getLessonTypes } from '../repositories/lessons';
 interface Lesson {
   name: string;
   typeId: number;
-  location: number;
+  location: string;
   startTime: string;
+  duration: number;
+  description?: string;
+}
+
+interface DBLesson {
+  id: number;
+  name: string;
+  typeId: number;
+  location: string;
+  startTime: Date;
   duration: number;
   description?: string;
 }
@@ -15,9 +25,10 @@ interface LessonType {
 }
 
 export class LessonService {
-  public async createLesson(lesson: Lesson): Promise<Lesson> {
+  public async createLesson(lesson: Lesson): Promise<DBLesson> {
     const res = await createLesson(lesson);
-    const createdLesson: Lesson = {
+    const createdLesson: DBLesson = {
+      id: res.id,
       name: res.name,
       typeId: res.typeId,
       location: res.location,
