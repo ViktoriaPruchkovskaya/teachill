@@ -8,7 +8,11 @@ import {
   getGroupMembersController,
 } from './controllers/groups';
 import { createTeacherController, getTeachersController } from './controllers/teachers';
-import { createAttachmentController } from './controllers/attachments';
+import {
+  createAttachmentController,
+  createGroupLessonAttachmentController,
+  getGroupLessonAttachmentController,
+} from './controllers/attachments';
 import {
   createLessonController,
   getLessonTypesController,
@@ -32,5 +36,14 @@ router.get('/lessons/types/', authMiddleware, getLessonTypesController);
 router.post('/attachments/', authMiddleware, createAttachmentController);
 router.post('/groups/:group_id/lessons/', authMiddleware, createGroupLessonController);
 router.get('/groups/:group_id/lessons/', authMiddleware, getGroupLessonsController);
-
+router.post(
+  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
+  authMiddleware,
+  createGroupLessonAttachmentController
+);
+router.get(
+  '/groups/:group_id/lessons/:lesson_id/attachments/',
+  authMiddleware,
+  getGroupLessonAttachmentController
+);
 export { router };

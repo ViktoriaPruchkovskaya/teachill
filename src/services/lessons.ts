@@ -3,7 +3,6 @@ import {
   getLessonTypes,
   createGroupLesson,
   getGroupLessons,
-  getGroupLessonsById,
 } from '../repositories/lessons';
 
 interface Lesson {
@@ -58,10 +57,6 @@ export class LessonService {
   }
 
   public async createGroupLesson(lessonId: number, groupId: number): Promise<void> {
-    const lesson = getGroupLessonsById(groupId);
-    if (lesson) {
-      throw new Error('Lesson already added');
-    }
     return await createGroupLesson(lessonId, groupId);
   }
 

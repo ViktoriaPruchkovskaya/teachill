@@ -31,8 +31,8 @@ export class GroupService {
     const res = await getGroups();
     const groups: CreatedGroup[] = res.map(group => {
       const res: CreatedGroup = {
-        id: group.id as number,
-        name: group.name as string,
+        id: group.id,
+        name: group.name,
       };
       return res;
     });
@@ -55,9 +55,9 @@ export class GroupService {
     const res = await getGroupMembers(groupId);
     const createdGroupMembers: CreatedGroupMember[] = res.map(groupMember => {
       const res: CreatedGroupMember = {
-        username: groupMember.username as string,
-        fullName: groupMember.fullName as string,
-        role: groupMember.role as string,
+        username: groupMember.username,
+        fullName: groupMember.fullName,
+        role: groupMember.role,
       };
       return res;
     });
