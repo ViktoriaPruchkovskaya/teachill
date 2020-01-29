@@ -68,16 +68,7 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
     }
   }
   const lessonService = new LessonService();
-  try {
-    await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
-  } catch (err) {
-    ctx.body = {
-      error: err.message,
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
-  }
-
+  await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
   ctx.body = {};
   await next();
 }

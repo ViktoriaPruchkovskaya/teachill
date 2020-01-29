@@ -9,8 +9,8 @@ export class TeacherService {
   public async createTeacher(fullName: string): Promise<CreatedTeacher> {
     const res = await createTeacher(fullName);
     const createdTeacher: CreatedTeacher = {
-      id: res.id as number,
-      fullName: res.fullName as string,
+      id: res.id,
+      fullName: res.fullName,
     };
     return createdTeacher;
   }
@@ -19,8 +19,8 @@ export class TeacherService {
     const res = await getTeachers();
     const createdTeacher: CreatedTeacher[] = res.map(teacher => {
       const res: CreatedTeacher = {
-        id: teacher.id as number,
-        fullName: teacher.fullName as string,
+        id: teacher.id,
+        fullName: teacher.fullName,
       };
       return res;
     });

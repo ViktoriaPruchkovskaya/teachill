@@ -1,15 +1,12 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
-import { AttachmentService } from '../services/attachments';
+import { AttachmentService, Attachment } from '../services/attachments';
+import { NotFoundError } from '../errors';
 
 interface AttachmentData {
   name: string;
   url: string;
-}
-
-interface LessonAttachmentData {
-  attachmentId: number;
 }
 
 export async function createAttachmentController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -38,5 +35,54 @@ export async function createAttachmentController(ctx: Koa.ParameterizedContext, 
   await attachmentService.createAttachment(validatedData.name, validatedData.url);
   ctx.body = {};
   ctx.response.status = httpCodes.CREATED;
+  await next();
+}
+
+export async function assignToGroupLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const attachmentService = new AttachmentService();
+  try {
+    await attachmentService.assignToGroupLesson(
+      ctx.params.attachment_id,
+      ctx.params.lesson_id,
+      ctx.params.group_id
+    );
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
+  await next();
+}
+
+export async function getGroupLessonAttachmentController(
+  ctx: Koa.ParameterizedContext,
+  next: Koa.Next
+) {
+  const attachmentService = new AttachmentService();
+  let attachments: Attachment[];
+  try {
+    attachments = await attachmentService.getGroupLessonAttachment(
+      ctx.params.lesson_id,
+      ctx.params.group_id
+    );
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
+  ctx.body = [...attachments];
+  ctx.response.status = httpCodes.OK;
   await next();
 }

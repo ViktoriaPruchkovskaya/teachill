@@ -70,7 +70,7 @@ export async function createGroupLesson(lessonId: number, groupId: number): Prom
 export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.many(sql`
-      SELECT lessons.name, lessons.description, lessons.type_id, lessons.location, lessons.start_time, lessons.duration 
+      SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, lessons.location, lessons.start_time, lessons.duration 
       FROM lessons
       JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
       WHERE lesson_groups.group_id = ${groupId}
@@ -91,12 +91,15 @@ export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
   });
 }
 
-export async function getGroupLessonsById(groupId: number): Promise<number | null> {
+export async function getGroupLessonById(
+  groupId: number,
+  lessonId: number
+): Promise<number | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
-      SELECT lesson_id 
-      FROM lesson_groups
-      WHERE group_id = ${groupId}`);
+    SELECT group_id, lesson_id
+    FROM lesson_groups
+    WHERE group_id = ${groupId} AND lesson_id = ${lessonId}`);
     if (row) {
       return row.lesson_id as number;
     }

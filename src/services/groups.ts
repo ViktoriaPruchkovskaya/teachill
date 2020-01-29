@@ -6,6 +6,7 @@ import {
   getGroupById,
   getMembershipByUserId,
 } from '../repositories/groups';
+import { ExistError, NotFoundError } from '../errors';
 
 interface CreatedGroup {
   id: number;
@@ -22,7 +23,7 @@ export class GroupService {
   public async createGroup(id: number, name: string): Promise<number> {
     const group = await getGroupById(id);
     if (group) {
-      throw new Error('Group already exists');
+      throw new ExistError('Group already exists');
     }
     return await createGroup(id, name);
   }
@@ -31,8 +32,8 @@ export class GroupService {
     const res = await getGroups();
     const groups: CreatedGroup[] = res.map(group => {
       const res: CreatedGroup = {
-        id: group.id as number,
-        name: group.name as string,
+        id: group.id,
+        name: group.name,
       };
       return res;
     });
@@ -42,11 +43,11 @@ export class GroupService {
   public async createGroupMember(userId: number, groupId: number): Promise<void> {
     const group = await getGroupById(groupId);
     if (!group) {
-      throw new Error('Group does not exist');
+      throw new NotFoundError('Group does not exist');
     }
     const membership = await getMembershipByUserId(userId);
     if (membership) {
-      throw new Error(`User is already in group ${membership}`);
+      throw new ExistError(`User is already in group ${membership}`);
     }
     return await createGroupMember(userId, groupId);
   }
@@ -55,9 +56,9 @@ export class GroupService {
     const res = await getGroupMembers(groupId);
     const createdGroupMembers: CreatedGroupMember[] = res.map(groupMember => {
       const res: CreatedGroupMember = {
-        username: groupMember.username as string,
-        fullName: groupMember.fullName as string,
-        role: groupMember.role as string,
+        username: groupMember.username,
+        fullName: groupMember.fullName,
+        role: groupMember.role,
       };
       return res;
     });
