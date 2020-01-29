@@ -12,6 +12,7 @@ import {
   createAttachmentController,
   assignToGroupLessonController,
   getGroupLessonAttachmentController,
+  deleteAttachment,
 } from './controllers/attachments';
 import {
   createLessonController,
@@ -45,5 +46,10 @@ router.get(
   '/groups/:group_id/lessons/:lesson_id/attachments/',
   authMiddleware,
   getGroupLessonAttachmentController
+);
+router.delete(
+  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id',
+  authMiddleware,
+  deleteAttachment
 );
 export { router };

@@ -53,3 +53,23 @@ export async function getAttachmentById(attachmentId: number): Promise<string | 
     return null;
   });
 }
+
+export async function deleteAttachment(
+  attachmentId: number,
+  lessonId: number,
+  groupId: number
+): Promise<void> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.transaction(async transaction => {
+      await transaction.query(sql`
+      DELETE
+      FROM group_lesson_attachments
+      WHERE attachment_id = ${attachmentId} AND lesson_id = ${lessonId} AND group_id = ${groupId};`);
+
+      await transaction.query(sql`
+      DELETE
+      FROM attachments
+      WHERE id = ${attachmentId};`);
+    });
+  });
+}

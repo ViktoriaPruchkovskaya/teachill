@@ -86,3 +86,15 @@ export async function getGroupLessonAttachmentController(
   ctx.response.status = httpCodes.OK;
   await next();
 }
+
+export async function deleteAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const attachmentService = new AttachmentService();
+  await attachmentService.deleteAttachment(
+    ctx.params.attachment_id,
+    ctx.params.lesson_id,
+    ctx.params.group_id
+  );
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
