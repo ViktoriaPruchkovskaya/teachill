@@ -70,6 +70,7 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
   const lessonService = new LessonService();
   await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
   ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
@@ -77,5 +78,14 @@ export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, n
   const lessonService = new LessonService();
   const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
   ctx.body = [...groupLessons];
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function deleteLessonsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const lessonService = new LessonService();
+  await lessonService.deleteLessons(ctx.params.group_id);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
   await next();
 }

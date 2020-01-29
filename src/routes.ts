@@ -19,6 +19,7 @@ import {
   getLessonTypesController,
   createGroupLessonController,
   getGroupLessonsController,
+  deleteLessonsController,
 } from './controllers/lessons';
 
 const router = new Router();
@@ -37,6 +38,7 @@ router.get('/lessons/types/', authMiddleware, getLessonTypesController);
 router.post('/attachments/', authMiddleware, createAttachmentController);
 router.post('/groups/:group_id/lessons/', authMiddleware, createGroupLessonController);
 router.get('/groups/:group_id/lessons/', authMiddleware, getGroupLessonsController);
+router.delete('/groups/:group_id/lessons/', authMiddleware, deleteLessonsController);
 router.post(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,
