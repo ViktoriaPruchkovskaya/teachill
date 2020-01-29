@@ -2,6 +2,7 @@ import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
 import { AttachmentService, Attachment } from '../services/attachments';
+import { NotFoundError } from '../errors';
 
 interface AttachmentData {
   name: string;
@@ -37,23 +38,22 @@ export async function createAttachmentController(ctx: Koa.ParameterizedContext, 
   await next();
 }
 
-export async function createGroupLessonAttachmentController(
-  ctx: Koa.ParameterizedContext,
-  next: Koa.Next
-) {
+export async function assignToGroupLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const attachmentService = new AttachmentService();
   try {
-    await attachmentService.createGroupLessonAttachment(
+    await attachmentService.assignToGroupLesson(
       ctx.params.attachment_id,
       ctx.params.lesson_id,
       ctx.params.group_id
     );
   } catch (err) {
-    ctx.body = {
-      error: err.message,
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
   }
 
   ctx.body = {};
@@ -73,11 +73,13 @@ export async function getGroupLessonAttachmentController(
       ctx.params.group_id
     );
   } catch (err) {
-    ctx.body = {
-      error: err.message,
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
   }
 
   ctx.body = [...attachments];

@@ -1,10 +1,11 @@
 import {
   createAttachment,
-  createGroupLessonAttachment,
   getGroupLessonAttachment,
   getAttachmentById,
+  assignToGroupLesson,
 } from '../repositories/attachments';
 import { getGroupLessonById } from '../repositories/lessons';
+import { NotFoundError } from '../errors';
 
 export interface Attachment {
   id: number;
@@ -16,7 +17,7 @@ export class AttachmentService {
     return await createAttachment(name, url);
   }
 
-  public async createGroupLessonAttachment(
+  public async assignToGroupLesson(
     attachmentId: number,
     lessonId: number,
     groupId: number
@@ -24,19 +25,19 @@ export class AttachmentService {
     const lesson = await getGroupLessonById(groupId, lessonId);
     const attachment = await getAttachmentById(attachmentId);
     if (!lesson) {
-      throw new Error('Group or lesson does not exist');
+      throw new NotFoundError('Group or lesson does not exist');
     }
     if (!attachment) {
-      throw new Error('Attachment does not exist');
+      throw new NotFoundError('Attachment does not exist');
     }
 
-    return await createGroupLessonAttachment(attachmentId, lessonId, groupId);
+    return await assignToGroupLesson(attachmentId, lessonId, groupId);
   }
 
   public async getGroupLessonAttachment(lessonId: number, groupId: number): Promise<Attachment[]> {
     const lesson = await getGroupLessonById(groupId, lessonId);
     if (!lesson) {
-      throw new Error('Group or lesson does not exist');
+      throw new NotFoundError('Group or lesson does not exist');
     }
 
     const res = await getGroupLessonAttachment(lessonId, groupId);

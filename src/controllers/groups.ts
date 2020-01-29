@@ -2,6 +2,7 @@ import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { GroupService } from '../services/groups';
 import { Validator, shouldHaveField, ValidationFailed } from '../validations';
+import { ExistError, NotFoundError } from '../errors';
 
 interface GroupMemberData {
   userId: number;
@@ -36,11 +37,13 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
   try {
     groupId = await groupService.createGroup(validatedData.id, validatedData.name);
   } catch (err) {
-    ctx.body = {
-      error: err.message,
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
+    if (err instanceof ExistError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
   }
 
   ctx.body = { groupId };
@@ -74,7 +77,7 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
   try {
     await groupService.createGroupMember(validatedData.userId, ctx.params.group_id);
   } catch (err) {
-    if (err instanceof ValidationFailed) {
+    if (err instanceof ExistError || err instanceof NotFoundError) {
       ctx.body = {
         error: err.message,
       };

@@ -13,11 +13,7 @@ export async function createAttachment(name: string, url: string): Promise<void>
   });
 }
 
-export async function createGroupLessonAttachment(
-  attachmentId: number,
-  lessonId: number,
-  groupId: number
-) {
+export async function assignToGroupLesson(attachmentId: number, lessonId: number, groupId: number) {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     INSERT INTO group_lesson_attachments (attachment_id, lesson_id, group_id) VALUES (${attachmentId}, ${lessonId}, ${groupId})`);

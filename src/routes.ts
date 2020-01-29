@@ -10,7 +10,7 @@ import {
 import { createTeacherController, getTeachersController } from './controllers/teachers';
 import {
   createAttachmentController,
-  createGroupLessonAttachmentController,
+  assignToGroupLessonController,
   getGroupLessonAttachmentController,
 } from './controllers/attachments';
 import {
@@ -39,7 +39,7 @@ router.get('/groups/:group_id/lessons/', authMiddleware, getGroupLessonsControll
 router.post(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,
-  createGroupLessonAttachmentController
+  assignToGroupLessonController
 );
 router.get(
   '/groups/:group_id/lessons/:lesson_id/attachments/',

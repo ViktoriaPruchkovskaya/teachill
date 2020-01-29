@@ -11,6 +11,7 @@ import {
   minLengthShouldBe,
   valueShouldBeInEnum,
 } from '../validations';
+import { ExistError } from '../errors';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -62,11 +63,13 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
       validatedData.role
     );
   } catch (err) {
-    ctx.body = {
-      error: err.message,
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
+    if (err instanceof ExistError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
   }
 
   ctx.body = { userId };
