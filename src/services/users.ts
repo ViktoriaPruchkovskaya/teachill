@@ -1,7 +1,14 @@
-import { createUser, getUserByUsername, createUserRole } from '../repositories/users';
+import {
+  createUser,
+  getUserByUsername,
+  createUserRole,
+  changePassword,
+  changeRole,
+} from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
-import { ExistError } from '../errors';
+import { ExistError, IncorrectError, NotFoundError } from '../errors';
+import { getMembershipByUserId } from '../repositories/groups';
 
 export enum RoleType {
   Administrator = 1,
@@ -30,7 +37,7 @@ export class SignupService {
     await createUserRole(userId, roleType);
   }
 
-  private async createPasswordHash(password: string): Promise<string> {
+  protected async createPasswordHash(password: string): Promise<string> {
     const passwordService = new PasswordService();
     return await passwordService.hashPassword(password);
   }
@@ -49,5 +56,36 @@ export class SigninService {
       return null;
     }
     return null;
+  }
+}
+
+export class ChangeService extends SignupService {
+  public async changePassword(
+    username: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    const user = await getUserByUsername(username);
+    if (!user) {
+      throw new IncorrectError('Username is incorrect');
+    }
+    const passwordService = new PasswordService();
+    const isPasswordCorrect = await passwordService.comparePasswords(
+      currentPassword,
+      user.passwordHash
+    );
+    if (!isPasswordCorrect) {
+      throw new IncorrectError('Current password is incorrect');
+    }
+    const newPasswordHash = await this.createPasswordHash(newPassword);
+    await changePassword(username, newPasswordHash);
+  }
+
+  public async changeRole(userId: number, roleType: RoleType, groupId: number): Promise<void> {
+    const group = await getMembershipByUserId(userId);
+    if (group != groupId) {
+      throw new NotFoundError('User is not found');
+    }
+    await changeRole(userId, roleType);
   }
 }

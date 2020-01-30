@@ -7,6 +7,7 @@ interface Group {
 }
 
 interface GroupMember {
+  id: number;
   username: string;
   fullName: string;
   role: string;
@@ -44,7 +45,7 @@ export async function createGroupMember(userId: number, groupId: number): Promis
 export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.many(sql`
-      SELECT users.username, users.full_name, roles.name as role
+      SELECT users.id, users.username, users.full_name, roles.name as role
       FROM users
       JOIN user_groups on users.id = user_groups.user_id
       JOIN groups on user_groups.group_id = groups.id
@@ -54,6 +55,7 @@ export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
 
     const groupMembers: GroupMember[] = rows.map(groupMember => {
       const res: GroupMember = {
+        id: groupMember.id as number,
         username: groupMember.username as string,
         fullName: groupMember.full_name as string,
         role: groupMember.role as string,

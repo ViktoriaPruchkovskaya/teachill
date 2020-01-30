@@ -8,12 +8,13 @@ import {
 } from '../repositories/groups';
 import { ExistError, NotFoundError } from '../errors';
 
-interface CreatedGroup {
+interface DBGroup {
   id: number;
   name: string;
 }
 
-interface CreatedGroupMember {
+interface DBGroupMember {
+  id: number;
   username: string;
   fullName: string;
   role: string;
@@ -28,10 +29,10 @@ export class GroupService {
     return await createGroup(id, name);
   }
 
-  public async getGroups(): Promise<CreatedGroup[]> {
+  public async getGroups(): Promise<DBGroup[]> {
     const res = await getGroups();
-    const groups: CreatedGroup[] = res.map(group => {
-      const res: CreatedGroup = {
+    const groups: DBGroup[] = res.map(group => {
+      const res: DBGroup = {
         id: group.id,
         name: group.name,
       };
@@ -52,10 +53,11 @@ export class GroupService {
     return await createGroupMember(userId, groupId);
   }
 
-  public async getGroupMembers(groupId: number): Promise<CreatedGroupMember[]> {
+  public async getGroupMembers(groupId: number): Promise<DBGroupMember[]> {
     const res = await getGroupMembers(groupId);
-    const createdGroupMembers: CreatedGroupMember[] = res.map(groupMember => {
-      const res: CreatedGroupMember = {
+    const createdGroupMembers: DBGroupMember[] = res.map(groupMember => {
+      const res: DBGroupMember = {
+        id: groupMember.id,
         username: groupMember.username,
         fullName: groupMember.fullName,
         role: groupMember.role,
