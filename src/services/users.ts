@@ -15,6 +15,12 @@ export enum RoleType {
   Member = 2,
 }
 
+interface User {
+  username: string;
+  fullName: string;
+  role: RoleType;
+}
+
 export class SignupService {
   public async doSignup(
     username: string,
@@ -87,5 +93,14 @@ export class UserService extends SignupService {
       throw new NotFoundError('User is not found');
     }
     await changeRole(userId, roleType);
+  }
+
+  public async getUserByUsername(username: string): Promise<User> {
+    const dbUser = await getUserByUsername(username);
+    return {
+      username: dbUser.username,
+      fullName: dbUser.fullName,
+      role: RoleType[dbUser.role],
+    };
   }
 }

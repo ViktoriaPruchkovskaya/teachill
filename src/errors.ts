@@ -21,3 +21,11 @@ export class InvalidCredentialsError extends Error {
     Object.setPrototypeOf(this, InvalidCredentialsError.prototype);
   }
 }
+
+export class ConfigurationError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, ConfigurationError.prototype);
+  }
+}

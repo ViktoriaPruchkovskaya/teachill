@@ -5,6 +5,7 @@ import {
   signinController,
   changePasswordController,
   changeRoleController,
+  currentUserController,
 } from './controllers/users';
 import { authMiddleware } from './middlewares/authentication';
 import {
@@ -34,6 +35,7 @@ router.get('/', getUsers);
 router.post('/signup/', signupController);
 router.post('/signin/', signinController);
 router.put('/users/:username/', authMiddleware, changePasswordController);
+router.get('/users/me/', authMiddleware, currentUserController);
 router.post('/groups/', authMiddleware, createGroupController);
 router.get('/groups/', authMiddleware, getGroupsController);
 router.post('/groups/:group_id/users/', authMiddleware, createGroupMemberController);
