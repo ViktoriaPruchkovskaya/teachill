@@ -81,11 +81,3 @@ export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, n
   ctx.response.status = httpCodes.OK;
   await next();
 }
-
-export async function deleteLessonsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const lessonService = new LessonService();
-  await lessonService.deleteLessons(ctx.params.group_id);
-  ctx.body = {};
-  ctx.response.status = httpCodes.OK;
-  await next();
-}

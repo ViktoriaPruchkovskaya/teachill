@@ -107,13 +107,11 @@ export async function getGroupLessonById(
   });
 }
 
-export async function deleteLessons(groupId: number): Promise<void> {
+export async function deleteAllGroupLessons(groupId: number): Promise<void> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    await connection.transaction(async transaction => {
-      await transaction.query(sql`
+    await connection.query(sql`
       DELETE 
       FROM lesson_groups
       WHERE group_id = ${groupId}`);
-    });
   });
 }

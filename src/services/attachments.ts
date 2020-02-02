@@ -3,6 +3,7 @@ import {
   getGroupLessonAttachment,
   getAttachmentById,
   assignToGroupLesson,
+  deleteGroupLessonAttachment,
   deleteAttachment,
 } from '../repositories/attachments';
 import { getGroupLessonById } from '../repositories/lessons';
@@ -53,11 +54,15 @@ export class AttachmentService {
     return attachments;
   }
 
-  public async deleteAttachment(
+  public async deleteGroupLessonAttachment(
     attachmentId: number,
     lessonId: number,
     groupId: number
   ): Promise<void> {
-    await deleteAttachment(attachmentId, lessonId, groupId);
+    await deleteGroupLessonAttachment(attachmentId, lessonId, groupId);
+  }
+
+  public async deleteAttachment(attachmentId: number): Promise<void> {
+    await deleteAttachment(attachmentId);
   }
 }

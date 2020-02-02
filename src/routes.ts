@@ -12,14 +12,14 @@ import {
   createAttachmentController,
   assignToGroupLessonController,
   getGroupLessonAttachmentController,
-  deleteAttachment,
+  deleteGroupLessonAttachmentController,
+  deleteAttachmentController,
 } from './controllers/attachments';
 import {
   createLessonController,
   getLessonTypesController,
   createGroupLessonController,
   getGroupLessonsController,
-  deleteLessonsController,
 } from './controllers/lessons';
 
 const router = new Router();
@@ -36,9 +36,9 @@ router.get('/teachers/', authMiddleware, getTeachersController);
 router.post('/lessons/', authMiddleware, createLessonController);
 router.get('/lessons/types/', authMiddleware, getLessonTypesController);
 router.post('/attachments/', authMiddleware, createAttachmentController);
+router.delete('/attachments/:id/', authMiddleware, deleteAttachmentController);
 router.post('/groups/:group_id/lessons/', authMiddleware, createGroupLessonController);
 router.get('/groups/:group_id/lessons/', authMiddleware, getGroupLessonsController);
-router.delete('/groups/:group_id/lessons/', authMiddleware, deleteLessonsController);
 router.post(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,
@@ -52,6 +52,6 @@ router.get(
 router.delete(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id',
   authMiddleware,
-  deleteAttachment
+  deleteGroupLessonAttachmentController
 );
 export { router };

@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS group_lesson_attachments
 (
     attachment_id INT NOT NULL REFERENCES attachments (id),
     lesson_id     INT NOT NULL REFERENCES lessons (id),
-    group_id      INT NOT NULL REFERENCES groups (id)
+    group_id      INT NOT NULL REFERENCES groups (id),
 
     CONSTRAINT group_lesson_attachments_pk PRIMARY KEY (attachment_id, lesson_id, group_id)
 );
