@@ -3,6 +3,7 @@ import {
   getLessonTypes,
   createGroupLesson,
   getGroupLessons,
+  deleteAllGroupLessons,
 } from '../repositories/lessons';
 
 interface Lesson {
@@ -75,5 +76,9 @@ export class LessonService {
       return res;
     });
     return groupLessons;
+  }
+
+  public async deleteAllGroupLessons(groupId: number): Promise<void> {
+    return await deleteAllGroupLessons(groupId);
   }
 }
