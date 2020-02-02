@@ -7,7 +7,7 @@ import {
 } from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
-import { ExistError, IncorrectError, NotFoundError } from '../errors';
+import { ExistError, InvalidCredentialsError, NotFoundError } from '../errors';
 import { getMembershipByUserId } from '../repositories/groups';
 
 export enum RoleType {
@@ -59,7 +59,7 @@ export class SigninService {
   }
 }
 
-export class ChangeService extends SignupService {
+export class UserService extends SignupService {
   public async changePassword(
     username: string,
     currentPassword: string,
@@ -67,7 +67,7 @@ export class ChangeService extends SignupService {
   ): Promise<void> {
     const user = await getUserByUsername(username);
     if (!user) {
-      throw new IncorrectError('Username is incorrect');
+      throw new InvalidCredentialsError('Username is incorrect');
     }
     const passwordService = new PasswordService();
     const isPasswordCorrect = await passwordService.comparePasswords(
@@ -75,7 +75,7 @@ export class ChangeService extends SignupService {
       user.passwordHash
     );
     if (!isPasswordCorrect) {
-      throw new IncorrectError('Current password is incorrect');
+      throw new InvalidCredentialsError('Current password is incorrect');
     }
     const newPasswordHash = await this.createPasswordHash(newPassword);
     await changePassword(username, newPasswordHash);

@@ -2,7 +2,7 @@ import * as Koa from 'koa';
 import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
-import { SignupService, SigninService, RoleType, ChangeService } from '../services/users';
+import { SignupService, SigninService, RoleType, UserService } from '../services/users';
 import {
   Validator,
   shouldHaveField,
@@ -11,7 +11,7 @@ import {
   minLengthShouldBe,
   valueShouldBeInEnum,
 } from '../validations';
-import { ExistError, IncorrectError, NotFoundError } from '../errors';
+import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -122,15 +122,15 @@ export async function changePasswordController(ctx: Koa.ParameterizedContext, ne
     }
   }
 
-  const changeService = new ChangeService();
+  const userService = new UserService();
   try {
-    await changeService.changePassword(
+    await userService.changePassword(
       ctx.params.username,
       validatedData.currentPassword,
       validatedData.newPassword
     );
   } catch (err) {
-    if (err instanceof IncorrectError) {
+    if (err instanceof InvalidCredentialsError) {
       ctx.body = {
         error: err.message,
       };
@@ -162,9 +162,9 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
       return await next();
     }
   }
-  const changeService = new ChangeService();
+  const userService = new UserService();
   try {
-    await changeService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
+    await userService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
