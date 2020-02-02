@@ -12,6 +12,7 @@ import {
   valueShouldBeInEnum,
 } from '../validations';
 import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
+import { State } from '../state';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -176,6 +177,17 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
   }
 
   ctx.body = {};
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function currentUserController(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const userService = new UserService();
+  const user = await userService.getUserByUsername(ctx.state.username);
+  ctx.body = { ...user };
   ctx.response.status = httpCodes.OK;
   await next();
 }
