@@ -49,3 +49,21 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     return null;
   });
 }
+
+export async function changePassword(username: string, passwordHash: string): Promise<void> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(sql`
+    UPDATE users
+    SET password_hash = ${passwordHash}
+    WHERE username = ${username}`);
+  });
+}
+
+export async function changeRole(userId: number, roleType: number) {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(sql`
+      UPDATE user_roles
+      SET role_id = ${roleType}
+      WHERE user_id = ${userId}`);
+  });
+}

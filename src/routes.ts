@@ -1,5 +1,11 @@
 import Router = require('koa-router');
-import { getUsers, signupController, signinController } from './controllers/users';
+import {
+  getUsers,
+  signupController,
+  signinController,
+  changePasswordController,
+  changeRoleController,
+} from './controllers/users';
 import { authMiddleware } from './middlewares/authentication';
 import {
   createGroupController,
@@ -27,10 +33,12 @@ const router = new Router();
 router.get('/', getUsers);
 router.post('/signup/', signupController);
 router.post('/signin/', signinController);
+router.put('/users/:username/', authMiddleware, changePasswordController);
 router.post('/groups/', authMiddleware, createGroupController);
 router.get('/groups/', authMiddleware, getGroupsController);
 router.post('/groups/:group_id/users/', authMiddleware, createGroupMemberController);
 router.get('/groups/:group_id/users/', authMiddleware, getGroupMembersController);
+router.put('/groups/:group_id/users/', authMiddleware, changeRoleController);
 router.post('/teachers/', authMiddleware, createTeacherController);
 router.get('/teachers/', authMiddleware, getTeachersController);
 router.post('/lessons/', authMiddleware, createLessonController);

@@ -10,6 +10,14 @@ export class ExistError extends Error {
   constructor(message: string) {
     super();
     this.message = message;
-    Object.setPrototypeOf(this, NotFoundError.prototype);
+    Object.setPrototypeOf(this, ExistError.prototype);
+  }
+}
+
+export class InvalidCredentialsError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, InvalidCredentialsError.prototype);
   }
 }

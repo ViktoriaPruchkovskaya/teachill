@@ -2,7 +2,7 @@ import * as Koa from 'koa';
 import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
 import { DatabaseConnection } from '../db/connection';
-import { SignupService, SigninService, RoleType } from '../services/users';
+import { SignupService, SigninService, RoleType, UserService } from '../services/users';
 import {
   Validator,
   shouldHaveField,
@@ -11,7 +11,7 @@ import {
   minLengthShouldBe,
   valueShouldBeInEnum,
 } from '../validations';
-import { ExistError } from '../errors';
+import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
@@ -27,6 +27,16 @@ interface SignupData {
   password: string;
   fullName: string;
   role: number;
+}
+
+interface PasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface RoleData {
+  userId: number;
+  roleId: number;
 }
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -88,6 +98,84 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
     return await next();
   }
   ctx.body = { token: authorize };
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function changePasswordController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: PasswordData;
+  const validator = new Validator<PasswordData>([
+    shouldHaveField('currentPassword', 'string'),
+    shouldHaveField('newPassword', 'string'),
+    minLengthShouldBe('currentPassword', 6),
+    minLengthShouldBe('newPassword', 6),
+  ]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
+  const userService = new UserService();
+  try {
+    await userService.changePassword(
+      ctx.params.username,
+      validatedData.currentPassword,
+      validatedData.newPassword
+    );
+  } catch (err) {
+    if (err instanceof InvalidCredentialsError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function changeRoleController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: RoleData;
+  const validator = new Validator<RoleData>([
+    shouldHaveField('userId', 'number'),
+    shouldHaveField('roleId', 'number'),
+    valueShouldBeInEnum('roleId', RoleType),
+  ]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+  const userService = new UserService();
+  try {
+    await userService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        errors: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
+  }
+
+  ctx.body = {};
   ctx.response.status = httpCodes.OK;
   await next();
 }
