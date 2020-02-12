@@ -27,6 +27,7 @@ import {
   getLessonTypesController,
   createGroupLessonController,
   getGroupLessonsController,
+  assignTeacherToLessonController,
 } from './controllers/lessons';
 
 const router = new Router();
@@ -45,6 +46,7 @@ router.post('/teachers/', authMiddleware, createTeacherController);
 router.get('/teachers/', authMiddleware, getTeachersController);
 router.post('/lessons/', authMiddleware, createLessonController);
 router.get('/lessons/types/', authMiddleware, getLessonTypesController);
+router.post('/lessons/:id/teachers/', authMiddleware, assignTeacherToLessonController);
 router.post('/attachments/', authMiddleware, createAttachmentController);
 router.delete('/attachments/:id/', authMiddleware, deleteAttachmentController);
 router.post('/groups/:group_id/lessons/', authMiddleware, createGroupLessonController);

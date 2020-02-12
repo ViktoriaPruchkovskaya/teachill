@@ -18,11 +18,16 @@ interface DBLesson {
   startTime: Date;
   duration: number;
   description?: string;
+  teacher?: Teacher[];
 }
 
 interface LessonType {
   id: number;
   name: string;
+}
+
+interface Teacher {
+  fullName: string;
 }
 
 export async function createLesson(obj: RawLesson): Promise<DBLesson> {
@@ -69,24 +74,44 @@ export async function createGroupLesson(lessonId: number, groupId: number): Prom
 
 export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const rows = await connection.many(sql`
-      SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, lessons.location, lessons.start_time, lessons.duration 
+    let groupLessons: DBLesson[];
+    await connection.transaction(async transaction => {
+      const rows = await transaction.many(sql`
+      SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, lessons.location,
+      lessons.start_time, lessons.duration 
       FROM lessons
       JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
       WHERE lesson_groups.group_id = ${groupId}
-    `);
-    const groupLessons: DBLesson[] = rows.map(lesson => {
-      const res: DBLesson = {
-        id: lesson.id as number,
-        name: lesson.name as string,
-        typeId: lesson.type_id as number,
-        location: lesson.location as string,
-        startTime: new Date(lesson.start_time as number),
-        duration: lesson.duration as number,
-        description: lesson.description as string,
-      };
-      return res;
+      `);
+
+      const teachers = await Promise.all(
+        rows.map(
+          async lesson =>
+            await transaction.many(sql`
+            SELECT full_name
+            FROM lesson_teachers
+            JOIN teachers on lesson_teachers.teacher_id = teachers.id 
+            WHERE lesson_id = ${lesson.id}`)
+        )
+      );
+
+      groupLessons = rows.map((lesson, index) => {
+        const res: DBLesson = {
+          id: lesson.id as number,
+          name: lesson.name as string,
+          typeId: lesson.type_id as number,
+          location: lesson.location as string,
+          startTime: new Date(lesson.start_time as number),
+          duration: lesson.duration as number,
+          description: lesson.description as string,
+          teacher: teachers[index].map(t => ({
+            fullName: t.full_name as string,
+          })),
+        };
+        return res;
+      });
     });
+
     return groupLessons;
   });
 }
@@ -113,5 +138,13 @@ export async function deleteAllGroupLessons(groupId: number): Promise<void> {
       DELETE 
       FROM lesson_groups
       WHERE group_id = ${groupId}`);
+  });
+}
+
+export async function assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(
+      sql`INSERT INTO lesson_teachers (lesson_id, teacher_id) VALUES (${lessonId}, ${teacherId})`
+    );
   });
 }

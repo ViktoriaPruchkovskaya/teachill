@@ -13,11 +13,9 @@ interface GroupMember {
   role: string;
 }
 
-export async function createGroup(id: number, name: string): Promise<number> {
+export async function createGroup(name: string): Promise<number> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const row = await connection.one(
-      sql`INSERT INTO groups (id, name) VALUES (${id}, ${name}) RETURNING id`
-    );
+    const row = await connection.one(sql`INSERT INTO groups (name) VALUES (${name}) RETURNING id`);
     return row.id as number;
   });
 }
@@ -83,15 +81,32 @@ export async function getGroupById(id: number): Promise<Group | null> {
   });
 }
 
-export async function getMembershipByUserId(id: number): Promise<number | null> {
+export async function getGroupByName(name: string): Promise<Group | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const res = await connection.maybeOne(sql`
+      SELECT id, name
+      FROM groups
+      WHERE name = ${name}`);
+    if (res) {
+      const group: Group = {
+        id: res.id as number,
+        name: res.name as string,
+      };
+      return group;
+    }
+    return null;
+  });
+}
+
+export async function getMembershipByUserId(id: number): Promise<string | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
-      SELECT user_id, group_id
+      SELECT user_id, name as group_name
       FROM user_groups
       JOIN groups on user_groups.group_id = groups.id
       WHERE user_id = ${id}`);
     if (row) {
-      return row.group_id as number;
+      return row.group_name as string;
     }
     return null;
   });

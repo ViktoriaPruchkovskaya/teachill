@@ -8,7 +8,7 @@ import {
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 import { ExistError, InvalidCredentialsError, NotFoundError } from '../errors';
-import { getMembershipByUserId } from '../repositories/groups';
+import { getMembershipByUserId, getGroupById } from '../repositories/groups';
 
 export enum RoleType {
   Administrator = 1,
@@ -88,8 +88,9 @@ export class UserService extends SignupService {
   }
 
   public async changeRole(userId: number, roleType: RoleType, groupId: number): Promise<void> {
-    const group = await getMembershipByUserId(userId);
-    if (group != groupId) {
+    const membership = await getMembershipByUserId(userId);
+    const group = await getGroupById(groupId);
+    if (group.name != membership) {
       throw new NotFoundError('User is not found');
     }
     await changeRole(userId, roleType);
