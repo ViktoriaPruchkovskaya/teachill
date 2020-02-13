@@ -1,24 +1,26 @@
 import { GroupScheduleResponse, WeekDayScheduleResponse } from './client';
-import { compareDesc } from 'date-fns';
-import { addDays } from 'date-fns';
-import { getDay } from 'date-fns';
-import { getDate } from 'date-fns';
-import { getMonth } from 'date-fns';
-import { getYear } from 'date-fns';
-import { getWeek } from 'date-fns';
-import { formatISO } from 'date-fns';
-import { differenceInMinutes } from 'date-fns';
+import {
+  compareDesc,
+  addDays,
+  getDay,
+  getDate,
+  getMonth,
+  getYear,
+  getWeek,
+  formatISO,
+  differenceInMinutes,
+} from 'date-fns';
 import { Lesson } from '../models';
 
 export class BSUIRResponseMapper {
-  public getSchedule(groupSchedule: GroupScheduleResponse): (Lesson | Lesson[])[] {
+  public getSchedule(groupSchedule: GroupScheduleResponse): Lesson[] {
     const todayDate = this.convertToDate(groupSchedule.todayDate);
     const endDate = this.convertToDate(groupSchedule.dateEnd);
 
-    let lessons: (Lesson | Lesson[])[] = [];
+    const lessons: Lesson[] = [];
     let currentDate = todayDate;
     while (compareDesc(currentDate, addDays(endDate, 1)) === 1) {
-      if (!this.checkForWeekDayExistance(groupSchedule.schedules, getDay(currentDate))) {
+      if (!this.checkForWeekDayExistence(groupSchedule.schedules, getDay(currentDate))) {
         currentDate = addDays(currentDate, 1);
         continue;
       }
@@ -51,7 +53,7 @@ export class BSUIRResponseMapper {
         return formatedLesson;
       });
 
-      lessons = [...lessons, lesson];
+      lessons.push(...lesson);
       currentDate = addDays(currentDate, 1);
     }
 
@@ -91,39 +93,23 @@ export class BSUIRResponseMapper {
     );
   }
 
-  private checkForWeekDayExistance(schedule: WeekDayScheduleResponse[], number: number): boolean {
+  private checkForWeekDayExistence(schedule: WeekDayScheduleResponse[], number: number): boolean {
     if (!schedule.find(lesson => lesson.weekDay === this.convertNumberToWeekName(number))) {
       return false;
     } else return true;
   }
 
-  private convertNumberToWeekName(number: number): string {
-    switch (number) {
-      case 1: {
-        return 'Понедельник';
-      }
-      case 2: {
-        return 'Вторник';
-      }
-      case 3: {
-        return 'Среда';
-      }
-      case 4: {
-        return 'Четверг';
-      }
-      case 5: {
-        return 'Пятница';
-      }
-      case 6: {
-        return 'Суббота';
-      }
-      case 0: {
-        return 'Воскресенье';
-      }
-      default: {
-        throw new Error(`${number} is not exist`);
-      }
-    }
+  private convertNumberToWeekName(order: number): string {
+    const weekdays = [
+      'Воскресенье',
+      'Понедельник',
+      'Вторник',
+      'Среда',
+      'Четверг',
+      'Пятница',
+      'Суббота',
+    ];
+    return weekdays[order];
   }
 
   private convertWeekNameToNumber(weekName: string): number {

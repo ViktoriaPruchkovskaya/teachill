@@ -171,7 +171,7 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
       ctx.body = {
         errors: err.message,
       };
-      ctx.response.status = httpCodes.BAD_REQUEST;
+      ctx.response.status = httpCodes.NOT_FOUND;
       return await next();
     }
   }

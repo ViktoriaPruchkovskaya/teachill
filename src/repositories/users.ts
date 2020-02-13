@@ -38,13 +38,12 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     INNER JOIN roles on user_roles.role_id = roles.id
     WHERE users.username = ${username}`);
     if (res) {
-      const user: User = {
+      return {
         username: res.username as string,
         passwordHash: res.password_hash as string,
         fullName: res.full_name as string,
         role: res.role as string | null,
       };
-      return user;
     }
     return null;
   });

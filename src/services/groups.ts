@@ -32,14 +32,10 @@ export class GroupService {
 
   public async getGroups(): Promise<Group[]> {
     const res = await getGroups();
-    const groups: Group[] = res.map(group => {
-      const res: Group = {
-        id: group.id,
-        name: group.name,
-      };
-      return res;
-    });
-    return groups;
+    return res.map(group => ({
+      id: group.id,
+      name: group.name,
+    }));
   }
 
   public async createGroupMember(userId: number, groupId: number): Promise<void> {
@@ -60,15 +56,11 @@ export class GroupService {
       throw new NotFoundError('Group does not exist');
     }
     const res = await getGroupMembers(groupId);
-    const createdGroupMembers: GroupMember[] = res.map(groupMember => {
-      const res: GroupMember = {
-        id: groupMember.id,
-        username: groupMember.username,
-        fullName: groupMember.fullName,
-        role: groupMember.role,
-      };
-      return res;
-    });
-    return createdGroupMembers;
+    return res.map(groupMember => ({
+      id: groupMember.id,
+      username: groupMember.username,
+      fullName: groupMember.fullName,
+      role: groupMember.role,
+    }));
   }
 }

@@ -12,6 +12,7 @@ export interface WeekDayScheduleResponse {
   weekDay: string;
   schedule: ScheduleResponse[];
 }
+
 interface ScheduleResponse {
   weekNumber: number[];
   numSubgroup: number;
@@ -28,10 +29,12 @@ interface EmployeeResponse {
 }
 
 export class BSUIRClient {
+  private API_HOST = 'https://journal.bsuir.by/';
+
   public async getGroupSchedule(groupId: number): Promise<GroupScheduleResponse> {
     try {
       const response = await fetch(
-        `https://journal.bsuir.by/api/v1/studentGroup/schedule?studentGroup=${groupId}`,
+        new URL(`api/v1/studentGroup/schedule?studentGroup=${groupId}`, this.API_HOST),
         {
           headers: {
             'Content-Type': 'application/json',

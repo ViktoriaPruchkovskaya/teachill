@@ -99,7 +99,7 @@ export async function getGroupMembersController(ctx: Koa.ParameterizedContext, n
         error: err.message,
       };
     }
-    ctx.response.status = httpCodes.BAD_REQUEST;
+    ctx.response.status = httpCodes.NOT_FOUND;
     return await next();
   }
 

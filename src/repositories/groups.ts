@@ -23,12 +23,11 @@ export async function createGroup(name: string): Promise<number> {
 export async function getGroups(): Promise<Group[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.many(sql`SELECT id, name FROM groups`);
-    const groups: Group[] = rows.map(group => {
-      const res: Group = { id: group.id as number, name: group.name as string };
-      return res;
-    });
 
-    return groups;
+    return rows.map(group => ({
+      id: group.id as number,
+      name: group.name as string,
+    }));
   });
 }
 
@@ -51,16 +50,12 @@ export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
       JOIN roles on user_roles.role_id = roles.id
       WHERE group_id = ${groupId};`);
 
-    const groupMembers: GroupMember[] = rows.map(groupMember => {
-      const res: GroupMember = {
-        id: groupMember.id as number,
-        username: groupMember.username as string,
-        fullName: groupMember.full_name as string,
-        role: groupMember.role as string,
-      };
-      return res;
-    });
-    return groupMembers;
+    return rows.map(groupMember => ({
+      id: groupMember.id as number,
+      username: groupMember.username as string,
+      fullName: groupMember.full_name as string,
+      role: groupMember.role as string,
+    }));
   });
 }
 
@@ -71,11 +66,10 @@ export async function getGroupById(id: number): Promise<Group | null> {
       FROM groups
       WHERE id = ${id}`);
     if (res) {
-      const group: Group = {
+      return {
         id: res.id as number,
         name: res.name as string,
       };
-      return group;
     }
     return null;
   });
@@ -88,11 +82,10 @@ export async function getGroupByName(name: string): Promise<Group | null> {
       FROM groups
       WHERE name = ${name}`);
     if (res) {
-      const group: Group = {
+      return {
         id: res.id as number,
         name: res.name as string,
       };
-      return group;
     }
     return null;
   });

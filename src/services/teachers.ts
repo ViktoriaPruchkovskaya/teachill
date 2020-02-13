@@ -8,22 +8,11 @@ interface CreatedTeacher {
 export class TeacherService {
   public async createTeacher(fullName: string): Promise<CreatedTeacher> {
     const res = await createTeacher(fullName);
-    const createdTeacher: CreatedTeacher = {
-      id: res.id,
-      fullName: res.fullName,
-    };
-    return createdTeacher;
+    return { id: res.id, fullName: res.fullName };
   }
 
   public async getTeachers(): Promise<CreatedTeacher[]> {
     const res = await getTeachers();
-    const createdTeacher: CreatedTeacher[] = res.map(teacher => {
-      const res: CreatedTeacher = {
-        id: teacher.id,
-        fullName: teacher.fullName,
-      };
-      return res;
-    });
-    return createdTeacher;
+    return res.map(teacher => ({ id: teacher.id, fullName: teacher.fullName }));
   }
 }

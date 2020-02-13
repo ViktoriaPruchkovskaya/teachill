@@ -37,7 +37,7 @@ export async function createLesson(obj: RawLesson): Promise<DBLesson> {
       INSERT INTO lessons (name, type_id, description, location, start_time, duration)
       VALUES (${obj.name}, ${obj.typeId},${obj.description}, ${obj.location}, ${obj.startTime}, ${obj.duration}) 
       RETURNING id, name, type_id, description, location, start_time, duration`);
-    const lesson: DBLesson = {
+    return {
       id: row.id as number,
       name: row.name as string,
       typeId: row.type_id as number,
@@ -46,7 +46,6 @@ export async function createLesson(obj: RawLesson): Promise<DBLesson> {
       duration: row.duration as number,
       description: row.description as string,
     };
-    return lesson;
   });
 }
 
@@ -95,21 +94,18 @@ export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
         )
       );
 
-      groupLessons = rows.map((lesson, index) => {
-        const res: DBLesson = {
-          id: lesson.id as number,
-          name: lesson.name as string,
-          typeId: lesson.type_id as number,
-          location: lesson.location as string,
-          startTime: new Date(lesson.start_time as number),
-          duration: lesson.duration as number,
-          description: lesson.description as string,
-          teacher: teachers[index].map(t => ({
-            fullName: t.full_name as string,
-          })),
-        };
-        return res;
-      });
+      groupLessons = rows.map((lesson, index) => ({
+        id: lesson.id as number,
+        name: lesson.name as string,
+        typeId: lesson.type_id as number,
+        location: lesson.location as string,
+        startTime: new Date(lesson.start_time as number),
+        duration: lesson.duration as number,
+        description: lesson.description as string,
+        teacher: teachers[index].map(t => ({
+          fullName: t.full_name as string,
+        })),
+      }));
     });
 
     return groupLessons;
@@ -127,6 +123,16 @@ export async function getGroupLessonById(
     WHERE group_id = ${groupId} AND lesson_id = ${lessonId}`);
     if (row) {
       return row.lesson_id as number;
+    }
+    return null;
+  });
+}
+
+export async function getLessonById(lessonId: number): Promise<number | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const row = await connection.maybeOne(sql`SELECT id FROM lessons WHERE id = ${lessonId}`);
+    if (row) {
+      return row.id as number;
     }
     return null;
   });
