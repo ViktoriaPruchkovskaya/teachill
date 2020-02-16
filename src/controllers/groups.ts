@@ -78,9 +78,9 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
       ctx.body = {
         error: err.message,
       };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
     }
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
   }
 
   ctx.body = {};
@@ -98,9 +98,9 @@ export async function getGroupMembersController(ctx: Koa.ParameterizedContext, n
       ctx.body = {
         error: err.message,
       };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return await next();
     }
-    ctx.response.status = httpCodes.NOT_FOUND;
-    return await next();
   }
 
   ctx.body = [...members];

@@ -29,7 +29,23 @@ export async function getTeachers(): Promise<Teacher[]> {
 
 export async function getTeacherById(id: number): Promise<Teacher | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const row = await connection.maybeOne(sql`SELECT id, full_name FROM teachers WHERE id = ${id}`);
+    const row = await connection.maybeOne(sql`
+    SELECT id, full_name 
+    FROM teachers 
+    WHERE id = ${id}`);
+    if (row) {
+      return { id: row.id as number, fullName: row.full_name as string };
+    }
+    return null;
+  });
+}
+
+export async function getTeacherByFullName(fullName: string): Promise<Teacher | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const row = await connection.maybeOne(sql`
+    SELECT id, full_name 
+    FROM teachers 
+    WHERE full_name = ${fullName}`);
     if (row) {
       return { id: row.id as number, fullName: row.full_name as string };
     }

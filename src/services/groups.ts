@@ -63,4 +63,12 @@ export class GroupService {
       role: groupMember.role,
     }));
   }
+
+  public async getGroupByName(name: string): Promise<Group> {
+    const group = await getGroupByName(name);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
+    return { id: group.id, name: group.name };
+  }
 }
