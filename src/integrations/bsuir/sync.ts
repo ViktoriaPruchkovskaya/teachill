@@ -28,10 +28,10 @@ client
     const lessonService = new LessonService();
     const teacherService = new TeacherService();
 
-    const { id } = await groupService.getGroupByName(String(groupNumber));
+    const { id } = await groupService.getGroupByName(groupSchedule.name);
 
     const teachers = new Set();
-    groupSchedule.map(lesson => lesson.teacher.map(teacher => teachers.add(teacher.fio)));
+    groupSchedule.lessons.map(lesson => lesson.teacher.map(teacher => teachers.add(teacher.fio)));
     const teachersArray = Array.from(teachers);
 
     await Promise.all(
@@ -47,7 +47,7 @@ client
     );
 
     await Promise.all(
-      groupSchedule.map(async lesson => {
+      groupSchedule.lessons.map(async lesson => {
         const createdLesson = await lessonService.createLesson(lesson);
         await lessonService.createGroupLesson(createdLesson.id, id);
         await Promise.all(

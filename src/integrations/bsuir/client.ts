@@ -5,6 +5,7 @@ export interface GroupScheduleResponse {
   dateStart: string;
   dateEnd: string;
   currentWeekNumber: number;
+  studentGroup: GroupResponse;
   schedules: WeekDayScheduleResponse[];
 }
 
@@ -26,6 +27,10 @@ interface ScheduleResponse {
 
 interface EmployeeResponse {
   fio: string;
+}
+
+interface GroupResponse {
+  name: string;
 }
 
 export class BSUIRClient {

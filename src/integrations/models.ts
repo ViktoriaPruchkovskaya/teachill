@@ -1,3 +1,8 @@
+export interface GroupSchedule {
+  name: string;
+  lessons: Lesson[];
+}
+
 export interface Lesson {
   name: string;
   typeId: number;

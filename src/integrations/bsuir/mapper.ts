@@ -10,10 +10,10 @@ import {
   formatISO,
   differenceInMinutes,
 } from 'date-fns';
-import { Lesson } from '../models';
+import { Lesson, GroupSchedule } from '../models';
 
 export class BSUIRResponseMapper {
-  public getSchedule(groupSchedule: GroupScheduleResponse): Lesson[] {
+  public getSchedule(groupSchedule: GroupScheduleResponse): GroupSchedule {
     const todayDate = this.convertToDate(groupSchedule.todayDate);
     const endDate = this.convertToDate(groupSchedule.dateEnd);
 
@@ -57,7 +57,7 @@ export class BSUIRResponseMapper {
       currentDate = addDays(currentDate, 1);
     }
 
-    return lessons;
+    return { name: groupSchedule.studentGroup.name, lessons: lessons };
   }
 
   private convertToDate(stringDate: string): Date {
