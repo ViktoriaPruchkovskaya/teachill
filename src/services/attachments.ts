@@ -26,11 +26,8 @@ export class AttachmentService {
   ): Promise<void> {
     const lesson = await getGroupLessonById(groupId, lessonId);
     const attachment = await getAttachmentById(attachmentId);
-    if (!lesson) {
-      throw new NotFoundError('Group or lesson does not exist');
-    }
-    if (!attachment) {
-      throw new NotFoundError('Attachment does not exist');
+    if (!lesson || !attachment) {
+      throw new NotFoundError('Group, lesson or attachment does not exist');
     }
 
     return await assignToGroupLesson(attachmentId, lessonId, groupId);
@@ -43,15 +40,11 @@ export class AttachmentService {
     }
 
     const res = await getGroupLessonAttachment(lessonId, groupId);
-    const attachments: Attachment[] = res.map(attachment => {
-      const res: Attachment = {
-        id: attachment.id,
-        name: attachment.name,
-        url: attachment.url,
-      };
-      return res;
-    });
-    return attachments;
+    return res.map(attachment => ({
+      id: attachment.id,
+      name: attachment.name,
+      url: attachment.url,
+    }));
   }
 
   public async deleteGroupLessonAttachment(
@@ -59,10 +52,19 @@ export class AttachmentService {
     lessonId: number,
     groupId: number
   ): Promise<void> {
+    const lesson = await getGroupLessonById(groupId, lessonId);
+    const attachment = await getAttachmentById(attachmentId);
+    if (!lesson || !attachment) {
+      throw new NotFoundError('Group, lesson or attachment does not exist');
+    }
     await deleteGroupLessonAttachment(attachmentId, lessonId, groupId);
   }
 
   public async deleteAttachment(attachmentId: number): Promise<void> {
+    const attachment = await getAttachmentById(attachmentId);
+    if (!attachment) {
+      throw new NotFoundError('Attachment does not exist');
+    }
     await deleteAttachment(attachmentId);
   }
 }

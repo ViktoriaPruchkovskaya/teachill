@@ -30,15 +30,12 @@ export async function getGroupLessonAttachment(
     FROM attachments
     JOIN group_lesson_attachments on attachments.id = attachment_id
     WHERE lesson_id = ${lessonId} AND group_id = ${groupId}`);
-    const attachments: DBAttachment[] = row.map(attachment => {
-      const res: DBAttachment = {
-        id: attachment.id as number,
-        name: attachment.name as string,
-        url: attachment.url as string,
-      };
-      return res;
-    });
-    return attachments;
+
+    return row.map(attachment => ({
+      id: attachment.id as number,
+      name: attachment.name as string,
+      url: attachment.url as string,
+    }));
   });
 }
 

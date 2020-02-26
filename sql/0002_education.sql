@@ -1,7 +1,7 @@
 -- Groups table represent university/school/college studying group.
 CREATE TABLE IF NOT EXISTS groups
 (
-    id   INT PRIMARY KEY,
+    id   SERIAL PRIMARY KEY,
     name VARCHAR(1024) NOT NULL UNIQUE
 );
 
@@ -70,3 +70,9 @@ CREATE TABLE IF NOT EXISTS lesson_groups
 
     CONSTRAINT lesson_groups_pk PRIMARY KEY (lesson_id, group_id)
 );
+
+
+INSERT INTO lesson_types (id, name)
+VALUES (1, 'Lecture'),
+       (2, 'Laboratory'),
+       (3, 'Practical classes');

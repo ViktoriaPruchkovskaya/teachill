@@ -4,16 +4,17 @@ import {
   createGroupMember,
   getGroupMembers,
   getGroupById,
+  getGroupByName,
   getMembershipByUserId,
 } from '../repositories/groups';
 import { ExistError, NotFoundError } from '../errors';
 
-interface DBGroup {
+interface Group {
   id: number;
   name: string;
 }
 
-interface DBGroupMember {
+interface GroupMember {
   id: number;
   username: string;
   fullName: string;
@@ -21,24 +22,20 @@ interface DBGroupMember {
 }
 
 export class GroupService {
-  public async createGroup(id: number, name: string): Promise<number> {
-    const group = await getGroupById(id);
+  public async createGroup(name: string): Promise<number> {
+    const group = await getGroupByName(name);
     if (group) {
       throw new ExistError('Group already exists');
     }
-    return await createGroup(id, name);
+    return await createGroup(name);
   }
 
-  public async getGroups(): Promise<DBGroup[]> {
+  public async getGroups(): Promise<Group[]> {
     const res = await getGroups();
-    const groups: DBGroup[] = res.map(group => {
-      const res: DBGroup = {
-        id: group.id,
-        name: group.name,
-      };
-      return res;
-    });
-    return groups;
+    return res.map(group => ({
+      id: group.id,
+      name: group.name,
+    }));
   }
 
   public async createGroupMember(userId: number, groupId: number): Promise<void> {
@@ -53,17 +50,25 @@ export class GroupService {
     return await createGroupMember(userId, groupId);
   }
 
-  public async getGroupMembers(groupId: number): Promise<DBGroupMember[]> {
+  public async getGroupMembers(groupId: number): Promise<GroupMember[]> {
+    const group = await getGroupById(groupId);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
     const res = await getGroupMembers(groupId);
-    const createdGroupMembers: DBGroupMember[] = res.map(groupMember => {
-      const res: DBGroupMember = {
-        id: groupMember.id,
-        username: groupMember.username,
-        fullName: groupMember.fullName,
-        role: groupMember.role,
-      };
-      return res;
-    });
-    return createdGroupMembers;
+    return res.map(groupMember => ({
+      id: groupMember.id,
+      username: groupMember.username,
+      fullName: groupMember.fullName,
+      role: groupMember.role,
+    }));
+  }
+
+  public async getGroupByName(name: string): Promise<Group> {
+    const group = await getGroupByName(name);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
+    return { id: group.id, name: group.name };
   }
 }

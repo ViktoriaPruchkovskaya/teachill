@@ -15,10 +15,7 @@ interface GroupData {
 
 export async function createGroupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: GroupData;
-  const validator = new Validator<GroupData>([
-    shouldHaveField('id', 'number'),
-    shouldHaveField('name', 'string'),
-  ]);
+  const validator = new Validator<GroupData>([shouldHaveField('name', 'string')]);
   try {
     validatedData = validator.validate(ctx.request.body);
   } catch (err) {
@@ -35,7 +32,7 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
 
   let groupId: number;
   try {
-    groupId = await groupService.createGroup(validatedData.id, validatedData.name);
+    groupId = await groupService.createGroup(validatedData.name);
   } catch (err) {
     if (err instanceof ExistError) {
       ctx.body = {
@@ -81,9 +78,9 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
       ctx.body = {
         error: err.message,
       };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
     }
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
   }
 
   ctx.body = {};
@@ -93,7 +90,19 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
 
 export async function getGroupMembersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
-  const members = await groupService.getGroupMembers(ctx.params.group_id);
+  let members;
+  try {
+    members = await groupService.getGroupMembers(ctx.params.group_id);
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return await next();
+    }
+  }
+
   ctx.body = [...members];
   ctx.response.status = httpCodes.OK;
   await next();

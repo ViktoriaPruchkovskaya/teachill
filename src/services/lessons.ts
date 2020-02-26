@@ -4,9 +4,14 @@ import {
   createGroupLesson,
   getGroupLessons,
   deleteAllGroupLessons,
+  assignTeacherToLesson,
+  getLessonById,
 } from '../repositories/lessons';
+import { getGroupById } from '../repositories/groups';
+import { NotFoundError } from '../errors';
+import { getTeacherById } from '../repositories/teachers';
 
-interface Lesson {
+interface LessonData {
   name: string;
   typeId: number;
   location: string;
@@ -15,7 +20,7 @@ interface Lesson {
   description?: string;
 }
 
-interface DBLesson {
+interface Lesson {
   id: number;
   name: string;
   typeId: number;
@@ -23,6 +28,7 @@ interface DBLesson {
   startTime: Date;
   duration: number;
   description?: string;
+  teacher?: Teacher[];
 }
 
 interface LessonType {
@@ -30,10 +36,14 @@ interface LessonType {
   name: string;
 }
 
+interface Teacher {
+  fullName: string;
+}
+
 export class LessonService {
-  public async createLesson(lesson: Lesson): Promise<DBLesson> {
+  public async createLesson(lesson: LessonData): Promise<Lesson> {
     const res = await createLesson(lesson);
-    const createdLesson: DBLesson = {
+    return {
       id: res.id,
       name: res.name,
       typeId: res.typeId,
@@ -42,43 +52,55 @@ export class LessonService {
       duration: res.duration,
       description: res.description,
     };
-    return createdLesson;
   }
 
   public async getLessonTypes(): Promise<LessonType[]> {
     const res = await getLessonTypes();
-    const lessonTypes: LessonType[] = res.map(type => {
-      const res: LessonType = {
-        id: type.id,
-        name: type.name,
-      };
-      return res;
-    });
-    return lessonTypes;
+    return res.map(type => ({ id: type.id, name: type.name }));
   }
 
   public async createGroupLesson(lessonId: number, groupId: number): Promise<void> {
+    const lesson = await getLessonById(lessonId);
+    const group = await getGroupById(groupId);
+    if (!lesson || !group) {
+      throw new NotFoundError('Lesson or group does not exist');
+    }
     return await createGroupLesson(lessonId, groupId);
   }
 
-  public async getGroupLessons(groupId: number): Promise<DBLesson[]> {
+  public async getGroupLessons(groupId: number): Promise<Lesson[]> {
+    const group = await getGroupById(groupId);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
+
     const res = await getGroupLessons(groupId);
-    const groupLessons: DBLesson[] = res.map(lesson => {
-      const res: DBLesson = {
-        id: lesson.id,
-        name: lesson.name,
-        typeId: lesson.typeId,
-        location: lesson.location,
-        startTime: lesson.startTime,
-        duration: lesson.duration,
-        description: lesson.description,
-      };
-      return res;
-    });
-    return groupLessons;
+    return res.map(lesson => ({
+      id: lesson.id,
+      name: lesson.name,
+      typeId: lesson.typeId,
+      location: lesson.location,
+      startTime: lesson.startTime,
+      duration: lesson.duration,
+      description: lesson.description,
+      teacher: lesson.teacher,
+    }));
   }
 
   public async deleteAllGroupLessons(groupId: number): Promise<void> {
+    const group = await getGroupById(groupId);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
     return await deleteAllGroupLessons(groupId);
+  }
+
+  public async assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
+    const teacher = await getTeacherById(teacherId);
+    const lesson = await getLessonById(lessonId);
+    if (!teacher || !lesson) {
+      throw new NotFoundError('Teacher or lesson does not exist');
+    }
+    return await assignTeacherToLesson(lessonId, teacherId);
   }
 }

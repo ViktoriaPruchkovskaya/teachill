@@ -1,29 +1,44 @@
-import { createTeacher, getTeachers } from '../repositories/teachers';
+import {
+  createTeacher,
+  getTeachers,
+  getTeacherById,
+  getTeacherByFullName,
+} from '../repositories/teachers';
+import { NotFoundError, ExistError } from '../errors';
 
-interface CreatedTeacher {
+interface Teacher {
   id: number;
   fullName: string;
 }
 
 export class TeacherService {
-  public async createTeacher(fullName: string): Promise<CreatedTeacher> {
-    const res = await createTeacher(fullName);
-    const createdTeacher: CreatedTeacher = {
-      id: res.id,
-      fullName: res.fullName,
-    };
-    return createdTeacher;
+  public async createTeacher(fullName: string): Promise<Teacher> {
+    const dbTeacher = await getTeacherByFullName(fullName);
+    if (dbTeacher) {
+      throw new ExistError('Teacher already exists');
+    }
+    const teacher = await createTeacher(fullName);
+    return { id: teacher.id, fullName: teacher.fullName };
   }
 
-  public async getTeachers(): Promise<CreatedTeacher[]> {
-    const res = await getTeachers();
-    const createdTeacher: CreatedTeacher[] = res.map(teacher => {
-      const res: CreatedTeacher = {
-        id: teacher.id,
-        fullName: teacher.fullName,
-      };
-      return res;
-    });
-    return createdTeacher;
+  public async getTeachers(): Promise<Teacher[]> {
+    const teachers = await getTeachers();
+    return teachers.map(teacher => ({ id: teacher.id, fullName: teacher.fullName }));
+  }
+
+  public async getTeacherById(id: number): Promise<Teacher> {
+    const teacher = await getTeacherById(id);
+    if (!teacher) {
+      throw new NotFoundError('Teacher does not exist');
+    }
+    return { id: teacher.id, fullName: teacher.fullName };
+  }
+
+  public async getTeacherByFullName(fullName: string): Promise<Teacher> {
+    const teacher = await getTeacherByFullName(fullName);
+    if (!teacher) {
+      throw new NotFoundError('Teacher does not exist');
+    }
+    return { id: teacher.id, fullName: teacher.fullName };
   }
 }

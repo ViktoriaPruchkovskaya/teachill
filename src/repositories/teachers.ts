@@ -11,24 +11,44 @@ export async function createTeacher(fullName: string): Promise<Teacher> {
     const rows = await connection.one(
       sql`INSERT INTO teachers (full_name) VALUES (${fullName}) RETURNING id, full_name`
     );
-    const teacher: Teacher = {
-      id: rows.id as number,
-      fullName: rows['full_name'] as string,
-    };
-    return teacher;
+
+    return { id: rows.id as number, fullName: rows.full_name as string };
   });
 }
 
 export async function getTeachers(): Promise<Teacher[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.many(sql`SELECT id, full_name FROM teachers`);
-    const teachers: Teacher[] = rows.map(teacher => {
-      const res: Teacher = {
-        id: teacher.id as number,
-        fullName: teacher.full_name as string,
-      };
-      return res;
-    });
-    return teachers;
+
+    return rows.map(teacher => ({
+      id: teacher.id as number,
+      fullName: teacher.full_name as string,
+    }));
+  });
+}
+
+export async function getTeacherById(id: number): Promise<Teacher | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const row = await connection.maybeOne(sql`
+    SELECT id, full_name 
+    FROM teachers 
+    WHERE id = ${id}`);
+    if (row) {
+      return { id: row.id as number, fullName: row.full_name as string };
+    }
+    return null;
+  });
+}
+
+export async function getTeacherByFullName(fullName: string): Promise<Teacher | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const row = await connection.maybeOne(sql`
+    SELECT id, full_name 
+    FROM teachers 
+    WHERE full_name = ${fullName}`);
+    if (row) {
+      return { id: row.id as number, fullName: row.full_name as string };
+    }
+    return null;
   });
 }
