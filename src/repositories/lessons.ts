@@ -94,12 +94,14 @@ export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
         )
       );
 
+      const TIME_ZONE_OFFSET = new Date().getTimezoneOffset() * 60000;
+
       groupLessons = rows.map((lesson, index) => ({
         id: lesson.id as number,
         name: lesson.name as string,
         typeId: lesson.type_id as number,
         location: lesson.location as string,
-        startTime: new Date(lesson.start_time as number),
+        startTime: new Date((lesson.start_time as number) - TIME_ZONE_OFFSET),
         duration: lesson.duration as number,
         description: lesson.description as string,
         teacher: teachers[index].map(t => ({
