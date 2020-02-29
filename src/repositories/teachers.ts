@@ -18,19 +18,18 @@ export async function createTeacher(fullName: string): Promise<Teacher> {
 
 export async function getTeachers(): Promise<Teacher[] | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    let rows;
     try {
-      rows = await connection.many(sql`SELECT id, full_name FROM teachers`);
+      const rows = await connection.many(sql`SELECT id, full_name FROM teachers`);
+
+      return rows.map(teacher => ({
+        id: teacher.id as number,
+        fullName: teacher.full_name as string,
+      }));
     } catch (err) {
       if (err instanceof NotFoundError) {
         return null;
       }
     }
-
-    return rows.map(teacher => ({
-      id: teacher.id as number,
-      fullName: teacher.full_name as string,
-    }));
   });
 }
 

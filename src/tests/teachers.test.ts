@@ -5,7 +5,7 @@ import * as teacherMocks from '../mocks/teachers';
 
 const mockedTeachers = teachersRepository as jest.Mocked<typeof teachersRepository>;
 
-describe('test teachers servise', () => {
+describe('test teachers service', () => {
   it('test teacher creation', async () => {
     const FULL_NAME = 'Ivanov I.I.';
     const teacherService = new TeacherService();
