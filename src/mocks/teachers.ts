@@ -11,7 +11,7 @@ export const getTeachers = jest.fn(() =>
   ])
 );
 
-export const getEmptyTeachersArray = jest.fn(() => Promise.resolve(null));
+export const getEmptyTeachersArray = jest.fn(() => Promise.resolve([]));
 
 export const getTeacherById = jest.fn((id: number) =>
   Promise.resolve({ id: id, fullName: 'Teacher T.T.' })

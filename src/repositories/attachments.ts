@@ -13,7 +13,11 @@ export async function createAttachment(name: string, url: string): Promise<void>
   });
 }
 
-export async function assignToGroupLesson(attachmentId: number, lessonId: number, groupId: number) {
+export async function assignToGroupLesson(
+  attachmentId: number,
+  lessonId: number,
+  groupId: number
+): Promise<void> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     INSERT INTO group_lesson_attachments (attachment_id, lesson_id, group_id) VALUES (${attachmentId}, ${lessonId}, ${groupId})`);
@@ -39,13 +43,17 @@ export async function getGroupLessonAttachment(
   });
 }
 
-export async function getAttachmentById(attachmentId: number): Promise<string | null> {
+export async function getAttachmentById(attachmentId: number): Promise<DBAttachment | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(
-      sql`SELECT name FROM attachments WHERE id=${attachmentId}`
+      sql`SELECT id, name, url FROM attachments WHERE id=${attachmentId}`
     );
     if (row) {
-      return row.name as string;
+      return {
+        id: row.id as number,
+        name: row.name as string,
+        url: row.url as string,
+      };
     }
     return null;
   });

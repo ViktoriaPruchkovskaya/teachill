@@ -16,7 +16,7 @@ export async function createTeacher(fullName: string): Promise<Teacher> {
   });
 }
 
-export async function getTeachers(): Promise<Teacher[] | null> {
+export async function getTeachers(): Promise<Teacher[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     try {
       const rows = await connection.many(sql`SELECT id, full_name FROM teachers`);
@@ -27,7 +27,7 @@ export async function getTeachers(): Promise<Teacher[] | null> {
       }));
     } catch (err) {
       if (err instanceof NotFoundError) {
-        return null;
+        return [];
       }
     }
   });
