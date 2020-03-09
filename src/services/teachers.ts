@@ -24,7 +24,7 @@ export class TeacherService {
   public async getTeachers(): Promise<Teacher[]> {
     const teachers = await getTeachers();
     if (teachers.length === 0) {
-      throw new NotFoundError('Teachers do not exist');
+      return [];
     }
     return teachers.map(teacher => ({ id: teacher.id, fullName: teacher.fullName }));
   }
