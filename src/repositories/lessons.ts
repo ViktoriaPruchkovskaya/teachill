@@ -1,5 +1,6 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
+import { toDateFromUnix } from '../utils/date';
 
 interface RawLesson {
   name: string;
@@ -99,7 +100,7 @@ export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
         name: lesson.name as string,
         typeId: lesson.type_id as number,
         location: lesson.location as string,
-        startTime: new Date(lesson.start_time as number),
+        startTime: toDateFromUnix(lesson.start_time as number),
         duration: lesson.duration as number,
         description: lesson.description as string,
         teacher: teachers[index].map(t => ({
