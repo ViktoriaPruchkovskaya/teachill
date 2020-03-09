@@ -1,6 +1,6 @@
 import { TeacherService } from '../services/teachers';
 import * as teachersRepository from '../repositories/teachers';
-import * as teacherMocks from '../mocks/teachers';
+import * as teacherMocks from './mocks/teachers';
 
 const mockedTeachers = teachersRepository as jest.Mocked<typeof teachersRepository>;
 
@@ -17,7 +17,7 @@ describe('test teachers service', () => {
 
     expect(mockedTeachers.getTeacherByFullName).toBeCalledTimes(1);
     expect(mockedTeachers.createTeacher).toBeCalledTimes(1);
-    expect(teacher).toEqual({ id: 1, fullName: FULL_NAME });
+    expect(teacher.fullName).toBe(FULL_NAME);
   });
 
   it('test teacher creation with existing fullname', async () => {
@@ -27,10 +27,9 @@ describe('test teachers service', () => {
     mockedTeachers.getTeacherByFullName = teacherMocks.getTeacher;
     mockedTeachers.createTeacher = teacherMocks.getTeacher;
 
-    const teacher = teacherService.createTeacher(FULL_NAME);
+    await expect(teacherService.createTeacher(FULL_NAME)).rejects.toThrow('Teacher already exists');
 
     expect(mockedTeachers.getTeacherByFullName).toBeCalledTimes(1);
-    await expect(teacher).rejects.toThrow('Teacher already exists');
   });
 
   it('test getting teachers array', async () => {
@@ -52,10 +51,9 @@ describe('test teachers service', () => {
     const teacherService = new TeacherService();
     mockedTeachers.getTeachers = teacherMocks.getEmptyTeachersArray;
 
-    const teachers = teacherService.getTeachers();
+    await expect(teacherService.getTeachers()).rejects.toThrow('Teachers do not exist');
 
     expect(mockedTeachers.getTeachers).toBeCalledTimes(1);
-    await expect(teachers).rejects.toThrow('Teachers do not exist');
   });
 
   it('test getting teacher by id', async () => {
@@ -76,10 +74,11 @@ describe('test teachers service', () => {
     const teacherService = new TeacherService();
     mockedTeachers.getTeacherById = teacherMocks.getNonexistentTeacher;
 
-    const teacher = teacherService.getTeacherById(TEACHER_ID);
+    await expect(teacherService.getTeacherById(TEACHER_ID)).rejects.toThrow(
+      'Teacher does not exist'
+    );
 
     expect(mockedTeachers.getTeacherById).toBeCalledTimes(1);
-    await expect(teacher).rejects.toThrow('Teacher does not exist');
   });
 
   it('test getting existed teacher by fullname', async () => {
@@ -100,9 +99,10 @@ describe('test teachers service', () => {
     const teacherService = new TeacherService();
     mockedTeachers.getTeacherByFullName = teacherMocks.getNonexistentTeacher;
 
-    const teacher = teacherService.getTeacherByFullName(FULL_NAME);
+    await expect(teacherService.getTeacherByFullName(FULL_NAME)).rejects.toThrow(
+      'Teacher does not exist'
+    );
 
     expect(mockedTeachers.getTeacherByFullName).toBeCalledTimes(1);
-    await expect(teacher).rejects.toThrow('Teacher does not exist');
   });
 });
