@@ -57,7 +57,7 @@ describe('test attachments service', () => {
       attachmentService.assignToGroupLesson(ATTACHMENT_ID, LESSON_ID, GROUP_ID)
     ).rejects.toThrow('Group, lesson or attachment does not exist');
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(3);
+    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.assignToGroupLesson).not.toBeCalled();
     expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBeNull();
