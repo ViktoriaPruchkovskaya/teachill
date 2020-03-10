@@ -51,8 +51,9 @@ describe('test teachers service', () => {
     const teacherService = new TeacherService();
     mockedTeachers.getTeachers = teacherMocks.getEmptyTeachersArray;
 
-    await expect(teacherService.getTeachers()).rejects.toThrow('Teachers do not exist');
+    const teachers = await teacherService.getTeachers();
 
+    expect(teachers).toEqual([]);
     expect(mockedTeachers.getTeachers).toBeCalledTimes(1);
   });
 
