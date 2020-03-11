@@ -55,8 +55,11 @@ export class LessonService {
   }
 
   public async getLessonTypes(): Promise<LessonType[]> {
-    const res = await getLessonTypes();
-    return res.map(type => ({ id: type.id, name: type.name }));
+    const lessonTypes = await getLessonTypes();
+    if (lessonTypes.length === 0) {
+      return [];
+    }
+    return lessonTypes.map(type => ({ id: type.id, name: type.name }));
   }
 
   public async createGroupLesson(lessonId: number, groupId: number): Promise<void> {
@@ -74,8 +77,11 @@ export class LessonService {
       throw new NotFoundError('Group does not exist');
     }
 
-    const res = await getGroupLessons(groupId);
-    return res.map(lesson => ({
+    const lessons = await getGroupLessons(groupId);
+    if (lessons.length === 0) {
+      return [];
+    }
+    return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,
       typeId: lesson.typeId,
