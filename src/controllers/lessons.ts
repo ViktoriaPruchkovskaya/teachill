@@ -72,9 +72,12 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
       return await next();
     }
   }
+
   const lessonService = new LessonService();
   try {
     await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
+    ctx.body = {};
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -85,16 +88,15 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
 export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const lessonService = new LessonService();
-  let groupLessons;
   try {
-    groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
+    const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
+    ctx.body = [...groupLessons];
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -105,8 +107,6 @@ export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, n
     }
   }
 
-  ctx.body = [...groupLessons];
-  ctx.response.status = httpCodes.OK;
   await next();
 }
 
@@ -131,6 +131,8 @@ export async function assignTeacherToLessonController(
   const lessonService = new LessonService();
   try {
     await lessonService.assignTeacherToLesson(ctx.params.id, validatedData.teacherId);
+    ctx.body = {};
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -141,7 +143,5 @@ export async function assignTeacherToLessonController(
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }

@@ -27,29 +27,26 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
   }
 
   const teacherService = new TeacherService();
-  let teacher;
   try {
-    teacher = await teacherService.createTeacher(validatedData.fullName);
+    const teacher = await teacherService.createTeacher(validatedData.fullName);
+    ctx.body = { ...teacher };
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof ExistError) {
       ctx.body = {
         error: err.message,
       };
-      ctx.response.status = httpCodes.NOT_FOUND;
+      ctx.response.status = httpCodes.BAD_REQUEST;
       return await next();
     }
   }
 
-  ctx.body = { ...teacher };
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
 export async function getTeachersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const teacherService = new TeacherService();
-
   const teachers = await teacherService.getTeachers();
-
   ctx.body = [...teachers];
   ctx.response.status = httpCodes.OK;
   await next();
