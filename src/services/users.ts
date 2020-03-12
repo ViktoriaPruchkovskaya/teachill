@@ -4,6 +4,7 @@ import {
   createUserRole,
   changePassword,
   changeRole,
+  getUsers,
 } from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
@@ -18,7 +19,7 @@ export enum RoleType {
 interface User {
   username: string;
   fullName: string;
-  role: RoleType;
+  role: RoleType | string;
 }
 
 export class SignupService {
@@ -65,7 +66,20 @@ export class SigninService {
   }
 }
 
-export class UserService extends SignupService {
+export class UserService {
+  public async getUsers(): Promise<User[]> {
+    const users = await getUsers();
+    if (users.length === 0) {
+      return [];
+    }
+
+    return users.map(user => ({
+      username: user.username,
+      fullName: user.fullName,
+      role: user.role,
+    }));
+  }
+
   public async changePassword(
     username: string,
     currentPassword: string,
@@ -75,6 +89,7 @@ export class UserService extends SignupService {
     if (!user) {
       throw new InvalidCredentialsError('Username is incorrect');
     }
+
     const passwordService = new PasswordService();
     const isPasswordCorrect = await passwordService.comparePasswords(
       currentPassword,
@@ -83,7 +98,8 @@ export class UserService extends SignupService {
     if (!isPasswordCorrect) {
       throw new InvalidCredentialsError('Current password is incorrect');
     }
-    const newPasswordHash = await this.createPasswordHash(newPassword);
+
+    const newPasswordHash = await passwordService.hashPassword(newPassword);
     await changePassword(username, newPasswordHash);
   }
 
@@ -97,11 +113,11 @@ export class UserService extends SignupService {
   }
 
   public async getUserByUsername(username: string): Promise<User> {
-    const dbUser = await getUserByUsername(username);
+    const user = await getUserByUsername(username);
     return {
-      username: dbUser.username,
-      fullName: dbUser.fullName,
-      role: RoleType[dbUser.role],
+      username: user.username,
+      fullName: user.fullName,
+      role: RoleType[user.role],
     };
   }
 }

@@ -1,7 +1,5 @@
 import * as Koa from 'koa';
-import { sql } from 'slonik';
 import * as httpCodes from '../constants/httpCodes';
-import { DatabaseConnection } from '../db/connection';
 import { SignupService, SigninService, RoleType, UserService } from '../services/users';
 import {
   Validator,
@@ -13,15 +11,6 @@ import {
 } from '../validations';
 import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
 import { State } from '../state';
-
-export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const users = await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const result = await connection.query(sql`SELECT username, full_name FROM users`);
-    return result.rows;
-  });
-  ctx.body = { users };
-  await next();
-}
 
 interface SignupData {
   username: string;
@@ -38,6 +27,13 @@ interface PasswordData {
 interface RoleData {
   userId: number;
   roleId: number;
+}
+
+export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const userService = new UserService();
+  const users = await userService.getUsers();
+  ctx.body = [...users];
+  await next();
 }
 
 export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -64,15 +60,15 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
   }
 
   const signupService = new SignupService();
-
-  let userId: number;
   try {
-    userId = await signupService.doSignup(
+    const userId = await signupService.doSignup(
       validatedData.username,
       validatedData.password,
       validatedData.fullName,
       validatedData.role
     );
+    ctx.body = { userId };
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof ExistError) {
       ctx.body = {
@@ -83,8 +79,6 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     }
   }
 
-  ctx.body = { userId };
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
@@ -130,6 +124,8 @@ export async function changePasswordController(ctx: Koa.ParameterizedContext, ne
       validatedData.currentPassword,
       validatedData.newPassword
     );
+    ctx.body = {};
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof InvalidCredentialsError) {
       ctx.body = {
@@ -140,8 +136,6 @@ export async function changePasswordController(ctx: Koa.ParameterizedContext, ne
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.OK;
   await next();
 }
 

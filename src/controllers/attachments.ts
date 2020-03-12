@@ -1,7 +1,7 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
-import { AttachmentService, Attachment } from '../services/attachments';
+import { AttachmentService } from '../services/attachments';
 import { NotFoundError } from '../errors';
 
 interface AttachmentData {
@@ -46,6 +46,8 @@ export async function assignToGroupLessonController(ctx: Koa.ParameterizedContex
       ctx.params.lesson_id,
       ctx.params.group_id
     );
+    ctx.body = {};
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -56,8 +58,6 @@ export async function assignToGroupLessonController(ctx: Koa.ParameterizedContex
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
@@ -66,12 +66,13 @@ export async function getGroupLessonAttachmentController(
   next: Koa.Next
 ) {
   const attachmentService = new AttachmentService();
-  let attachments: Attachment[];
   try {
-    attachments = await attachmentService.getGroupLessonAttachment(
+    const attachments = await attachmentService.getGroupLessonAttachment(
       ctx.params.lesson_id,
       ctx.params.group_id
     );
+    ctx.body = [...attachments];
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -82,8 +83,6 @@ export async function getGroupLessonAttachmentController(
     }
   }
 
-  ctx.body = [...attachments];
-  ctx.response.status = httpCodes.OK;
   await next();
 }
 
@@ -98,6 +97,8 @@ export async function deleteGroupLessonAttachmentController(
       ctx.params.lesson_id,
       ctx.params.group_id
     );
+    ctx.body = {};
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -108,8 +109,6 @@ export async function deleteGroupLessonAttachmentController(
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.OK;
   await next();
 }
 
@@ -117,6 +116,8 @@ export async function deleteAttachmentController(ctx: Koa.ParameterizedContext, 
   const attachmentService = new AttachmentService();
   try {
     await attachmentService.deleteAttachment(ctx.params.id);
+    ctx.body = {};
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -127,7 +128,5 @@ export async function deleteAttachmentController(ctx: Koa.ParameterizedContext, 
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.OK;
   await next();
 }

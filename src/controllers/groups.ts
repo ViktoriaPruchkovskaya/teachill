@@ -29,10 +29,10 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
   }
 
   const groupService = new GroupService();
-
-  let groupId: number;
   try {
-    groupId = await groupService.createGroup(validatedData.name);
+    const groupId = await groupService.createGroup(validatedData.name);
+    ctx.body = { groupId };
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof ExistError) {
       ctx.body = {
@@ -43,8 +43,6 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
     }
   }
 
-  ctx.body = { groupId };
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
@@ -73,6 +71,8 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
   const groupService = new GroupService();
   try {
     await groupService.createGroupMember(validatedData.userId, ctx.params.group_id);
+    ctx.body = {};
+    ctx.response.status = httpCodes.CREATED;
   } catch (err) {
     if (err instanceof ExistError || err instanceof NotFoundError) {
       ctx.body = {
@@ -83,16 +83,15 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
 export async function getGroupMembersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
-  let members;
   try {
-    members = await groupService.getGroupMembers(ctx.params.group_id);
+    const members = await groupService.getGroupMembers(ctx.params.group_id);
+    ctx.body = [...members];
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -103,7 +102,5 @@ export async function getGroupMembersController(ctx: Koa.ParameterizedContext, n
     }
   }
 
-  ctx.body = [...members];
-  ctx.response.status = httpCodes.OK;
   await next();
 }
