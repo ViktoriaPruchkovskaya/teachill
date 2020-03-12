@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../db/connection';
-import { sql } from 'slonik';
+import { sql, NotFoundError } from 'slonik';
 import { toDateFromUnix } from '../utils/date';
 
 interface RawLesson {
@@ -43,7 +43,7 @@ export async function createLesson(obj: RawLesson): Promise<DBLesson> {
       name: row.name as string,
       typeId: row.type_id as number,
       location: row.location as string,
-      startTime: new Date(row.start_time as number),
+      startTime: toDateFromUnix(row.start_time as number),
       duration: row.duration as number,
       description: row.description as string,
     };
@@ -52,15 +52,17 @@ export async function createLesson(obj: RawLesson): Promise<DBLesson> {
 
 export async function getLessonTypes(): Promise<LessonType[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const rows = await connection.many(sql`SELECT id, name FROM lesson_types`);
-    const lessonTypes: LessonType[] = rows.map(type => {
-      const res: LessonType = {
+    try {
+      const rows = await connection.many(sql`SELECT id, name FROM lesson_types`);
+      return rows.map(type => ({
         id: type.id as number,
         name: type.name as string,
-      };
-      return res;
-    });
-    return lessonTypes;
+      }));
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        return [];
+      }
+    }
   });
 }
 
@@ -74,42 +76,48 @@ export async function createGroupLesson(lessonId: number, groupId: number): Prom
 
 export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    let groupLessons: DBLesson[];
-    await connection.transaction(async transaction => {
-      const rows = await transaction.many(sql`
-      SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, lessons.location,
-      lessons.start_time, lessons.duration 
-      FROM lessons
-      JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
-      WHERE lesson_groups.group_id = ${groupId}
-      `);
+    try {
+      let groupLessons: DBLesson[];
+      await connection.transaction(async transaction => {
+        const rows = await transaction.many(sql`
+        SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, lessons.location,
+        lessons.start_time, lessons.duration 
+        FROM lessons
+        JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
+        WHERE lesson_groups.group_id = ${groupId}
+        `);
 
-      const teachers = await Promise.all(
-        rows.map(
-          async lesson =>
-            await transaction.many(sql`
-            SELECT full_name
-            FROM lesson_teachers
-            JOIN teachers on lesson_teachers.teacher_id = teachers.id 
-            WHERE lesson_id = ${lesson.id}`)
-        )
-      );
+        const teachers = await Promise.all(
+          rows.map(
+            async lesson =>
+              await transaction.many(sql`
+              SELECT full_name
+              FROM lesson_teachers
+              JOIN teachers on lesson_teachers.teacher_id = teachers.id 
+              WHERE lesson_id = ${lesson.id}`)
+          )
+        );
 
-      groupLessons = rows.map((lesson, index) => ({
-        id: lesson.id as number,
-        name: lesson.name as string,
-        typeId: lesson.type_id as number,
-        location: lesson.location as string,
-        startTime: toDateFromUnix(lesson.start_time as number),
-        duration: lesson.duration as number,
-        description: lesson.description as string,
-        teacher: teachers[index].map(t => ({
-          fullName: t.full_name as string,
-        })),
-      }));
-    });
+        groupLessons = rows.map((lesson, index) => ({
+          id: lesson.id as number,
+          name: lesson.name as string,
+          typeId: lesson.type_id as number,
+          location: lesson.location as string,
+          startTime: toDateFromUnix(lesson.start_time as number),
+          duration: lesson.duration as number,
+          description: lesson.description as string,
+          teacher: teachers[index].map(t => ({
+            fullName: t.full_name as string,
+          })),
+        }));
+      });
 
-    return groupLessons;
+      return groupLessons;
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        return [];
+      }
+    }
   });
 }
 
@@ -129,13 +137,38 @@ export async function getGroupLessonById(
   });
 }
 
-export async function getLessonById(lessonId: number): Promise<number | null> {
+export async function getLessonById(lessonId: number): Promise<DBLesson> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const row = await connection.maybeOne(sql`SELECT id FROM lessons WHERE id = ${lessonId}`);
-    if (row) {
-      return row.id as number;
-    }
-    return null;
+    let lesson: DBLesson;
+    await connection.transaction(async transaction => {
+      const row = await transaction.maybeOne(sql`
+      SELECT id, name, description, type_id, location, start_time, duration 
+      FROM lessons
+      WHERE id = ${lessonId}
+      `);
+      if (!row) {
+        lesson = null;
+      }
+
+      const teachers = await transaction.many(sql`
+      SELECT full_name
+      FROM lesson_teachers
+      JOIN teachers on lesson_teachers.teacher_id = teachers.id 
+      WHERE lesson_id = ${row.id}
+      `);
+
+      lesson = {
+        id: row.id as number,
+        name: row.name as string,
+        typeId: row.type_id as number,
+        location: row.location as string,
+        startTime: toDateFromUnix(row.start_time as number),
+        duration: row.duration as number,
+        description: row.description as string,
+        teacher: teachers.map(teacher => ({ fullName: teacher.full_name as string })),
+      };
+    });
+    return lesson;
   });
 }
 
