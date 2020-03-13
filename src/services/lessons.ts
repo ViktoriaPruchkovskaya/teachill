@@ -56,9 +56,6 @@ export class LessonService {
 
   public async getLessonTypes(): Promise<LessonType[]> {
     const lessonTypes = await getLessonTypes();
-    if (lessonTypes.length === 0) {
-      return [];
-    }
     return lessonTypes.map(type => ({ id: type.id, name: type.name }));
   }
 
@@ -78,9 +75,6 @@ export class LessonService {
     }
 
     const lessons = await getGroupLessons(groupId);
-    if (lessons.length === 0) {
-      return [];
-    }
     return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,
