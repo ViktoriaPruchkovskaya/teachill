@@ -18,6 +18,9 @@ export const getAttachmentsArray = () =>
     ])
   );
 
+export const getEmptyAttachmentsArray = () =>
+  jest.fn((lessonId: number, groupId: number) => Promise.resolve([]));
+
 export const deleteGroupLessonAttachment = () =>
   jest.fn((attachmentId: number, lessonId: number, groupId: number) => Promise.resolve());
 
