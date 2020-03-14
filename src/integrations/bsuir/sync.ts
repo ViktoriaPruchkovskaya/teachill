@@ -17,7 +17,7 @@ const dbConfig: DatabaseConfiguration = {
 };
 
 DatabaseConnection.initConnection(dbConfig);
-const groupNumber = 610902;
+const groupNumber = 710901;
 const client = new BSUIRClient();
 const mapper = new BSUIRResponseMapper();
 client
@@ -49,7 +49,7 @@ client
     await Promise.all(
       groupSchedule.lessons.map(async lesson => {
         const createdLesson = await lessonService.createLesson(lesson);
-        await lessonService.createGroupLesson(createdLesson.id, id);
+        await lessonService.createGroupLesson(createdLesson.id, id, lesson.subgroup);
         await Promise.all(
           lesson.teacher.map(async t => {
             const teacher = await teacherService.getTeacherByFullName(t.fio);

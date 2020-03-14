@@ -41,7 +41,8 @@ export class BSUIRResponseMapper {
         const formatedLesson: Lesson = {
           name: lesson.subject,
           typeId: this.convertLessonTypeToNumber(lesson.lessonType),
-          location: lesson.auditory[0],
+          subgroup: lesson.numSubgroup > 0 ? lesson.numSubgroup : null,
+          location: lesson.auditory.length > 0 ? lesson.auditory[0] : '',
           startTime: this.convertToUnixTime(currentDate, lesson.startLessonTime),
           duration: this.calculateDuration(
             currentDate,

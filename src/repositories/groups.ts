@@ -1,12 +1,12 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
 
-interface Group {
+export interface DBGroup {
   id: number;
   name: string;
 }
 
-interface GroupMember {
+export interface GroupMember {
   id: number;
   username: string;
   fullName: string;
@@ -20,7 +20,7 @@ export async function createGroup(name: string): Promise<number> {
   });
 }
 
-export async function getGroups(): Promise<Group[]> {
+export async function getGroups(): Promise<DBGroup[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.many(sql`SELECT id, name FROM groups`);
 
@@ -59,7 +59,7 @@ export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
   });
 }
 
-export async function getGroupById(id: number): Promise<Group | null> {
+export async function getGroupById(id: number): Promise<DBGroup | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
       SELECT id, name
@@ -75,7 +75,7 @@ export async function getGroupById(id: number): Promise<Group | null> {
   });
 }
 
-export async function getGroupByName(name: string): Promise<Group | null> {
+export async function getGroupByName(name: string): Promise<DBGroup | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
       SELECT id, name

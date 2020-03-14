@@ -1,6 +1,7 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql, NotFoundError } from 'slonik';
 import { toDateFromUnix } from '../utils/date';
+import { DBGroup } from './groups';
 
 interface RawLesson {
   name: string;
@@ -66,10 +67,14 @@ export async function getLessonTypes(): Promise<LessonType[]> {
   });
 }
 
-export async function createGroupLesson(lessonId: number, groupId: number): Promise<void> {
+export async function createGroupLesson(
+  lesson: DBLesson,
+  group: DBGroup,
+  subgroup: number = null
+): Promise<void> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(
-      sql`INSERT INTO lesson_groups (lesson_id, group_id) VALUES (${lessonId}, ${groupId})`
+      sql`INSERT INTO lesson_groups (lesson_id, group_id, subgroup) VALUES (${lesson.id}, ${group.id}, ${subgroup})`
     );
   });
 }

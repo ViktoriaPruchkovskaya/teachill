@@ -6,6 +6,7 @@ export interface GroupSchedule {
 export interface Lesson {
   name: string;
   typeId: number;
+  subgroup: number | null;
   location: string;
   startTime: string;
   duration: number;
