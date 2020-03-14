@@ -110,6 +110,21 @@ describe('test attachments service', () => {
     expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBeNull();
   });
 
+  it('test getting empty attachments array of lesson group', async () => {
+    const LESSON_ID = 6;
+    const GROUP_ID = 5;
+    const attachmentService = new AttachmentService();
+    mockedLessons.getGroupLessonById = getGroupLessonById();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getEmptyAttachmentsArray();
+
+    const attachments = await attachmentService.getGroupLessonAttachment(LESSON_ID, GROUP_ID);
+
+    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
+    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect(attachments).toEqual([]);
+  });
+
   it('test removing attachment from lesson group', async () => {
     const ATTACHMENT_ID = 1;
     const LESSON_ID = 6;
