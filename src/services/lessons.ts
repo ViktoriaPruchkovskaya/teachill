@@ -3,9 +3,10 @@ import {
   getLessonTypes,
   createGroupLesson,
   getGroupLessons,
-  deleteAllGroupLessons,
+  deleteGroupLessonsById,
   assignTeacherToLesson,
   getLessonById,
+  removeAllGroupLessons,
 } from '../repositories/lessons';
 import { getGroupById } from '../repositories/groups';
 import { NotFoundError } from '../errors';
@@ -91,12 +92,16 @@ export class LessonService {
     }));
   }
 
-  public async deleteAllGroupLessons(groupId: number): Promise<void> {
+  public async deleteGroupLessonsByGroupId(groupId: number): Promise<void> {
     const group = await getGroupById(groupId);
     if (!group) {
       throw new NotFoundError('Group does not exist');
     }
-    return await deleteAllGroupLessons(groupId);
+    return await deleteGroupLessonsById(groupId);
+  }
+
+  public async removeAllGroupLessons(): Promise<void> {
+    return await removeAllGroupLessons();
   }
 
   public async assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
