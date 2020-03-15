@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../db/connection';
-import { sql, NotFoundError } from 'slonik';
+import { sql, NotFoundError, QueryResultRowType } from 'slonik';
 import { toDateFromUnix } from '../utils/date';
 import { DBGroup } from './groups';
 
@@ -92,18 +92,22 @@ export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
         WHERE lesson_groups.group_id = ${groupId}
         `);
 
-        const teachers = await Promise.all(
-          rows.map(
-            async lesson =>
-              await transaction.many(sql`
-              SELECT full_name
-              FROM lesson_teachers
-              JOIN teachers on lesson_teachers.teacher_id = teachers.id 
-              WHERE lesson_id = ${lesson.id}`)
-          )
-        );
+        const lessonIds = rows.map(row => Number(row.id));
 
-        groupLessons = rows.map((lesson, index) => ({
+        let teachers: QueryResultRowType<string>[];
+        try {
+          teachers = await transaction.many(sql`
+          SELECT full_name, lesson_id
+          FROM lesson_teachers
+          JOIN teachers on lesson_teachers.teacher_id = teachers.id
+          WHERE lesson_id IN (${sql.join(lessonIds, sql`,`)})`);
+        } catch (err) {
+          if (err instanceof NotFoundError) {
+            teachers = [];
+          }
+        }
+
+        groupLessons = rows.map(lesson => ({
           id: lesson.id as number,
           name: lesson.name as string,
           typeId: lesson.type_id as number,
@@ -111,9 +115,9 @@ export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
           startTime: toDateFromUnix(lesson.start_time as number),
           duration: lesson.duration as number,
           description: lesson.description as string,
-          teacher: teachers[index].map(t => ({
-            fullName: t.full_name as string,
-          })),
+          teacher: teachers
+            .filter(teacher => teacher.lesson_id === lesson.id)
+            .map(teacher => ({ fullName: teacher.full_name as string })),
         }));
       });
 
@@ -155,12 +159,19 @@ export async function getLessonById(lessonId: number): Promise<DBLesson> {
         lesson = null;
       }
 
-      const teachers = await transaction.many(sql`
-      SELECT full_name
-      FROM lesson_teachers
-      JOIN teachers on lesson_teachers.teacher_id = teachers.id 
-      WHERE lesson_id = ${row.id}
-      `);
+      let teachers: QueryResultRowType<string>[];
+      try {
+        teachers = await transaction.many(sql`
+        SELECT full_name
+        FROM lesson_teachers
+        JOIN teachers on lesson_teachers.teacher_id = teachers.id 
+        WHERE lesson_id = ${row.id}
+        `);
+      } catch (err) {
+        if (err instanceof NotFoundError) {
+          teachers = [];
+        }
+      }
 
       lesson = {
         id: row.id as number,
