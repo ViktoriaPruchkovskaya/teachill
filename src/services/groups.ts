@@ -8,6 +8,7 @@ import {
   getMembershipByUserId,
 } from '../repositories/groups';
 import { ExistError, NotFoundError } from '../errors';
+import { getUserById } from '../repositories/users';
 
 interface Group {
   id: number;
@@ -31,8 +32,8 @@ export class GroupService {
   }
 
   public async getGroups(): Promise<Group[]> {
-    const res = await getGroups();
-    return res.map(group => ({
+    const groups = await getGroups();
+    return groups.map(group => ({
       id: group.id,
       name: group.name,
     }));
@@ -40,9 +41,11 @@ export class GroupService {
 
   public async createGroupMember(userId: number, groupId: number): Promise<void> {
     const group = await getGroupById(groupId);
-    if (!group) {
-      throw new NotFoundError('Group does not exist');
+    const user = await getUserById(userId);
+    if (!group || !user) {
+      throw new NotFoundError('Group or user does not exist');
     }
+
     const membership = await getMembershipByUserId(userId);
     if (membership) {
       throw new ExistError(`User is already in group ${membership}`);
@@ -55,8 +58,8 @@ export class GroupService {
     if (!group) {
       throw new NotFoundError('Group does not exist');
     }
-    const res = await getGroupMembers(groupId);
-    return res.map(groupMember => ({
+    const members = await getGroupMembers(groupId);
+    return members.map(groupMember => ({
       id: groupMember.id,
       username: groupMember.username,
       fullName: groupMember.fullName,

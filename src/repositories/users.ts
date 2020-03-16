@@ -73,6 +73,26 @@ export async function getUserByUsername(username: string): Promise<User | null> 
   });
 }
 
+export async function getUserById(id: number): Promise<User | null> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    const res = await connection.maybeOne(sql`
+    SELECT users.username, users.password_hash, users.full_name, roles.name AS role
+    FROM users
+    INNER JOIN user_roles on users.id = user_roles.user_id
+    INNER JOIN roles on user_roles.role_id = roles.id
+    WHERE users.id = ${id}`);
+    if (res) {
+      return {
+        username: res.username as string,
+        passwordHash: res.password_hash as string,
+        fullName: res.full_name as string,
+        role: res.role as string | null,
+      };
+    }
+    return null;
+  });
+}
+
 export async function changePassword(username: string, passwordHash: string): Promise<void> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`

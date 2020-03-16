@@ -22,8 +22,7 @@ export async function createGroup(name: string): Promise<number> {
 
 export async function getGroups(): Promise<Group[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const rows = await connection.many(sql`SELECT id, name FROM groups`);
-
+    const rows = await connection.any(sql`SELECT id, name FROM groups`);
     return rows.map(group => ({
       id: group.id as number,
       name: group.name as string,
@@ -41,7 +40,7 @@ export async function createGroupMember(userId: number, groupId: number): Promis
 
 export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    const rows = await connection.many(sql`
+    const rows = await connection.any(sql`
       SELECT users.id, users.username, users.full_name, roles.name as role
       FROM users
       JOIN user_groups on users.id = user_groups.user_id
