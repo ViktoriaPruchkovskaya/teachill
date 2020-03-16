@@ -19,4 +19,10 @@ const lessonService = new LessonService();
 const groupService = new GroupService();
 
 lessonService.removeAllGroupLessons();
-groupService.getGroups().then(groups => groups.map(group => syncGroup(Number(group.name))));
+groupService
+  .getGroups()
+  .then(
+    async groups =>
+      await Promise.all(groups.map(async group => await syncGroup(Number(group.name))))
+  )
+  .catch(err => console.error(err));
