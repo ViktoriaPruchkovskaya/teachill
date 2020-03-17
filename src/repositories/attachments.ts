@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../db/connection';
-import { sql, NotFoundError } from 'slonik';
+import { sql } from 'slonik';
 
 interface DBAttachment {
   id: number;
@@ -29,24 +29,18 @@ export async function getGroupLessonAttachment(
   groupId: number
 ): Promise<DBAttachment[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    try {
-      const row = await connection.many(sql`
+    const row = await connection.any(sql`
       SELECT id, name, url
       FROM attachments
       JOIN group_lesson_attachments on attachments.id = attachment_id
       WHERE lesson_id = ${lessonId} AND group_id = ${groupId}
       `);
 
-      return row.map(attachment => ({
-        id: attachment.id as number,
-        name: attachment.name as string,
-        url: attachment.url as string,
-      }));
-    } catch (err) {
-      if (err instanceof NotFoundError) {
-        return [];
-      }
-    }
+    return row.map(attachment => ({
+      id: attachment.id as number,
+      name: attachment.name as string,
+      url: attachment.url as string,
+    }));
   });
 }
 
