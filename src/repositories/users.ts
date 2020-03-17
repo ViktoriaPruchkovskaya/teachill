@@ -78,8 +78,8 @@ export async function getUserById(id: number): Promise<User | null> {
     const res = await connection.maybeOne(sql`
     SELECT users.username, users.password_hash, users.full_name, roles.name AS role
     FROM users
-    INNER JOIN user_roles on users.id = user_roles.user_id
-    INNER JOIN roles on user_roles.role_id = roles.id
+    LEFT JOIN user_roles on users.id = user_roles.user_id
+    LEFT JOIN roles on user_roles.role_id = roles.id
     WHERE users.id = ${id}`);
     if (res) {
       return {
