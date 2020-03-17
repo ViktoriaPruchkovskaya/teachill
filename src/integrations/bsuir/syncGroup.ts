@@ -1,44 +1,40 @@
 import { BSUIRClient } from './client';
 import { BSUIRResponseMapper } from './mapper';
-import { GroupService } from '../../services/groups';
 import { LessonService } from '../../services/lessons';
 import { TeacherService } from '../../services/teachers';
 import { NotFoundError } from '../../errors';
 
-export async function syncGroup(groupNumber: number): Promise<void> {
+async function createNonExistingTeachers(service: TeacherService, teachers: string[]) {
+  teachers.map(async teacher => {
+    try {
+      await service.getTeacherByFullName(teacher);
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        await service.createTeacher(teacher);
+      }
+    }
+  });
+}
+
+export async function syncGroup(groupId: number, groupNumber: number): Promise<void> {
   const client = new BSUIRClient();
   const mapper = new BSUIRResponseMapper();
 
-  const groupSchedule = await client
-    .getGroupSchedule(groupNumber)
-    .then(BSUIRResponse => mapper.getSchedule(BSUIRResponse));
+  const groupSchedule = mapper.getSchedule(await client.getGroupSchedule(groupNumber));
 
-  const groupService = new GroupService();
   const lessonService = new LessonService();
   const teacherService = new TeacherService();
 
-  const { id } = await groupService.getGroupByName(groupSchedule.name);
-
-  const teachers = new Set();
+  const teachers = new Set<string>();
   groupSchedule.lessons.map(lesson => lesson.teacher.map(teacher => teachers.add(teacher.fio)));
   const teachersArray = Array.from(teachers);
 
-  await Promise.all(
-    teachersArray.map(async teacher => {
-      try {
-        await teacherService.getTeacherByFullName(teacher as string);
-      } catch (err) {
-        if (err instanceof NotFoundError) {
-          await teacherService.createTeacher(teacher as string);
-        }
-      }
-    })
-  );
+  await createNonExistingTeachers(teacherService, teachersArray);
 
   await Promise.all(
     groupSchedule.lessons.map(async lesson => {
       const createdLesson = await lessonService.createLesson(lesson);
-      await lessonService.createGroupLesson(createdLesson.id, id, lesson.subgroup);
+      await lessonService.createGroupLesson(createdLesson.id, groupId, lesson.subgroup);
       await Promise.all(
         lesson.teacher.map(async t => {
           const teacher = await teacherService.getTeacherByFullName(t.fio);

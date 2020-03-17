@@ -23,6 +23,6 @@ groupService
   .getGroups()
   .then(
     async groups =>
-      await Promise.all(groups.map(async group => await syncGroup(Number(group.name))))
+      await Promise.all(groups.map(async group => await syncGroup(group.id, Number(group.name))))
   )
   .catch(err => console.error(err));
