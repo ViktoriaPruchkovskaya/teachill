@@ -161,12 +161,12 @@ describe('test lessons service', () => {
     const GROUP_ID = 3;
     const lessonService = new LessonService();
     mockedGroups.getGroupById = getGroupById();
-    mockedLessons.deleteAllGroupLessons = lessonMocks.deleteGroupLessons();
+    mockedLessons.deleteGroupLessonsById = lessonMocks.deleteGroupLessons();
 
-    await lessonService.deleteAllGroupLessons(GROUP_ID);
+    await lessonService.deleteGroupLessonsByGroupId(GROUP_ID);
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
-    expect(mockedLessons.deleteAllGroupLessons).toBeCalledTimes(1);
+    expect(mockedLessons.deleteGroupLessonsById).toBeCalledTimes(1);
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
   });
 
@@ -174,15 +174,24 @@ describe('test lessons service', () => {
     const GROUP_ID = 3;
     const lessonService = new LessonService();
     mockedGroups.getGroupById = getNonexistentGroup();
-    mockedLessons.deleteAllGroupLessons = lessonMocks.deleteGroupLessons();
+    mockedLessons.deleteGroupLessonsById = lessonMocks.deleteGroupLessons();
 
-    await expect(lessonService.deleteAllGroupLessons(GROUP_ID)).rejects.toThrow(
+    await expect(lessonService.deleteGroupLessonsByGroupId(GROUP_ID)).rejects.toThrow(
       'Group does not exist'
     );
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
-    expect(mockedLessons.deleteAllGroupLessons).not.toBeCalled();
+    expect(mockedLessons.deleteGroupLessonsById).not.toBeCalled();
     expect(await mockedGroups.getGroupById(GROUP_ID)).toBeNull();
+  });
+
+  it('test removing lessons of all groups', async () => {
+    const lessonService = new LessonService();
+    mockedLessons.removeAllGroupLessons = lessonMocks.deleteAllGroupLessons();
+
+    await lessonService.removeAllGroupLessons();
+
+    expect(mockedLessons.removeAllGroupLessons).toBeCalledTimes(1);
   });
 
   it('test teacher assignment to lesson', async () => {

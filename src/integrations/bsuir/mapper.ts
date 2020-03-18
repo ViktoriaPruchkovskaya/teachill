@@ -12,6 +12,8 @@ import {
 } from 'date-fns';
 import { Lesson, GroupSchedule } from '../models';
 
+const WEEK_START_DAY = 1;
+
 export class BSUIRResponseMapper {
   public getSchedule(groupSchedule: GroupScheduleResponse): GroupSchedule {
     const todayDate = this.convertToDate(groupSchedule.todayDate);
@@ -25,8 +27,8 @@ export class BSUIRResponseMapper {
         continue;
       }
       const studyWeek = this.getStudyWeek(
-        getWeek(todayDate),
-        getWeek(currentDate),
+        getWeek(todayDate, { weekStartsOn: WEEK_START_DAY }),
+        getWeek(currentDate, { weekStartsOn: WEEK_START_DAY }),
         groupSchedule.currentWeekNumber
       );
       const currentWeekDay = getDay(currentDate);
@@ -41,7 +43,8 @@ export class BSUIRResponseMapper {
         const formatedLesson: Lesson = {
           name: lesson.subject,
           typeId: this.convertLessonTypeToNumber(lesson.lessonType),
-          location: lesson.auditory[0],
+          subgroup: lesson.numSubgroup > 0 ? lesson.numSubgroup : null,
+          location: lesson.auditory.length > 0 ? lesson.auditory[0] : '',
           startTime: this.convertToUnixTime(currentDate, lesson.startLessonTime),
           duration: this.calculateDuration(
             currentDate,

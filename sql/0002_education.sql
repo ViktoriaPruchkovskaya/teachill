@@ -65,8 +65,9 @@ CREATE TABLE IF NOT EXISTS user_groups
 
 CREATE TABLE IF NOT EXISTS lesson_groups
 (
-    lesson_id  INT NOT NULL REFERENCES lessons,
-    group_id   INT NOT NULL REFERENCES groups,
+    lesson_id INT NOT NULL REFERENCES lessons,
+    group_id  INT NOT NULL REFERENCES groups,
+    subgroup  INT NULL,
 
     CONSTRAINT lesson_groups_pk PRIMARY KEY (lesson_id, group_id)
 );

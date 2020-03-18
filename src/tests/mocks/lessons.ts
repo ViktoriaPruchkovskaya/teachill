@@ -1,11 +1,5 @@
-interface RawLesson {
-  name: string;
-  typeId: number;
-  location: string;
-  startTime: string;
-  duration: number;
-  description?: string;
-}
+import { DBGroup } from '../../repositories/groups';
+import { DBLesson, RawLesson } from '../../repositories/lessons';
 
 export const getGroupLessonById = () =>
   jest.fn((groupId: number, lessonId: number) => Promise.resolve(lessonId));
@@ -53,7 +47,7 @@ export const getLessonById = () =>
 export const getNonexistentLessonById = () => jest.fn((lessonId: number) => Promise.resolve(null));
 
 export const createGroupLesson = () =>
-  jest.fn((lessonId: number, groupId: number) => Promise.resolve());
+  jest.fn((lesson: DBLesson, group: DBGroup, subgroup: number) => Promise.resolve());
 
 export const getGroupLessons = () =>
   jest.fn((groupId: number) =>
@@ -87,3 +81,5 @@ export const deleteGroupLessons = () => jest.fn((groupId: number) => Promise.res
 
 export const assignTeacherToLesson = () =>
   jest.fn((lessonId: number, teacherId: number) => Promise.resolve());
+
+export const deleteAllGroupLessons = () => jest.fn(() => Promise.resolve());

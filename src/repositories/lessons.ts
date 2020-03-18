@@ -1,8 +1,9 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql, NotFoundError, QueryResultRowType } from 'slonik';
 import { toDateFromUnix } from '../utils/date';
+import { DBGroup } from './groups';
 
-interface RawLesson {
+export interface RawLesson {
   name: string;
   typeId: number;
   location: string;
@@ -11,7 +12,7 @@ interface RawLesson {
   description?: string;
 }
 
-interface DBLesson {
+export interface DBLesson {
   id: number;
   name: string;
   typeId: number;
@@ -66,10 +67,14 @@ export async function getLessonTypes(): Promise<LessonType[]> {
   });
 }
 
-export async function createGroupLesson(lessonId: number, groupId: number): Promise<void> {
+export async function createGroupLesson(
+  lesson: DBLesson,
+  group: DBGroup,
+  subgroup: number = null
+): Promise<void> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(
-      sql`INSERT INTO lesson_groups (lesson_id, group_id) VALUES (${lessonId}, ${groupId})`
+      sql`INSERT INTO lesson_groups (lesson_id, group_id, subgroup) VALUES (${lesson.id}, ${group.id}, ${subgroup})`
     );
   });
 }
@@ -183,12 +188,23 @@ export async function getLessonById(lessonId: number): Promise<DBLesson> {
   });
 }
 
-export async function deleteAllGroupLessons(groupId: number): Promise<void> {
+export async function deleteGroupLessonsById(groupId: number): Promise<void> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
       DELETE 
       FROM lesson_groups
       WHERE group_id = ${groupId}`);
+  });
+}
+
+export async function removeAllGroupLessons(): Promise<void> {
+  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.transaction(async transaction => {
+      await transaction.query(sql`DELETE FROM lesson_groups`);
+      await transaction.query(sql`DELETE FROM lesson_teachers`);
+      await transaction.query(sql`DELETE FROM group_lesson_attachments`);
+      await transaction.query(sql`DELETE FROM lessons`);
+    });
   });
 }
 

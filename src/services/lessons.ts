@@ -3,9 +3,10 @@ import {
   getLessonTypes,
   createGroupLesson,
   getGroupLessons,
-  deleteAllGroupLessons,
+  deleteGroupLessonsById,
   assignTeacherToLesson,
   getLessonById,
+  removeAllGroupLessons,
 } from '../repositories/lessons';
 import { getGroupById } from '../repositories/groups';
 import { NotFoundError } from '../errors';
@@ -59,13 +60,17 @@ export class LessonService {
     return lessonTypes.map(type => ({ id: type.id, name: type.name }));
   }
 
-  public async createGroupLesson(lessonId: number, groupId: number): Promise<void> {
+  public async createGroupLesson(
+    lessonId: number,
+    groupId: number,
+    subgroup: number = null
+  ): Promise<void> {
     const lesson = await getLessonById(lessonId);
     const group = await getGroupById(groupId);
     if (!lesson || !group) {
       throw new NotFoundError('Lesson or group does not exist');
     }
-    return await createGroupLesson(lessonId, groupId);
+    return await createGroupLesson(lesson, group, subgroup);
   }
 
   public async getGroupLessons(groupId: number): Promise<Lesson[]> {
@@ -87,12 +92,16 @@ export class LessonService {
     }));
   }
 
-  public async deleteAllGroupLessons(groupId: number): Promise<void> {
+  public async deleteGroupLessonsByGroupId(groupId: number): Promise<void> {
     const group = await getGroupById(groupId);
     if (!group) {
       throw new NotFoundError('Group does not exist');
     }
-    return await deleteAllGroupLessons(groupId);
+    return await deleteGroupLessonsById(groupId);
+  }
+
+  public async removeAllGroupLessons(): Promise<void> {
+    return await removeAllGroupLessons();
   }
 
   public async assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
