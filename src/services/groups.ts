@@ -5,7 +5,7 @@ import {
   getGroupMembers,
   getGroupById,
   getGroupByName,
-  getMembershipByUserId,
+  getMembershipById,
 } from '../repositories/groups';
 import { ExistError, NotFoundError } from '../errors';
 import { getUserById } from '../repositories/users';
@@ -46,9 +46,9 @@ export class GroupService {
       throw new NotFoundError('Group or user does not exist');
     }
 
-    const membership = await getMembershipByUserId(userId);
+    const membership = await getMembershipById(userId, groupId);
     if (membership) {
-      throw new ExistError(`User is already in group ${membership}`);
+      throw new ExistError('User is already in another group');
     }
     return await createGroupMember(userId, groupId);
   }

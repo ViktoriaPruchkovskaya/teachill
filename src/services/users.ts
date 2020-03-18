@@ -9,7 +9,7 @@ import {
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 import { ExistError, InvalidCredentialsError, NotFoundError } from '../errors';
-import { getMembershipByUserId, getGroupById } from '../repositories/groups';
+import { getMembershipById } from '../repositories/groups';
 
 export enum RoleType {
   Administrator = 1,
@@ -44,34 +44,42 @@ export class SignupService {
     await createUserRole(userId, roleType);
   }
 
-  protected async createPasswordHash(password: string): Promise<string> {
+  private async createPasswordHash(password: string): Promise<string> {
     const passwordService = new PasswordService();
     return await passwordService.hashPassword(password);
   }
 }
 
 export class SigninService {
-  public async doSignin(username: string, password: string): Promise<string | null> {
+  public async doSignin(username: string, password: string): Promise<string> {
     const user = await getUserByUsername(username);
-    if (user) {
-      const passwordService = new PasswordService();
-      const isPasswordCorrect = await passwordService.comparePasswords(password, user.passwordHash);
-      if (isPasswordCorrect) {
-        const jwtService = new JWTService();
-        return jwtService.getToken(user.username);
-      }
-      return null;
+    if (!user) {
+      throw new InvalidCredentialsError('Username is incorrect');
     }
-    return null;
+    const isPasswordCorrect = await this.comparePasswords(password, user.passwordHash);
+    if (!isPasswordCorrect) {
+      throw new InvalidCredentialsError('Password is incorrect');
+    }
+    return this.getToken(username);
+  }
+
+  private async comparePasswords(
+    receivedPassword: string,
+    hashedPassword: string
+  ): Promise<boolean> {
+    const passwordService = new PasswordService();
+    return await passwordService.comparePasswords(receivedPassword, hashedPassword);
+  }
+
+  private getToken(username: string): string {
+    const jwtService = new JWTService();
+    return jwtService.getToken(username);
   }
 }
 
 export class UserService {
   public async getUsers(): Promise<User[]> {
     const users = await getUsers();
-    if (users.length === 0) {
-      return [];
-    }
 
     return users.map(user => ({
       username: user.username,
@@ -86,38 +94,46 @@ export class UserService {
     newPassword: string
   ): Promise<void> {
     const user = await getUserByUsername(username);
-    if (!user) {
-      throw new InvalidCredentialsError('Username is incorrect');
-    }
 
-    const passwordService = new PasswordService();
-    const isPasswordCorrect = await passwordService.comparePasswords(
-      currentPassword,
-      user.passwordHash
-    );
+    const isPasswordCorrect = await this.comparePasswords(currentPassword, user.passwordHash);
     if (!isPasswordCorrect) {
       throw new InvalidCredentialsError('Current password is incorrect');
     }
 
-    const newPasswordHash = await passwordService.hashPassword(newPassword);
+    const newPasswordHash = await this.createPasswordHash(newPassword);
     await changePassword(username, newPasswordHash);
   }
 
   public async changeRole(userId: number, roleType: RoleType, groupId: number): Promise<void> {
-    const membership = await getMembershipByUserId(userId);
-    const group = await getGroupById(groupId);
-    if (group.name != membership) {
-      throw new NotFoundError('User is not found');
+    const membership = await getMembershipById(userId, groupId);
+    if (!membership) {
+      throw new NotFoundError('User or group is not found');
     }
     await changeRole(userId, roleType);
   }
 
   public async getUserByUsername(username: string): Promise<User> {
     const user = await getUserByUsername(username);
+    if (!user) {
+      throw new NotFoundError('User does not exist');
+    }
     return {
       username: user.username,
       fullName: user.fullName,
       role: RoleType[user.role],
     };
+  }
+
+  private async createPasswordHash(password: string): Promise<string> {
+    const passwordService = new PasswordService();
+    return await passwordService.hashPassword(password);
+  }
+
+  private async comparePasswords(
+    receivedPassword: string,
+    hashedPassword: string
+  ): Promise<boolean> {
+    const passwordService = new PasswordService();
+    return await passwordService.comparePasswords(receivedPassword, hashedPassword);
   }
 }

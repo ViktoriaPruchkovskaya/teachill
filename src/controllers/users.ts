@@ -84,20 +84,29 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
 
 export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signinService = new SigninService();
-  const authorize = await signinService.doSignin(
-    ctx.request.body.username,
-    ctx.request.body.password
-  );
-  if (!authorize) {
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
+  try {
+    const authorize = await signinService.doSignin(
+      ctx.request.body.username,
+      ctx.request.body.password
+    );
+    ctx.body = { token: authorize };
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof InvalidCredentialsError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return await next();
+    }
   }
-  ctx.body = { token: authorize };
-  ctx.response.status = httpCodes.OK;
   await next();
 }
 
-export async function changePasswordController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function changePasswordController(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   let validatedData: PasswordData;
   const validator = new Validator<PasswordData>([
     shouldHaveField('currentPassword', 'string'),
@@ -120,7 +129,7 @@ export async function changePasswordController(ctx: Koa.ParameterizedContext, ne
   const userService = new UserService();
   try {
     await userService.changePassword(
-      ctx.params.username,
+      ctx.state.username,
       validatedData.currentPassword,
       validatedData.newPassword
     );
@@ -160,6 +169,8 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
   const userService = new UserService();
   try {
     await userService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
+    ctx.body = {};
+    ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
@@ -170,8 +181,6 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
     }
   }
 
-  ctx.body = {};
-  ctx.response.status = httpCodes.OK;
   await next();
 }
 
@@ -180,8 +189,19 @@ export async function currentUserController(
   next: Koa.Next
 ) {
   const userService = new UserService();
-  const user = await userService.getUserByUsername(ctx.state.username);
-  ctx.body = { ...user };
-  ctx.response.status = httpCodes.OK;
+  try {
+    const user = await userService.getUserByUsername(ctx.state.username);
+    ctx.body = { ...user };
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        errors: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return await next();
+    }
+  }
+
   await next();
 }

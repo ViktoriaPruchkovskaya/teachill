@@ -20,10 +20,11 @@ export const getGroups = () =>
 
 export const getEmptyGroupsArray = () => jest.fn(() => Promise.resolve([]));
 
-export const getMembershipById = () => jest.fn((userId: number) => Promise.resolve('123456'));
+export const getMembershipById = () =>
+  jest.fn((userId: number, groupId: number) => Promise.resolve(groupId));
 
 export const getNonexistentMembershipById = () =>
-  jest.fn((userId: number) => Promise.resolve(null));
+  jest.fn((userId: number, groupId: number) => Promise.resolve(null));
 
 export const createGroupMember = () =>
   jest.fn((userId: number, groupId: number) => Promise.resolve());
