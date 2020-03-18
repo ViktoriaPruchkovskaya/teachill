@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../db/connection';
-import { sql, NotFoundError } from 'slonik';
+import { sql } from 'slonik';
 
 export interface Teacher {
   id: number;
@@ -18,18 +18,12 @@ export async function createTeacher(fullName: string): Promise<Teacher> {
 
 export async function getTeachers(): Promise<Teacher[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    try {
-      const rows = await connection.many(sql`SELECT id, full_name FROM teachers`);
+    const rows = await connection.any(sql`SELECT id, full_name FROM teachers`);
 
-      return rows.map(teacher => ({
-        id: teacher.id as number,
-        fullName: teacher.full_name as string,
-      }));
-    } catch (err) {
-      if (err instanceof NotFoundError) {
-        return [];
-      }
-    }
+    return rows.map(teacher => ({
+      id: teacher.id as number,
+      fullName: teacher.full_name as string,
+    }));
   });
 }
 

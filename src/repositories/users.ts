@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../db/connection';
-import { sql, NotFoundError } from 'slonik';
+import { sql } from 'slonik';
 
 export interface User {
   username: string;
@@ -10,24 +10,18 @@ export interface User {
 
 export async function getUsers(): Promise<User[]> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
-    try {
-      const rows = await connection.many(sql`
+    const rows = await connection.any(sql`
       SELECT username, password_hash, full_name, name AS role
       FROM users
       JOIN user_roles on users.id = user_roles.user_id
       JOIN  roles  on user_roles.role_id = roles.id
       `);
-      return rows.map(row => ({
-        username: row.username as string,
-        passwordHash: row.password_hash as string,
-        fullName: row.full_name as string,
-        role: row.role as string | null,
-      }));
-    } catch (err) {
-      if (err instanceof NotFoundError) {
-        return [];
-      }
-    }
+    return rows.map(row => ({
+      username: row.username as string,
+      passwordHash: row.password_hash as string,
+      fullName: row.full_name as string,
+      role: row.role as string | null,
+    }));
   });
 }
 
