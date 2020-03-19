@@ -27,7 +27,7 @@ export async function createAttachmentController(ctx: Koa.ParameterizedContext, 
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -54,7 +54,7 @@ export async function assignToGroupLessonController(ctx: Koa.ParameterizedContex
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 
@@ -79,7 +79,7 @@ export async function getGroupLessonAttachmentController(
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 
@@ -105,7 +105,7 @@ export async function deleteGroupLessonAttachmentController(
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 
@@ -124,7 +124,7 @@ export async function deleteAttachmentController(ctx: Koa.ParameterizedContext, 
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 

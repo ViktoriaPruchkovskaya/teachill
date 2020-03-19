@@ -28,7 +28,7 @@ export class GroupService {
     if (group) {
       throw new ExistError('Group already exists');
     }
-    return await createGroup(name);
+    return createGroup(name);
   }
 
   public async getGroups(): Promise<Group[]> {
@@ -50,7 +50,7 @@ export class GroupService {
     if (membership) {
       throw new ExistError(`User is already in group ${membership}`);
     }
-    return await createGroupMember(userId, groupId);
+    return createGroupMember(userId, groupId);
   }
 
   public async getGroupMembers(groupId: number): Promise<GroupMember[]> {

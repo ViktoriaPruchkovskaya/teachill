@@ -46,7 +46,7 @@ export class BSUIRClient {
           },
         }
       );
-      return await response.json();
+      return response.json();
     } catch (err) {
       console.error(err);
     }

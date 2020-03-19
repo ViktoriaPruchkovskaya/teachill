@@ -41,4 +41,16 @@ export class TeacherService {
     }
     return { id: teacher.id, fullName: teacher.fullName };
   }
+
+  public async getOrCreateTeacher(fullName: string): Promise<Teacher> {
+    let teacher: Teacher;
+    try {
+      teacher = await this.getTeacherByFullName(fullName);
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        teacher = await this.createTeacher(fullName);
+      }
+    }
+    return teacher;
+  }
 }

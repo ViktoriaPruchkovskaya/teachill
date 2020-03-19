@@ -33,7 +33,7 @@ interface Teacher {
 }
 
 export async function createLesson(obj: RawLesson): Promise<DBLesson> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     obj.description = obj.description || '';
     const row = await connection.one(sql`
       INSERT INTO lessons (name, type_id, description, location, start_time, duration)
@@ -52,7 +52,7 @@ export async function createLesson(obj: RawLesson): Promise<DBLesson> {
 }
 
 export async function getLessonTypes(): Promise<LessonType[]> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.any(sql`SELECT id, name FROM lesson_types`);
     return rows.map(type => ({
       id: type.id as number,
@@ -66,7 +66,7 @@ export async function createGroupLesson(
   group: DBGroup,
   subgroup: number = null
 ): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(
       sql`INSERT INTO lesson_groups (lesson_id, group_id, subgroup) VALUES (${lesson.id}, ${group.id}, ${subgroup})`
     );
@@ -74,7 +74,7 @@ export async function createGroupLesson(
 }
 
 export async function getGroupLessons(groupId: number) {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     let groupLessons: DBLesson[];
     await connection.transaction(async transaction => {
       const rows = await transaction.any(sql`
@@ -94,15 +94,15 @@ export async function getGroupLessons(groupId: number) {
           WHERE lesson_id IN (${sql.join(lessonIds, sql`,`)})`);
 
       const lessonsMap = new Map<number, DBLesson>();
-      rows.map(lesson =>
-        lessonsMap.set(Number(lesson.id), {
-          id: lesson.id as number,
-          name: lesson.name as string,
-          typeId: lesson.type_id as number,
-          location: lesson.location as string,
-          startTime: toDateFromUnix(lesson.start_time as number),
-          duration: lesson.duration as number,
-          description: lesson.description as string,
+      rows.map(row =>
+        lessonsMap.set(Number(row.id), {
+          id: row.id as number,
+          name: row.name as string,
+          typeId: row.type_id as number,
+          location: row.location as string,
+          startTime: toDateFromUnix(row.start_time as number),
+          duration: row.duration as number,
+          description: row.description as string,
           teacher: [],
         })
       );
@@ -122,7 +122,7 @@ export async function getGroupLessonById(
   groupId: number,
   lessonId: number
 ): Promise<number | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
     SELECT group_id, lesson_id
     FROM lesson_groups
@@ -135,7 +135,7 @@ export async function getGroupLessonById(
 }
 
 export async function getLessonById(lessonId: number): Promise<DBLesson> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     let lesson: DBLesson;
     await connection.transaction(async transaction => {
       const row = await transaction.maybeOne(sql`
@@ -170,7 +170,7 @@ export async function getLessonById(lessonId: number): Promise<DBLesson> {
 }
 
 export async function deleteGroupLessonsById(groupId: number): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
       DELETE 
       FROM lesson_groups
@@ -179,7 +179,7 @@ export async function deleteGroupLessonsById(groupId: number): Promise<void> {
 }
 
 export async function removeAllGroupLessons(): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.transaction(async transaction => {
       await transaction.query(sql`DELETE FROM lesson_groups`);
       await transaction.query(sql`DELETE FROM lesson_teachers`);
@@ -190,7 +190,7 @@ export async function removeAllGroupLessons(): Promise<void> {
 }
 
 export async function assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(
       sql`INSERT INTO lesson_teachers (lesson_id, teacher_id) VALUES (${lessonId}, ${teacherId})`
     );

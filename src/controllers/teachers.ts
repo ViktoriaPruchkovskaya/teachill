@@ -22,7 +22,7 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -37,7 +37,7 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
         error: err.message,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 

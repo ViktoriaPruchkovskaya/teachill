@@ -55,7 +55,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -75,7 +75,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
         error: err.message,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -90,7 +90,7 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
   );
   if (!authorize) {
     ctx.response.status = httpCodes.BAD_REQUEST;
-    return await next();
+    return next();
   }
   ctx.body = { token: authorize };
   ctx.response.status = httpCodes.OK;
@@ -113,7 +113,7 @@ export async function changePasswordController(ctx: Koa.ParameterizedContext, ne
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -132,7 +132,7 @@ export async function changePasswordController(ctx: Koa.ParameterizedContext, ne
         error: err.message,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -154,7 +154,7 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
   const userService = new UserService();
@@ -166,7 +166,7 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
         errors: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 

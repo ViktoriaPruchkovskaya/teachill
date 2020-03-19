@@ -16,7 +16,7 @@ export interface Attachment {
 }
 export class AttachmentService {
   public async createAttachment(name: string, url: string): Promise<void> {
-    return await createAttachment(name, url);
+    return createAttachment(name, url);
   }
 
   public async assignToGroupLesson(
@@ -30,7 +30,7 @@ export class AttachmentService {
       throw new NotFoundError('Group, lesson or attachment does not exist');
     }
 
-    return await assignToGroupLesson(attachmentId, lessonId, groupId);
+    return assignToGroupLesson(attachmentId, lessonId, groupId);
   }
 
   public async getGroupLessonAttachment(lessonId: number, groupId: number): Promise<Attachment[]> {
@@ -39,8 +39,8 @@ export class AttachmentService {
       throw new NotFoundError('Group or lesson does not exist');
     }
 
-    const res = await getGroupLessonAttachment(lessonId, groupId);
-    return res.map(attachment => ({
+    const attachments = await getGroupLessonAttachment(lessonId, groupId);
+    return attachments.map(attachment => ({
       id: attachment.id,
       name: attachment.name,
       url: attachment.url,

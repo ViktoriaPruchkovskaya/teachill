@@ -46,7 +46,7 @@ export class SignupService {
 
   protected async createPasswordHash(password: string): Promise<string> {
     const passwordService = new PasswordService();
-    return await passwordService.hashPassword(password);
+    return passwordService.hashPassword(password);
   }
 }
 

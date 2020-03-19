@@ -70,7 +70,7 @@ export class LessonService {
     if (!lesson || !group) {
       throw new NotFoundError('Lesson or group does not exist');
     }
-    return await createGroupLesson(lesson, group, subgroup);
+    return createGroupLesson(lesson, group, subgroup);
   }
 
   public async getGroupLessons(groupId: number): Promise<Lesson[]> {
@@ -97,11 +97,11 @@ export class LessonService {
     if (!group) {
       throw new NotFoundError('Group does not exist');
     }
-    return await deleteGroupLessonsById(groupId);
+    return deleteGroupLessonsById(groupId);
   }
 
   public async removeAllGroupLessons(): Promise<void> {
-    return await removeAllGroupLessons();
+    return removeAllGroupLessons();
   }
 
   public async assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
@@ -110,6 +110,6 @@ export class LessonService {
     if (!teacher || !lesson) {
       throw new NotFoundError('Teacher or lesson does not exist');
     }
-    return await assignTeacherToLesson(lessonId, teacherId);
+    return assignTeacherToLesson(lessonId, teacherId);
   }
 }

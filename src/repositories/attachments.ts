@@ -8,7 +8,7 @@ interface DBAttachment {
 }
 
 export async function createAttachment(name: string, url: string): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`INSERT INTO attachments (name, url) VALUES (${name}, ${url})`);
   });
 }
@@ -18,7 +18,7 @@ export async function assignToGroupLesson(
   lessonId: number,
   groupId: number
 ): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     INSERT INTO group_lesson_attachments (attachment_id, lesson_id, group_id) VALUES (${attachmentId}, ${lessonId}, ${groupId})`);
   });
@@ -28,7 +28,7 @@ export async function getGroupLessonAttachment(
   lessonId: number,
   groupId: number
 ): Promise<DBAttachment[]> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.any(sql`
       SELECT id, name, url
       FROM attachments
@@ -45,7 +45,7 @@ export async function getGroupLessonAttachment(
 }
 
 export async function getAttachmentById(attachmentId: number): Promise<DBAttachment | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(
       sql`SELECT id, name, url FROM attachments WHERE id=${attachmentId}`
     );
@@ -65,7 +65,7 @@ export async function deleteGroupLessonAttachment(
   lessonId: number,
   groupId: number
 ): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
       DELETE
       FROM group_lesson_attachments
@@ -74,7 +74,7 @@ export async function deleteGroupLessonAttachment(
 }
 
 export async function deleteAttachment(attachmentId: number): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     DELETE
     FROM attachments

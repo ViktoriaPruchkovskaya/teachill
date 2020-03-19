@@ -14,14 +14,14 @@ export interface GroupMember {
 }
 
 export async function createGroup(name: string): Promise<number> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.one(sql`INSERT INTO groups (name) VALUES (${name}) RETURNING id`);
     return row.id as number;
   });
 }
 
 export async function getGroups(): Promise<DBGroup[]> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.any(sql`SELECT id, name FROM groups`);
     return rows.map(group => ({
       id: group.id as number,
@@ -31,7 +31,7 @@ export async function getGroups(): Promise<DBGroup[]> {
 }
 
 export async function createGroupMember(userId: number, groupId: number): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(
       sql`INSERT INTO user_groups (user_id, group_id) VALUES (${userId}, ${groupId})`
     );
@@ -39,7 +39,7 @@ export async function createGroupMember(userId: number, groupId: number): Promis
 }
 
 export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.any(sql`
       SELECT users.id, users.username, users.full_name, roles.name as role
       FROM users
@@ -59,7 +59,7 @@ export async function getGroupMembers(groupId: number): Promise<GroupMember[]> {
 }
 
 export async function getGroupById(id: number): Promise<DBGroup | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
       SELECT id, name
       FROM groups
@@ -75,7 +75,7 @@ export async function getGroupById(id: number): Promise<DBGroup | null> {
 }
 
 export async function getGroupByName(name: string): Promise<DBGroup | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
       SELECT id, name
       FROM groups
@@ -91,7 +91,7 @@ export async function getGroupByName(name: string): Promise<DBGroup | null> {
 }
 
 export async function getMembershipByUserId(id: number): Promise<string | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
       SELECT user_id, name as group_name
       FROM user_groups
