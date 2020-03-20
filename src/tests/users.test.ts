@@ -14,19 +14,22 @@ describe('test signup service', () => {
     const FULLNAME = 'Petrov A.A.';
     const ROLE = 1;
     const signupService = new SignupService();
+    (signupService as any).userService = new UserService();
     mockedUsers.getUserByUsername = userMocks.getNonexistentUserByUsername();
-    (signupService as any).createPasswordHash = userMocks.createPasswordHash();
+    (signupService as any).userService.createPasswordHash = userMocks.createPasswordHash();
     mockedUsers.createUser = userMocks.createUser();
     (signupService as any).createUserRole = userMocks.createUserRole();
 
     const id = await signupService.doSignup(USERNAME, PASSWORD, FULLNAME, ROLE);
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
-    expect((signupService as any).createPasswordHash).toBeCalledTimes(1);
+    expect((signupService as any).userService.createPasswordHash).toBeCalledTimes(1);
     expect(mockedUsers.createUser).toBeCalledTimes(1);
     expect((signupService as any).createUserRole).toBeCalledTimes(1);
     expect(await mockedUsers.getUserByUsername(USERNAME)).toBeNull();
-    expect(await (signupService as any).createPasswordHash(PASSWORD)).toBe(`2134${PASSWORD}`);
+    expect(await (signupService as any).userService.createPasswordHash(PASSWORD)).toBe(
+      `2134${PASSWORD}`
+    );
     expect(id).toBe(1);
   });
 

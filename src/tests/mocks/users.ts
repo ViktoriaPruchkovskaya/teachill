@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv';
 import { PasswordService } from '../../services/password';
 import { hashPassword, comparePasswords } from './password';
 import { getToken } from './jwt';
@@ -46,7 +45,7 @@ export const passwordComparison = () =>
 
 export const getUserToken = () =>
   jest.fn((username: string) => {
-    dotenv.config();
+    process.env.SECRET_KEY = 'secretKey';
     const jwtService = new JWTService();
     jwtService.getToken = getToken();
     return jwtService.getToken(username);
