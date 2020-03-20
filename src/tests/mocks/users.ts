@@ -1,8 +1,4 @@
-import { PasswordService } from '../../services/password';
-import { hashPassword, comparePasswords } from './password';
-import { getToken } from './jwt';
 import { RoleType } from '../../services/users';
-import { JWTService } from '../../services/jwt';
 
 export const getUserById = () =>
   jest.fn((id: number) =>
@@ -28,28 +24,6 @@ export const getUserByUsername = () =>
 
 export const getNonexistentUserByUsername = () =>
   jest.fn((username: string) => Promise.resolve(null));
-
-export const createPasswordHash = () =>
-  jest.fn(async (password: string) => {
-    const passwordService = new PasswordService();
-    passwordService.hashPassword = hashPassword();
-    return await passwordService.hashPassword(password);
-  });
-
-export const passwordComparison = () =>
-  jest.fn(async (receivedPassword: string, hashedPassword: string) => {
-    const passwordService = new PasswordService();
-    passwordService.comparePasswords = comparePasswords();
-    return await passwordService.comparePasswords(receivedPassword, hashedPassword);
-  });
-
-export const getUserToken = () =>
-  jest.fn((username: string) => {
-    process.env.SECRET_KEY = 'secretKey';
-    const jwtService = new JWTService();
-    jwtService.getToken = getToken();
-    return jwtService.getToken(username);
-  });
 
 export const createUser = () =>
   jest.fn((username: string, passwordHash: string, fullName: string) => Promise.resolve(1));

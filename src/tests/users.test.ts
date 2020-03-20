@@ -1,7 +1,11 @@
 import { SignupService, SigninService, UserService } from '../services/users';
+import { PasswordService } from '../services/password';
+import { JWTService } from '../services/jwt';
 import * as usersRepository from '../repositories/users';
 import * as groupsRepository from '../repositories/groups';
 import * as userMocks from './mocks/users';
+import * as passwordMock from './mocks/password';
+import { getToken } from './mocks/jwt';
 import { getMembershipById, getNonexistentMembershipById } from './mocks/groups';
 
 const mockedUsers = usersRepository as jest.Mocked<typeof usersRepository>;
@@ -14,20 +18,20 @@ describe('test signup service', () => {
     const FULLNAME = 'Petrov A.A.';
     const ROLE = 1;
     const signupService = new SignupService();
-    (signupService as any).userService = new UserService();
+    (signupService as any).passwordService = new PasswordService();
     mockedUsers.getUserByUsername = userMocks.getNonexistentUserByUsername();
-    (signupService as any).userService.createPasswordHash = userMocks.createPasswordHash();
+    (signupService as any).passwordService.hashPassword = passwordMock.hashPassword();
     mockedUsers.createUser = userMocks.createUser();
     (signupService as any).createUserRole = userMocks.createUserRole();
 
     const id = await signupService.doSignup(USERNAME, PASSWORD, FULLNAME, ROLE);
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
-    expect((signupService as any).userService.createPasswordHash).toBeCalledTimes(1);
+    expect((signupService as any).passwordService.hashPassword).toBeCalledTimes(1);
     expect(mockedUsers.createUser).toBeCalledTimes(1);
     expect((signupService as any).createUserRole).toBeCalledTimes(1);
     expect(await mockedUsers.getUserByUsername(USERNAME)).toBeNull();
-    expect(await (signupService as any).userService.createPasswordHash(PASSWORD)).toBe(
+    expect(await (signupService as any).passwordService.hashPassword(PASSWORD)).toBe(
       `2134${PASSWORD}`
     );
     expect(id).toBe(1);
@@ -39,8 +43,9 @@ describe('test signup service', () => {
     const FULLNAME = 'Petrov A.A.';
     const ROLE = 1;
     const signupService = new SignupService();
+    (signupService as any).passwordService = new PasswordService();
     mockedUsers.getUserByUsername = userMocks.getUserByUsername();
-    (signupService as any).createPasswordHash = userMocks.createPasswordHash();
+    (signupService as any).passwordService.hashPassword = passwordMock.hashPassword();
     mockedUsers.createUser = userMocks.createUser();
     (signupService as any).createUserRole = userMocks.createUserRole();
 
@@ -49,7 +54,7 @@ describe('test signup service', () => {
     );
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
-    expect((signupService as any).createPasswordHash).not.toBeCalled();
+    expect((signupService as any).passwordService.hashPassword).not.toBeCalled();
     expect(mockedUsers.createUser).not.toBeCalled();
     expect((signupService as any).createUserRole).not.toBeCalled();
     expect((await mockedUsers.getUserByUsername(USERNAME)).username).toBe(USERNAME);
@@ -60,19 +65,23 @@ describe('test signin service', () => {
   it('test user signin', async () => {
     const USERNAME = 'petrov';
     const PASSWORD = 'password';
+    delete process.env.SECRET_KEY;
+    process.env.SECRET_KEY = 'secretKey';
     const signinService = new SigninService();
+    (signinService as any).passwordService = new PasswordService();
+    (signinService as any).jwtService = new JWTService();
     mockedUsers.getUserByUsername = userMocks.getUserByUsername();
-    (signinService as any).comparePasswords = userMocks.passwordComparison();
-    (signinService as any).getToken = userMocks.getUserToken();
+    (signinService as any).passwordService.comparePasswords = passwordMock.comparePasswords();
+    (signinService as any).jwtService.getToken = getToken();
 
     const signin = await signinService.doSignin(USERNAME, PASSWORD);
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
-    expect((signinService as any).comparePasswords).toBeCalledTimes(1);
-    expect((signinService as any).getToken).toBeCalledTimes(1);
+    expect((signinService as any).passwordService.comparePasswords).toBeCalledTimes(1);
+    expect((signinService as any).jwtService.getToken).toBeCalledTimes(1);
     expect((await mockedUsers.getUserByUsername(USERNAME)).username).toBe(USERNAME);
     expect(
-      await (signinService as any).comparePasswords(
+      await (signinService as any).passwordService.comparePasswords(
         PASSWORD,
         (await mockedUsers.getUserByUsername(USERNAME)).passwordHash
       )
@@ -80,42 +89,57 @@ describe('test signin service', () => {
     expect(signin).toBe('token');
   });
 
+  it('test user signin without JWT secret key', async () => {
+    delete process.env.SECRET_KEY;
+    expect(() => new SigninService()).toThrow('Secret key is missing');
+  });
+
   it('test user signin with incorrect username', async () => {
     const USERNAME = 'petrov';
     const PASSWORD = 'password';
+    delete process.env.SECRET_KEY;
+    process.env.SECRET_KEY = 'secretKey';
     const signinService = new SigninService();
+
+    (signinService as any).passwordService = new PasswordService();
+    (signinService as any).jwtService = new JWTService();
     mockedUsers.getUserByUsername = userMocks.getNonexistentUserByUsername();
-    (signinService as any).comparePasswords = userMocks.passwordComparison();
-    (signinService as any).getToken = userMocks.getUserToken();
+    (signinService as any).passwordService.comparePasswords = passwordMock.comparePasswords();
+    (signinService as any).jwtService.getToken = getToken();
 
     await expect(signinService.doSignin(USERNAME, PASSWORD)).rejects.toThrow(
       'Username is incorrect'
     );
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
-    expect((signinService as any).comparePasswords).not.toBeCalled();
-    expect((signinService as any).getToken).not.toBeCalled();
+    expect((signinService as any).passwordService.comparePasswords).not.toBeCalled();
+    expect((signinService as any).jwtService.getToken).not.toBeCalled();
     expect(await mockedUsers.getUserByUsername(USERNAME)).toBeNull();
+    delete process.env.SECRET_KEY;
   });
 
   it('test user signin with incorrect password', async () => {
     const USERNAME = 'petrov';
     const PASSWORD = 'incorrectPassword';
+    delete process.env.SECRET_KEY;
+    process.env.SECRET_KEY = 'secretKey';
     const signinService = new SigninService();
+    (signinService as any).passwordService = new PasswordService();
+    (signinService as any).jwtService = new JWTService();
     mockedUsers.getUserByUsername = userMocks.getUserByUsername();
-    (signinService as any).comparePasswords = userMocks.passwordComparison();
-    (signinService as any).getToken = userMocks.getUserToken();
+    (signinService as any).passwordService.comparePasswords = passwordMock.comparePasswords();
+    (signinService as any).jwtService.getToken = getToken();
 
     await expect(signinService.doSignin(USERNAME, PASSWORD)).rejects.toThrow(
       'Password is incorrect'
     );
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
-    expect((signinService as any).comparePasswords).toBeCalledTimes(1);
-    expect((signinService as any).getToken).not.toBeCalled();
+    expect((signinService as any).passwordService.comparePasswords).toBeCalledTimes(1);
+    expect((signinService as any).jwtService.getToken).not.toBeCalled();
     expect((await mockedUsers.getUserByUsername(USERNAME)).username).toBe(USERNAME);
     expect(
-      await (signinService as any).comparePasswords(
+      await (signinService as any).passwordService.comparePasswords(
         PASSWORD,
         (await mockedUsers.getUserByUsername(USERNAME)).passwordHash
       )
@@ -152,25 +176,26 @@ describe('test user service', () => {
     const CURRENT_PASSWORD = 'password';
     const NEW_PASSWORD = '654321';
     const userService = new UserService();
+    (userService as any).passwordService = new PasswordService();
     mockedUsers.getUserByUsername = userMocks.getUserByUsername();
     mockedUsers.changePassword = userMocks.changePassword();
-    (userService as any).comparePasswords = userMocks.passwordComparison();
-    (userService as any).createPasswordHash = userMocks.createPasswordHash();
+    (userService as any).passwordService.comparePasswords = passwordMock.comparePasswords();
+    (userService as any).passwordService.hashPassword = passwordMock.hashPassword();
 
     await userService.changePassword(USERNAME, CURRENT_PASSWORD, NEW_PASSWORD);
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
     expect(mockedUsers.changePassword).toBeCalledTimes(1);
-    expect((userService as any).comparePasswords).toBeCalledTimes(1);
-    expect((userService as any).createPasswordHash).toBeCalledTimes(1);
+    expect((userService as any).passwordService.comparePasswords).toBeCalledTimes(1);
+    expect((userService as any).passwordService.hashPassword).toBeCalledTimes(1);
     expect((await mockedUsers.getUserByUsername(USERNAME)).username).toBe(USERNAME);
     expect(
-      await (userService as any).comparePasswords(
+      await (userService as any).passwordService.comparePasswords(
         CURRENT_PASSWORD,
         (await mockedUsers.getUserByUsername(USERNAME)).passwordHash
       )
     ).toBeTruthy();
-    expect(await (userService as any).createPasswordHash(NEW_PASSWORD)).toEqual(
+    expect(await (userService as any).passwordService.hashPassword(NEW_PASSWORD)).toEqual(
       `2134${NEW_PASSWORD}`
     );
   });
@@ -180,10 +205,11 @@ describe('test user service', () => {
     const CURRENT_PASSWORD = 'incorrectPassword';
     const NEW_PASSWORD = '654321';
     const userService = new UserService();
+    (userService as any).passwordService = new PasswordService();
     mockedUsers.getUserByUsername = userMocks.getUserByUsername();
     mockedUsers.changePassword = userMocks.changePassword();
-    (userService as any).comparePasswords = userMocks.passwordComparison();
-    (userService as any).createPasswordHash = userMocks.createPasswordHash();
+    (userService as any).passwordService.comparePasswords = passwordMock.comparePasswords();
+    (userService as any).passwordService.hashPassword = passwordMock.hashPassword();
 
     await expect(
       userService.changePassword(USERNAME, CURRENT_PASSWORD, NEW_PASSWORD)
@@ -191,11 +217,11 @@ describe('test user service', () => {
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
     expect(mockedUsers.changePassword).not.toBeCalled();
-    expect((userService as any).comparePasswords).toBeCalledTimes(1);
-    expect((userService as any).createPasswordHash).not.toBeCalled();
+    expect((userService as any).passwordService.comparePasswords).toBeCalledTimes(1);
+    expect((userService as any).passwordService.hashPassword).not.toBeCalled();
     expect((await mockedUsers.getUserByUsername(USERNAME)).username).toBe(USERNAME);
     expect(
-      await (userService as any).comparePasswords(
+      await (userService as any).passwordService.comparePasswords(
         CURRENT_PASSWORD,
         (await mockedUsers.getUserByUsername(USERNAME)).passwordHash
       )

@@ -23,6 +23,12 @@ interface User {
 }
 
 export class UserService {
+  private passwordService: PasswordService;
+
+  constructor() {
+    this.passwordService = new PasswordService();
+  }
+
   public async getUsers(): Promise<User[]> {
     const users = await getUsers();
 
@@ -40,12 +46,15 @@ export class UserService {
   ): Promise<void> {
     const user = await getUserByUsername(username);
 
-    const isPasswordCorrect = await this.comparePasswords(currentPassword, user.passwordHash);
+    const isPasswordCorrect = await this.passwordService.comparePasswords(
+      currentPassword,
+      user.passwordHash
+    );
     if (!isPasswordCorrect) {
       throw new InvalidCredentialsError('Current password is incorrect');
     }
 
-    const newPasswordHash = await this.createPasswordHash(newPassword);
+    const newPasswordHash = await this.passwordService.hashPassword(newPassword);
     await changePassword(username, newPasswordHash);
   }
 
@@ -68,26 +77,13 @@ export class UserService {
       role: RoleType[user.role],
     };
   }
-
-  public async createPasswordHash(password: string): Promise<string> {
-    const passwordService = new PasswordService();
-    return await passwordService.hashPassword(password);
-  }
-
-  private async comparePasswords(
-    receivedPassword: string,
-    hashedPassword: string
-  ): Promise<boolean> {
-    const passwordService = new PasswordService();
-    return await passwordService.comparePasswords(receivedPassword, hashedPassword);
-  }
 }
 
 export class SignupService {
-  private userService: UserService;
+  private passwordService: PasswordService;
 
   constructor() {
-    this.userService = new UserService();
+    this.passwordService = new PasswordService();
   }
 
   public async doSignup(
@@ -101,7 +97,7 @@ export class SignupService {
       throw new ExistError('Username already exists');
     }
 
-    const passwordHash = await this.userService.createPasswordHash(password);
+    const passwordHash = await this.passwordService.hashPassword(password);
     const userId = await createUser(username, passwordHash, fullName);
     await this.createUserRole(userId, RoleType[RoleType[role]]);
     return userId;
@@ -113,28 +109,25 @@ export class SignupService {
 }
 
 export class SigninService {
+  private passwordService: PasswordService;
+  private jwtService: JWTService;
+
+  constructor() {
+    this.passwordService = new PasswordService();
+    this.jwtService = new JWTService();
+  }
   public async doSignin(username: string, password: string): Promise<string> {
     const user = await getUserByUsername(username);
     if (!user) {
       throw new InvalidCredentialsError('Username is incorrect');
     }
-    const isPasswordCorrect = await this.comparePasswords(password, user.passwordHash);
+    const isPasswordCorrect = await this.passwordService.comparePasswords(
+      password,
+      user.passwordHash
+    );
     if (!isPasswordCorrect) {
       throw new InvalidCredentialsError('Password is incorrect');
     }
-    return this.getToken(username);
-  }
-
-  private async comparePasswords(
-    receivedPassword: string,
-    hashedPassword: string
-  ): Promise<boolean> {
-    const passwordService = new PasswordService();
-    return await passwordService.comparePasswords(receivedPassword, hashedPassword);
-  }
-
-  private getToken(username: string): string {
-    const jwtService = new JWTService();
-    return jwtService.getToken(username);
+    return this.jwtService.getToken(username);
   }
 }
