@@ -90,7 +90,7 @@ export async function getGroupByName(name: string): Promise<DBGroup | null> {
   });
 }
 
-export async function getMembershipByUserId(id: number): Promise<string | null> {
+export async function getMembershipById(userId: number, groupId: number): Promise<number | null> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
       SELECT user_id, group_id
