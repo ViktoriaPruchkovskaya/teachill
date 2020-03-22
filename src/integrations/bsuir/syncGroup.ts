@@ -2,45 +2,58 @@ import { BSUIRClient } from './client';
 import { BSUIRResponseMapper } from './mapper';
 import { LessonService } from '../../services/lessons';
 import { TeacherService } from '../../services/teachers';
-import { NotFoundError } from '../../errors';
+import { Lesson, Teacher } from '../models';
+import { Lesson as AppLesson } from '../../services/lessons';
+import { Teacher as AppTeacher } from '../../services/teachers';
 
-async function createNonExistingTeachers(service: TeacherService, teachers: string[]) {
-  teachers.map(async teacher => {
-    try {
-      await service.getTeacherByFullName(teacher);
-    } catch (err) {
-      if (err instanceof NotFoundError) {
-        await service.createTeacher(teacher);
-      }
-    }
-  });
-}
+export class GroupSyncService {
+  private lessonService: LessonService;
+  private teacherService: TeacherService;
 
-export async function syncGroup(groupId: number, groupNumber: number): Promise<void> {
-  const client = new BSUIRClient();
-  const mapper = new BSUIRResponseMapper();
+  constructor() {
+    this.lessonService = new LessonService();
+    this.teacherService = new TeacherService();
+  }
 
-  const groupSchedule = mapper.getSchedule(await client.getGroupSchedule(groupNumber));
+  public async syncGroup(groupId: number, groupNumber: number): Promise<void> {
+    const client = new BSUIRClient();
+    const mapper = new BSUIRResponseMapper();
 
-  const lessonService = new LessonService();
-  const teacherService = new TeacherService();
+    const groupSchedule = mapper.getSchedule(await client.getGroupSchedule(groupNumber));
 
-  const teachers = new Set<string>();
-  groupSchedule.lessons.map(lesson => lesson.teacher.map(teacher => teachers.add(teacher.fio)));
-  const teachersArray = Array.from(teachers);
+    const teachers = new Set<string>();
+    groupSchedule.lessons.map(lesson => lesson.teacher.map(teacher => teachers.add(teacher.fio)));
+    const teachersArray = Array.from(teachers);
 
-  await createNonExistingTeachers(teacherService, teachersArray);
+    const dbTeachers = await this.createNonExistingTeachers(teachersArray);
 
-  await Promise.all(
-    groupSchedule.lessons.map(async lesson => {
-      const createdLesson = await lessonService.createLesson(lesson);
-      await lessonService.createGroupLesson(createdLesson.id, groupId, lesson.subgroup);
-      await Promise.all(
-        lesson.teacher.map(async t => {
-          const teacher = await teacherService.getTeacherByFullName(t.fio);
-          await lessonService.assignTeacherToLesson(createdLesson.id, teacher.id);
-        })
-      );
-    })
-  );
+    await Promise.all(
+      groupSchedule.lessons.map(lesson => this.createLesson(lesson, groupId, dbTeachers))
+    );
+  }
+
+  private async createNonExistingTeachers(teachers: string[]): Promise<AppTeacher[]> {
+    return Promise.all(teachers.map(teacher => this.teacherService.getOrCreateTeacher(teacher)));
+  }
+
+  private async assignTeacher(
+    createdLesson: AppLesson,
+    dbTeachers: AppTeacher[],
+    teacher: Teacher
+  ): Promise<void> {
+    const lessonTeacher = dbTeachers.find(dbTeacher => dbTeacher.fullName === teacher.fio);
+    await this.lessonService.assignTeacherToLesson(createdLesson.id, lessonTeacher.id);
+  }
+
+  private async createLesson(
+    lesson: Lesson,
+    groupId: number,
+    dbTeachers: AppTeacher[]
+  ): Promise<void> {
+    const createdLesson = await this.lessonService.createLesson(lesson);
+    await this.lessonService.createGroupLesson(createdLesson.id, groupId, lesson.subgroup);
+    await Promise.all(
+      lesson.teacher.map(teacher => this.assignTeacher(createdLesson, dbTeachers, teacher))
+    );
+  }
 }

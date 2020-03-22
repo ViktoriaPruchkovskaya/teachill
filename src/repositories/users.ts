@@ -9,7 +9,7 @@ export interface User {
 }
 
 export async function getUsers(): Promise<User[]> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.any(sql`
       SELECT username, password_hash, full_name, name AS role
       FROM users
@@ -30,7 +30,7 @@ export async function createUser(
   passwordHash: string,
   fullName: string
 ): Promise<number> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.one(sql`
     INSERT INTO users (username, password_hash, full_name) VALUES (${username}, ${passwordHash}, ${fullName}) 
     RETURNING id
@@ -48,7 +48,7 @@ export async function createUserRole(userId: number, roleType: number): Promise<
 }
 
 export async function getUserByUsername(username: string): Promise<User | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
     SELECT users.username, users.password_hash, users.full_name, roles.name AS role
     FROM users
@@ -68,7 +68,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 }
 
 export async function getUserById(id: number): Promise<User | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const res = await connection.maybeOne(sql`
     SELECT users.username, users.password_hash, users.full_name, roles.name AS role
     FROM users
@@ -88,7 +88,7 @@ export async function getUserById(id: number): Promise<User | null> {
 }
 
 export async function changePassword(username: string, passwordHash: string): Promise<void> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     UPDATE users
     SET password_hash = ${passwordHash}
@@ -97,7 +97,7 @@ export async function changePassword(username: string, passwordHash: string): Pr
 }
 
 export async function changeRole(userId: number, roleType: number) {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
       UPDATE user_roles
       SET role_id = ${roleType}

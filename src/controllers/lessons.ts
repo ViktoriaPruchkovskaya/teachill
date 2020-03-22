@@ -39,7 +39,7 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -69,7 +69,7 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -84,7 +84,7 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 
@@ -103,7 +103,7 @@ export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, n
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 
@@ -124,7 +124,7 @@ export async function assignTeacherToLessonController(
         errors: err.errors,
       };
       ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
+      return next();
     }
   }
 
@@ -139,7 +139,7 @@ export async function assignTeacherToLessonController(
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
-      return await next();
+      return next();
     }
   }
 

@@ -7,7 +7,7 @@ export interface Teacher {
 }
 
 export async function createTeacher(fullName: string): Promise<Teacher> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.one(
       sql`INSERT INTO teachers (full_name) VALUES (${fullName}) RETURNING id, full_name`
     );
@@ -17,7 +17,7 @@ export async function createTeacher(fullName: string): Promise<Teacher> {
 }
 
 export async function getTeachers(): Promise<Teacher[]> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.any(sql`SELECT id, full_name FROM teachers`);
 
     return rows.map(teacher => ({
@@ -28,7 +28,7 @@ export async function getTeachers(): Promise<Teacher[]> {
 }
 
 export async function getTeacherById(id: number): Promise<Teacher | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
     SELECT id, full_name 
     FROM teachers 
@@ -41,7 +41,7 @@ export async function getTeacherById(id: number): Promise<Teacher | null> {
 }
 
 export async function getTeacherByFullName(fullName: string): Promise<Teacher | null> {
-  return await DatabaseConnection.getConnectionPool().connect(async connection => {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
     SELECT id, full_name 
     FROM teachers 

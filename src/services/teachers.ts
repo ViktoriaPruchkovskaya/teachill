@@ -6,7 +6,7 @@ import {
 } from '../repositories/teachers';
 import { NotFoundError, ExistError } from '../errors';
 
-interface Teacher {
+export interface Teacher {
   id: number;
   fullName: string;
 }
@@ -40,5 +40,17 @@ export class TeacherService {
       throw new NotFoundError('Teacher does not exist');
     }
     return { id: teacher.id, fullName: teacher.fullName };
+  }
+
+  public async getOrCreateTeacher(fullName: string): Promise<Teacher> {
+    let teacher: Teacher;
+    try {
+      teacher = await this.getTeacherByFullName(fullName);
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        teacher = await this.createTeacher(fullName);
+      }
+    }
+    return teacher;
   }
 }
