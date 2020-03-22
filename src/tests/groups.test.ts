@@ -63,7 +63,7 @@ describe('test groups service', () => {
     const GROUP_ID = 2;
     const groupService = new GroupService();
     mockedGroups.getGroupById = groupMocks.getGroupById();
-    mockedGroups.getMembershipByUserId = groupMocks.getNonexistentMembershipById();
+    mockedGroups.getMembershipById = groupMocks.getNonexistentMembershipById();
     mockedGroups.createGroupMember = groupMocks.createGroupMember();
     mockedUsers.getUserById = getUserById();
 
@@ -71,7 +71,7 @@ describe('test groups service', () => {
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedUsers.getUserById).toBeCalledTimes(1);
-    expect(mockedGroups.getMembershipByUserId).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedGroups.createGroupMember).toBeCalledTimes(1);
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(Object.keys(await mockedUsers.getUserById(USER_ID))).toEqual([
@@ -80,7 +80,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipByUserId(USER_ID)).toBeNull();
+    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
   });
 
   it('test member assignment to nonexistent group', async () => {
@@ -88,7 +88,7 @@ describe('test groups service', () => {
     const GROUP_ID = 2;
     const groupService = new GroupService();
     mockedGroups.getGroupById = groupMocks.getNonexistentGroup();
-    mockedGroups.getMembershipByUserId = groupMocks.getNonexistentMembershipById();
+    mockedGroups.getMembershipById = groupMocks.getNonexistentMembershipById();
     mockedGroups.createGroupMember = groupMocks.createGroupMember();
     mockedUsers.getUserById = getUserById();
 
@@ -98,7 +98,7 @@ describe('test groups service', () => {
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedUsers.getUserById).toBeCalledTimes(1);
-    expect(mockedGroups.getMembershipByUserId).not.toBeCalled();
+    expect(mockedGroups.getMembershipById).not.toBeCalled();
     expect(mockedGroups.createGroupMember).not.toBeCalled();
     expect(await mockedGroups.getGroupById(GROUP_ID)).toBeNull();
     expect(Object.keys(await mockedUsers.getUserById(USER_ID))).toEqual([
@@ -107,7 +107,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipByUserId(USER_ID)).toBeNull();
+    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
   });
 
   it('test assignment of nonexistent member to a group', async () => {
@@ -115,7 +115,7 @@ describe('test groups service', () => {
     const GROUP_ID = 2;
     const groupService = new GroupService();
     mockedGroups.getGroupById = groupMocks.getGroupById();
-    mockedGroups.getMembershipByUserId = groupMocks.getNonexistentMembershipById();
+    mockedGroups.getMembershipById = groupMocks.getNonexistentMembershipById();
     mockedGroups.createGroupMember = groupMocks.createGroupMember();
     mockedUsers.getUserById = getNonexistentUserById();
 
@@ -125,7 +125,7 @@ describe('test groups service', () => {
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedUsers.getUserById).toBeCalledTimes(1);
-    expect(mockedGroups.getMembershipByUserId).not.toBeCalled();
+    expect(mockedGroups.getMembershipById).not.toBeCalled();
     expect(mockedGroups.createGroupMember).not.toBeCalled();
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(await mockedUsers.getUserById(USER_ID)).toBeNull();
@@ -136,17 +136,17 @@ describe('test groups service', () => {
     const GROUP_ID = 2;
     const groupService = new GroupService();
     mockedGroups.getGroupById = groupMocks.getGroupById();
-    mockedGroups.getMembershipByUserId = groupMocks.getMembershipById();
+    mockedGroups.getMembershipById = groupMocks.getMembershipById();
     mockedGroups.createGroupMember = groupMocks.createGroupMember();
     mockedUsers.getUserById = getUserById();
 
     await expect(groupService.createGroupMember(USER_ID, GROUP_ID)).rejects.toThrow(
-      `User is already in group ${await mockedGroups.getMembershipByUserId(USER_ID)}`
+      'User is already in another group'
     );
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedUsers.getUserById).toBeCalledTimes(1);
-    expect(mockedGroups.getMembershipByUserId).toBeCalledTimes(2);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedGroups.createGroupMember).not.toBeCalled();
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(Object.keys(await mockedUsers.getUserById(USER_ID))).toEqual([
@@ -155,9 +155,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipByUserId(USER_ID)).toEqual(
-      (await mockedGroups.getGroupById(GROUP_ID)).name
-    );
+    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toEqual(GROUP_ID);
   });
 
   it('test getting group members', async () => {

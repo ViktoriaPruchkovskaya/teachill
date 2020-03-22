@@ -35,7 +35,7 @@ const router = new Router();
 router.get('/', getUsers);
 router.post('/signup/', signupController);
 router.post('/signin/', signinController);
-router.put('/users/:username/', authMiddleware, changePasswordController);
+router.put('/users/me/changePassword', authMiddleware, changePasswordController);
 router.get('/users/me/', authMiddleware, currentUserController);
 router.post('/groups/', authMiddleware, createGroupController);
 router.get('/groups/', authMiddleware, getGroupsController);

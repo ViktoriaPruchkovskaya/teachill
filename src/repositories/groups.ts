@@ -90,15 +90,14 @@ export async function getGroupByName(name: string): Promise<DBGroup | null> {
   });
 }
 
-export async function getMembershipByUserId(id: number): Promise<string | null> {
+export async function getMembershipById(userId: number, groupId: number): Promise<number | null> {
   return await DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.maybeOne(sql`
-      SELECT user_id, name as group_name
+      SELECT user_id, group_id
       FROM user_groups
-      JOIN groups on user_groups.group_id = groups.id
-      WHERE user_id = ${id}`);
+      WHERE user_id = ${userId} AND group_id = ${groupId}`);
     if (row) {
-      return row.group_name as string;
+      return row.group_id as number;
     }
     return null;
   });
