@@ -3,6 +3,7 @@ import { RoleType } from '../../services/users';
 export const getUserById = () =>
   jest.fn((id: number) =>
     Promise.resolve({
+      id: 1,
       username: 'username',
       passwordHash: '2134password',
       fullName: 'fullName',

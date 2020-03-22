@@ -75,6 +75,7 @@ describe('test groups service', () => {
     expect(mockedGroups.createGroupMember).toBeCalledTimes(1);
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(Object.keys(await mockedUsers.getUserById(USER_ID))).toEqual([
+      'id',
       'username',
       'passwordHash',
       'fullName',
@@ -102,6 +103,7 @@ describe('test groups service', () => {
     expect(mockedGroups.createGroupMember).not.toBeCalled();
     expect(await mockedGroups.getGroupById(GROUP_ID)).toBeNull();
     expect(Object.keys(await mockedUsers.getUserById(USER_ID))).toEqual([
+      'id',
       'username',
       'passwordHash',
       'fullName',
@@ -150,6 +152,7 @@ describe('test groups service', () => {
     expect(mockedGroups.createGroupMember).not.toBeCalled();
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(Object.keys(await mockedUsers.getUserById(USER_ID))).toEqual([
+      'id',
       'username',
       'passwordHash',
       'fullName',
