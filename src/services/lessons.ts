@@ -21,7 +21,7 @@ interface LessonData {
   description?: string;
 }
 
-interface Lesson {
+export interface Lesson {
   id: number;
   name: string;
   typeId: number;

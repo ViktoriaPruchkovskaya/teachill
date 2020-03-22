@@ -2,8 +2,9 @@ import { BSUIRClient } from './client';
 import { BSUIRResponseMapper } from './mapper';
 import { LessonService } from '../../services/lessons';
 import { TeacherService } from '../../services/teachers';
-import { Lesson } from '../models';
-import { Teacher } from '../../repositories/teachers';
+import { Lesson, Teacher } from '../models';
+import { Lesson as AppLesson } from '../../services/lessons';
+import { Teacher as AppTeacher } from '../../services/teachers';
 
 export class GroupSyncService {
   private lessonService: LessonService;
@@ -31,24 +32,28 @@ export class GroupSyncService {
     );
   }
 
-  private async createNonExistingTeachers(teachers: string[]): Promise<Teacher[]> {
-    return Promise.all(
-      teachers.map(async teacher => this.teacherService.getOrCreateTeacher(teacher))
-    );
+  private async createNonExistingTeachers(teachers: string[]): Promise<AppTeacher[]> {
+    return Promise.all(teachers.map(teacher => this.teacherService.getOrCreateTeacher(teacher)));
+  }
+
+  private async assignTeacher(
+    createdLesson: AppLesson,
+    dbTeachers: AppTeacher[],
+    teacher: Teacher
+  ): Promise<void> {
+    const lessonTeacher = dbTeachers.find(dbTeacher => dbTeacher.fullName === teacher.fio);
+    await this.lessonService.assignTeacherToLesson(createdLesson.id, lessonTeacher.id);
   }
 
   private async createLesson(
     lesson: Lesson,
     groupId: number,
-    dbTeachers: Teacher[]
+    dbTeachers: AppTeacher[]
   ): Promise<void> {
     const createdLesson = await this.lessonService.createLesson(lesson);
     await this.lessonService.createGroupLesson(createdLesson.id, groupId, lesson.subgroup);
     await Promise.all(
-      lesson.teacher.map(async t => {
-        const teacher = dbTeachers.find(dbTeacher => dbTeacher.fullName === t.fio);
-        await this.lessonService.assignTeacherToLesson(createdLesson.id, teacher.id);
-      })
+      lesson.teacher.map(teacher => this.assignTeacher(createdLesson, dbTeachers, teacher))
     );
   }
 }

@@ -6,7 +6,7 @@ import {
 } from '../repositories/teachers';
 import { NotFoundError, ExistError } from '../errors';
 
-interface Teacher {
+export interface Teacher {
   id: number;
   fullName: string;
 }

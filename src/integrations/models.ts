@@ -13,6 +13,6 @@ export interface Lesson {
   teacher: Teacher[];
 }
 
-interface Teacher {
+export interface Teacher {
   fio: string;
 }
