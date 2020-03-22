@@ -15,6 +15,7 @@ export const getNonexistentUserById = () => jest.fn((id: number) => Promise.reso
 export const getUserByUsername = () =>
   jest.fn((username: string) =>
     Promise.resolve({
+      id: 1,
       username: username,
       passwordHash: '2134password',
       fullName: 'fullName',
@@ -34,8 +35,14 @@ export const createUserRole = () =>
 export const getUsers = () =>
   jest.fn(() =>
     Promise.resolve([
-      { username: 'user1', passwordHash: '123password', fullName: 'user', role: 'role' },
-      { username: 'user2', passwordHash: '321password', fullName: 'user user', role: 'role' },
+      { id: 1, username: 'user1', passwordHash: '123password', fullName: 'user', role: 'role' },
+      {
+        id: 2,
+        username: 'user2',
+        passwordHash: '321password',
+        fullName: 'user user',
+        role: 'role',
+      },
     ])
   );
 

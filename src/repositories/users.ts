@@ -2,6 +2,7 @@ import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
 
 export interface User {
+  id: number;
   username: string;
   passwordHash: string;
   fullName: string;
@@ -11,12 +12,13 @@ export interface User {
 export async function getUsers(): Promise<User[]> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     const rows = await connection.any(sql`
-      SELECT username, password_hash, full_name, name AS role
+      SELECT users.id, users.username, users.password_hash, users.full_name, roles.name AS role
       FROM users
-      JOIN user_roles on users.id = user_roles.user_id
-      JOIN  roles  on user_roles.role_id = roles.id
+      LEFT JOIN user_roles on users.id = user_roles.user_id
+      LEFT JOIN  roles  on user_roles.role_id = roles.id
       `);
     return rows.map(row => ({
+      id: row.id as number,
       username: row.username as string,
       passwordHash: row.password_hash as string,
       fullName: row.full_name as string,
@@ -49,18 +51,19 @@ export async function createUserRole(userId: number, roleType: number): Promise<
 
 export async function getUserByUsername(username: string): Promise<User | null> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    const res = await connection.maybeOne(sql`
-    SELECT users.username, users.password_hash, users.full_name, roles.name AS role
+    const row = await connection.maybeOne(sql`
+    SELECT users.id, users.username, users.password_hash, users.full_name, roles.name AS role
     FROM users
-    INNER JOIN user_roles on users.id = user_roles.user_id
-    INNER JOIN roles on user_roles.role_id = roles.id
+    LEFT JOIN user_roles on users.id = user_roles.user_id
+    LEFT JOIN roles on user_roles.role_id = roles.id
     WHERE users.username = ${username}`);
-    if (res) {
+    if (row) {
       return {
-        username: res.username as string,
-        passwordHash: res.password_hash as string,
-        fullName: res.full_name as string,
-        role: res.role as string | null,
+        id: row.id as number,
+        username: row.username as string,
+        passwordHash: row.password_hash as string,
+        fullName: row.full_name as string,
+        role: row.role as string | null,
       };
     }
     return null;
@@ -69,18 +72,19 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 
 export async function getUserById(id: number): Promise<User | null> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    const res = await connection.maybeOne(sql`
-    SELECT users.username, users.password_hash, users.full_name, roles.name AS role
+    const row = await connection.maybeOne(sql`
+    SELECT users.id, users.username, users.password_hash, users.full_name, roles.name AS role
     FROM users
     LEFT JOIN user_roles on users.id = user_roles.user_id
     LEFT JOIN roles on user_roles.role_id = roles.id
     WHERE users.id = ${id}`);
-    if (res) {
+    if (row) {
       return {
-        username: res.username as string,
-        passwordHash: res.password_hash as string,
-        fullName: res.full_name as string,
-        role: res.role as string | null,
+        id: row.id as number,
+        username: row.username as string,
+        passwordHash: row.password_hash as string,
+        fullName: row.full_name as string,
+        role: row.role as string | null,
       };
     }
     return null;

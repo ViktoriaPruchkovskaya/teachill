@@ -156,8 +156,8 @@ describe('test user service', () => {
 
     expect(mockedUsers.getUsers).toBeCalledTimes(1);
     expect(users).toEqual([
-      { username: 'user1', fullName: 'user', role: 'role' },
-      { username: 'user2', fullName: 'user user', role: 'role' },
+      { id: 1, username: 'user1', fullName: 'user', role: 'role' },
+      { id: 2, username: 'user2', fullName: 'user user', role: 'role' },
     ]);
   });
 

@@ -148,7 +148,10 @@ export async function changePasswordController(
   await next();
 }
 
-export async function changeRoleController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function changeRoleController(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   let validatedData: RoleData;
   const validator = new Validator<RoleData>([
     shouldHaveField('userId', 'number'),
@@ -166,6 +169,12 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
       return next();
     }
   }
+
+  if (ctx.state.userId === validatedData.userId) {
+    ctx.response.status = httpCodes.BAD_REQUEST;
+    return next();
+  }
+
   const userService = new UserService();
   try {
     await userService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
@@ -174,7 +183,7 @@ export async function changeRoleController(ctx: Koa.ParameterizedContext, next: 
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
-        errors: err.message,
+        error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
       return next();
@@ -196,7 +205,7 @@ export async function currentUserController(
   } catch (err) {
     if (err instanceof NotFoundError) {
       ctx.body = {
-        errors: err.message,
+        error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
       return await next();
