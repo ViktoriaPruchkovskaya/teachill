@@ -1,4 +1,4 @@
-import { SignupService, SigninService, UserService } from '../services/users';
+import { SignupService, SigninService, UserService, RoleType } from '../services/users';
 import { PasswordService } from '../services/password';
 import { JWTService } from '../services/jwt';
 import * as usersRepository from '../repositories/users';
@@ -156,8 +156,8 @@ describe('test user service', () => {
 
     expect(mockedUsers.getUsers).toBeCalledTimes(1);
     expect(users).toEqual([
-      { id: 1, username: 'user1', fullName: 'user', role: 'role' },
-      { id: 2, username: 'user2', fullName: 'user user', role: 'role' },
+      { id: 1, username: 'user1', fullName: 'user', role: RoleType.Administrator },
+      { id: 2, username: 'user2', fullName: 'user user', role: RoleType.Administrator },
     ]);
   });
 
