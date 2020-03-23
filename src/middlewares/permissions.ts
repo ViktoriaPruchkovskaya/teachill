@@ -5,7 +5,7 @@ import { FORBIDDEN } from '../constants/httpCodes';
 
 export function shouldHaveRole(roles: RoleType[]) {
   return async function(ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>, next: Koa.Next) {
-    if (!roles.includes(ctx.state.User.id)) {
+    if (!roles.includes(ctx.state.user.id)) {
       return (ctx.response.status = FORBIDDEN);
     }
     await next();

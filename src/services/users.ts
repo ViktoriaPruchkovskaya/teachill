@@ -16,7 +16,7 @@ export enum RoleType {
   Member = 2,
 }
 
-interface User {
+export interface User {
   id: number;
   username: string;
   fullName: string;

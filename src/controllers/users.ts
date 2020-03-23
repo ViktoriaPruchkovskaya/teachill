@@ -170,7 +170,7 @@ export async function changeRoleController(
     }
   }
 
-  if (ctx.state.User.id === validatedData.userId) {
+  if (ctx.state.user.id === validatedData.userId) {
     ctx.body = {
       error: 'Administrator cannot change his own role',
     };

@@ -18,8 +18,7 @@ export async function authMiddleware(
       const userService = new UserService();
 
       const { username } = jwtService.verify(token);
-      const user = await userService.getUserByUsername(username);
-      ctx.state.User = { ...user };
+      ctx.state.user = await userService.getUserByUsername(username);
     } catch (err) {
       if (err instanceof JWTAuthError) {
         ctx.response.status = httpCodes.UNAUTHORIZED;
