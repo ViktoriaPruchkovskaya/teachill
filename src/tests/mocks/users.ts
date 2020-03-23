@@ -36,13 +36,19 @@ export const createUserRole = () =>
 export const getUsers = () =>
   jest.fn(() =>
     Promise.resolve([
-      { id: 1, username: 'user1', passwordHash: '123password', fullName: 'user', role: 'role' },
+      {
+        id: 1,
+        username: 'user1',
+        passwordHash: '123password',
+        fullName: 'user',
+        role: RoleType[RoleType.Administrator],
+      },
       {
         id: 2,
         username: 'user2',
         passwordHash: '321password',
         fullName: 'user user',
-        role: 'role',
+        role: RoleType[RoleType.Administrator],
       },
     ])
   );

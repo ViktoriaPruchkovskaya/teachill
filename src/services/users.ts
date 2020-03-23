@@ -20,7 +20,7 @@ export interface User {
   id: number;
   username: string;
   fullName: string;
-  role: RoleType | string;
+  role: RoleType;
 }
 
 export class UserService {
@@ -37,7 +37,7 @@ export class UserService {
       id: user.id,
       username: user.username,
       fullName: user.fullName,
-      role: user.role,
+      role: RoleType[user.role],
     }));
   }
 
