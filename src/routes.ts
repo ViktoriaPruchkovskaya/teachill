@@ -29,31 +29,55 @@ import {
   getGroupLessonsController,
   assignTeacherToLessonController,
 } from './controllers/lessons';
+import { shouldHaveRole } from './middlewares/permissions';
+import { RoleType } from './services/users';
 
 const router = new Router();
+const shouldHaveAdminRole = shouldHaveRole([RoleType.Administrator]);
 
-router.get('/', getUsers);
+router.get('/', authMiddleware, shouldHaveAdminRole, getUsers);
 router.post('/signup/', signupController);
 router.post('/signin/', signinController);
 router.put('/users/me/changePassword', authMiddleware, changePasswordController);
 router.get('/users/me/', authMiddleware, currentUserController);
 router.post('/groups/', authMiddleware, createGroupController);
 router.get('/groups/', authMiddleware, getGroupsController);
-router.post('/groups/:group_id/users/', authMiddleware, createGroupMemberController);
-router.get('/groups/:group_id/users/', authMiddleware, getGroupMembersController);
-router.put('/groups/:group_id/users/', authMiddleware, changeRoleController);
-router.post('/teachers/', authMiddleware, createTeacherController);
-router.get('/teachers/', authMiddleware, getTeachersController);
-router.post('/lessons/', authMiddleware, createLessonController);
-router.get('/lessons/types/', authMiddleware, getLessonTypesController);
-router.post('/lessons/:id/teachers/', authMiddleware, assignTeacherToLessonController);
-router.post('/attachments/', authMiddleware, createAttachmentController);
-router.delete('/attachments/:id/', authMiddleware, deleteAttachmentController);
-router.post('/groups/:group_id/lessons/', authMiddleware, createGroupLessonController);
+router.post(
+  '/groups/:group_id/users/',
+  authMiddleware,
+  shouldHaveAdminRole,
+  createGroupMemberController
+);
+router.get(
+  '/groups/:group_id/users/',
+  authMiddleware,
+  shouldHaveAdminRole,
+  getGroupMembersController
+);
+router.put('/groups/:group_id/users/', authMiddleware, shouldHaveAdminRole, changeRoleController);
+router.post('/teachers/', authMiddleware, shouldHaveAdminRole, createTeacherController);
+router.get('/teachers/', authMiddleware, shouldHaveAdminRole, getTeachersController);
+router.post('/lessons/', authMiddleware, shouldHaveAdminRole, createLessonController);
+router.get('/lessons/types/', authMiddleware, shouldHaveAdminRole, getLessonTypesController);
+router.post(
+  '/lessons/:id/teachers/',
+  authMiddleware,
+  shouldHaveAdminRole,
+  assignTeacherToLessonController
+);
+router.post('/attachments/', authMiddleware, shouldHaveAdminRole, createAttachmentController);
+router.delete('/attachments/:id/', authMiddleware, shouldHaveAdminRole, deleteAttachmentController);
+router.post(
+  '/groups/:group_id/lessons/',
+  authMiddleware,
+  shouldHaveAdminRole,
+  createGroupLessonController
+);
 router.get('/groups/:group_id/lessons/', authMiddleware, getGroupLessonsController);
 router.post(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,
+  shouldHaveAdminRole,
   assignToGroupLessonController
 );
 router.get(
@@ -64,6 +88,7 @@ router.get(
 router.delete(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id',
   authMiddleware,
+  shouldHaveAdminRole,
   deleteGroupLessonAttachmentController
 );
 export { router };

@@ -16,10 +16,11 @@ export enum RoleType {
   Member = 2,
 }
 
-interface User {
+export interface User {
+  id: number;
   username: string;
   fullName: string;
-  role: RoleType | string;
+  role: RoleType;
 }
 
 export class UserService {
@@ -33,9 +34,10 @@ export class UserService {
     const users = await getUsers();
 
     return users.map(user => ({
+      id: user.id,
       username: user.username,
       fullName: user.fullName,
-      role: user.role,
+      role: RoleType[user.role],
     }));
   }
 
@@ -72,6 +74,7 @@ export class UserService {
       throw new NotFoundError('User does not exist');
     }
     return {
+      id: user.id,
       username: user.username,
       fullName: user.fullName,
       role: RoleType[user.role],
