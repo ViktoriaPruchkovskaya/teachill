@@ -130,17 +130,17 @@ describe('test attachments service', () => {
     const LESSON_ID = 6;
     const GROUP_ID = 5;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getGroupLessonById();
-    mockedAttachments.getAttachmentById = attachmentsMocks.getAttachmentById();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getAttachmentsArray();
     mockedAttachments.deleteGroupLessonAttachment = attachmentsMocks.deleteGroupLessonAttachment();
 
     await attachmentService.deleteGroupLessonAttachment(ATTACHMENT_ID, LESSON_ID, GROUP_ID);
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
-    expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
     expect(mockedAttachments.deleteGroupLessonAttachment).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
-    expect((await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).id).toBe(ATTACHMENT_ID);
+    expect(await mockedAttachments.getGroupLessonAttachment(LESSON_ID, GROUP_ID)).toEqual([
+      { id: 1, name: 'attachment1', url: 'https://attachment.com/4vd1o' },
+      { id: 2, name: 'attachment2', url: 'https://attachment.com/4voq' },
+    ]);
   });
 
   it('test removing attachment from nonexistent lesson group', async () => {
@@ -148,19 +148,16 @@ describe('test attachments service', () => {
     const LESSON_ID = 6;
     const GROUP_ID = 5;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getNonexistentGroupLessonById();
-    mockedAttachments.getAttachmentById = attachmentsMocks.getAttachmentById();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getEmptyAttachmentsArray();
     mockedAttachments.deleteGroupLessonAttachment = attachmentsMocks.deleteGroupLessonAttachment();
 
     await expect(
       attachmentService.deleteGroupLessonAttachment(ATTACHMENT_ID, LESSON_ID, GROUP_ID)
     ).rejects.toThrow('Group, lesson or attachment does not exist');
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
-    expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
     expect(mockedAttachments.deleteGroupLessonAttachment).not.toBeCalled();
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBeNull();
-    expect((await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).id).toBe(ATTACHMENT_ID);
+    expect(await mockedAttachments.getGroupLessonAttachment(LESSON_ID, GROUP_ID)).toEqual([]);
   });
 
   it('test removing nonexistent attachment from lesson group', async () => {
@@ -168,19 +165,16 @@ describe('test attachments service', () => {
     const LESSON_ID = 6;
     const GROUP_ID = 5;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getGroupLessonById();
-    mockedAttachments.getAttachmentById = attachmentsMocks.getNonexistentAttachmentById();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getEmptyAttachmentsArray();
     mockedAttachments.deleteGroupLessonAttachment = attachmentsMocks.deleteGroupLessonAttachment();
 
     await expect(
       attachmentService.deleteGroupLessonAttachment(ATTACHMENT_ID, LESSON_ID, GROUP_ID)
     ).rejects.toThrow('Group, lesson or attachment does not exist');
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
-    expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
     expect(mockedAttachments.deleteGroupLessonAttachment).not.toBeCalled();
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
-    expect(await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).toBeNull();
+    expect(await mockedAttachments.getGroupLessonAttachment(GROUP_ID, LESSON_ID)).toEqual([]);
   });
 
   it('test removing attachment', async () => {
@@ -209,5 +203,71 @@ describe('test attachments service', () => {
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.deleteAttachment).not.toBeCalled();
     expect(await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).toBeNull();
+  });
+
+  it('test attashment change', async () => {
+    const ATTACHMENT_ID = 1;
+    const NAME = 'attachment';
+    const URL = 'https://attachment.com/4vd1o';
+    const LESSON_ID = 6;
+    const GROUP_ID = 5;
+    const attachmentService = new AttachmentService();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getAttachmentsArray();
+    mockedAttachments.editAttachment = attachmentsMocks.editAttachment();
+
+    const attachment = await attachmentService.editAttachment(
+      GROUP_ID,
+      LESSON_ID,
+      ATTACHMENT_ID,
+      NAME,
+      URL
+    );
+
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
+    expect(mockedAttachments.editAttachment).toBeCalledTimes(1);
+    expect(await mockedAttachments.getGroupLessonAttachment(LESSON_ID, GROUP_ID)).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: ATTACHMENT_ID })])
+    );
+    expect(attachment).toEqual({ id: ATTACHMENT_ID, name: NAME, url: URL });
+  });
+
+  it('test nonexistent attashment change', async () => {
+    const ATTACHMENT_ID = 6;
+    const NAME = 'attachment';
+    const URL = 'https://attachment.com/4vd1o';
+    const LESSON_ID = 6;
+    const GROUP_ID = 5;
+    const attachmentService = new AttachmentService();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getAttachmentsArray();
+    mockedAttachments.editAttachment = attachmentsMocks.editAttachment();
+
+    await expect(
+      attachmentService.editAttachment(GROUP_ID, LESSON_ID, ATTACHMENT_ID, NAME, URL)
+    ).rejects.toThrow('Group, lesson or attachment does not exist');
+
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
+    expect(mockedAttachments.editAttachment).not.toBeCalled();
+    expect(await mockedAttachments.getGroupLessonAttachment(LESSON_ID, GROUP_ID)).toEqual(
+      expect.not.arrayContaining([expect.objectContaining({ id: ATTACHMENT_ID })])
+    );
+  });
+
+  it('test attashment change in nonexistent lesson or group', async () => {
+    const ATTACHMENT_ID = 1;
+    const NAME = 'attachment';
+    const URL = 'https://attachment.com/4vd1o';
+    const LESSON_ID = 6;
+    const GROUP_ID = 5;
+    const attachmentService = new AttachmentService();
+    mockedAttachments.getGroupLessonAttachment = attachmentsMocks.getEmptyAttachmentsArray();
+    mockedAttachments.editAttachment = attachmentsMocks.editAttachment();
+
+    await expect(
+      attachmentService.editAttachment(GROUP_ID, LESSON_ID, ATTACHMENT_ID, NAME, URL)
+    ).rejects.toThrow('Group, lesson or attachment does not exist');
+
+    expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
+    expect(mockedAttachments.editAttachment).not.toBeCalled();
+    expect(await mockedAttachments.getGroupLessonAttachment(LESSON_ID, GROUP_ID)).toEqual([]);
   });
 });

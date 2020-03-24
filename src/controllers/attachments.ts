@@ -130,3 +130,49 @@ export async function deleteAttachmentController(ctx: Koa.ParameterizedContext, 
 
   await next();
 }
+
+export async function editAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: AttachmentData;
+  const validator = new Validator<AttachmentData>([
+    shouldHaveField('name', 'string'),
+    shouldHaveField('url', 'string'),
+    shouldMatchRegexp(
+      'url',
+      '^(http://www.|https://www.|http://|https://)?[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5})?(/.*)?$'
+    ),
+  ]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return next();
+    }
+  }
+
+  const attachmentService = new AttachmentService();
+  try {
+    const attachment = await attachmentService.editAttachment(
+      ctx.params.group_id,
+      ctx.params.lesson_id,
+      ctx.params.attachment_id,
+      validatedData.name,
+      validatedData.url
+    );
+    ctx.body = { ...attachment };
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return next();
+    }
+  }
+
+  await next();
+}

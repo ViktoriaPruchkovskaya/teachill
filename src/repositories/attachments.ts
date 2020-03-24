@@ -81,3 +81,19 @@ export async function deleteAttachment(attachmentId: number): Promise<void> {
     WHERE id = ${attachmentId};`);
   });
 }
+
+export async function editAttachment(id: number, name: string, url: string): Promise<DBAttachment> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    const attachment = await connection.one(sql`
+      UPDATE attachments
+      SET name = ${name},
+          url =  ${url}
+      WHERE id = ${id}
+      RETURNING id, name, url`);
+    return {
+      id: attachment.id as number,
+      name: attachment.name as string,
+      url: attachment.url as string,
+    };
+  });
+}

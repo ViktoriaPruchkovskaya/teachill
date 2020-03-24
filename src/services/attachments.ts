@@ -5,6 +5,7 @@ import {
   assignToGroupLesson,
   deleteGroupLessonAttachment,
   deleteAttachment,
+  editAttachment,
 } from '../repositories/attachments';
 import { getGroupLessonById } from '../repositories/lessons';
 import { NotFoundError } from '../errors';
@@ -52,11 +53,11 @@ export class AttachmentService {
     lessonId: number,
     groupId: number
   ): Promise<void> {
-    const lesson = await getGroupLessonById(groupId, lessonId);
-    const attachment = await getAttachmentById(attachmentId);
-    if (!lesson || !attachment) {
+    const lessonAttachments = await getGroupLessonAttachment(lessonId, groupId);
+    if (!lessonAttachments.some(attachment => attachment.id == attachmentId)) {
       throw new NotFoundError('Group, lesson or attachment does not exist');
     }
+
     await deleteGroupLessonAttachment(attachmentId, lessonId, groupId);
   }
 
@@ -66,5 +67,21 @@ export class AttachmentService {
       throw new NotFoundError('Attachment does not exist');
     }
     await deleteAttachment(attachmentId);
+  }
+
+  public async editAttachment(
+    groupId: number,
+    lessonId: number,
+    attachmentId: number,
+    name: string,
+    url: string
+  ): Promise<Attachment> {
+    const lessonAttachments = await getGroupLessonAttachment(lessonId, groupId);
+    if (!lessonAttachments.some(attachment => attachment.id == attachmentId)) {
+      throw new NotFoundError('Group, lesson or attachment does not exist');
+    }
+
+    const attachment = await editAttachment(attachmentId, name, url);
+    return { id: attachment.id, name: attachment.name, url: attachment.url };
   }
 }

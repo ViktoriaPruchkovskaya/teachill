@@ -25,3 +25,8 @@ export const deleteGroupLessonAttachment = () =>
   jest.fn((attachmentId: number, lessonId: number, groupId: number) => Promise.resolve());
 
 export const deleteAttachment = () => jest.fn((attachmentId: number) => Promise.resolve());
+
+export const editAttachment = () =>
+  jest.fn((attachmentId: number, name: string, url: string) =>
+    Promise.resolve({ id: attachmentId, name: name, url: url })
+  );

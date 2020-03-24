@@ -21,6 +21,7 @@ import {
   getGroupLessonAttachmentController,
   deleteGroupLessonAttachmentController,
   deleteAttachmentController,
+  editAttachment,
 } from './controllers/attachments';
 import {
   createLessonController,
@@ -90,5 +91,11 @@ router.delete(
   authMiddleware,
   shouldHaveAdminRole,
   deleteGroupLessonAttachmentController
+);
+router.put(
+  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id',
+  authMiddleware,
+  shouldHaveAdminRole,
+  editAttachment
 );
 export { router };
