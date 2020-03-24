@@ -57,3 +57,6 @@ export const getEmptyUsersArray = () => jest.fn(() => Promise.resolve([]));
 
 export const changePassword = () =>
   jest.fn((username: string, passwordHash: string) => Promise.resolve());
+
+export const changeFullName = () =>
+  jest.fn((username: string, fullName: string) => Promise.resolve());

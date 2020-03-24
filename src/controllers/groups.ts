@@ -13,7 +13,7 @@ interface GroupData {
   name: string;
 }
 
-export async function createGroupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function createGroup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: GroupData;
   const validator = new Validator<GroupData>([shouldHaveField('name', 'string')]);
   try {
@@ -46,14 +46,14 @@ export async function createGroupController(ctx: Koa.ParameterizedContext, next:
   await next();
 }
 
-export async function getGroupsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getGroups(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
   const groups = await groupService.getGroups();
   ctx.body = [...groups];
   await next();
 }
 
-export async function createGroupMemberController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function createGroupMember(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: GroupMemberData;
   const validator = new Validator<GroupMemberData>([shouldHaveField('userId', 'number')]);
   try {
@@ -86,7 +86,7 @@ export async function createGroupMemberController(ctx: Koa.ParameterizedContext,
   await next();
 }
 
-export async function getGroupMembersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getGroupMembers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
   try {
     const members = await groupService.getGroupMembers(ctx.params.group_id);

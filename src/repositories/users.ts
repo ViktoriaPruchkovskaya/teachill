@@ -103,8 +103,17 @@ export async function changePassword(username: string, passwordHash: string): Pr
 export async function changeRole(userId: number, roleType: number) {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
-      UPDATE user_roles
-      SET role_id = ${roleType}
-      WHERE user_id = ${userId}`);
+    UPDATE user_roles
+    SET role_id = ${roleType}
+    WHERE user_id = ${userId}`);
+  });
+}
+
+export async function changeFullName(username: string, fullName: string) {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(sql`
+    UPDATE users
+    SET full_name = ${fullName}
+    WHERE username = ${username}`);
   });
 }

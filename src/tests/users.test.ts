@@ -260,6 +260,17 @@ describe('test user service', () => {
     expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
   });
 
+  it('test changing user full name', async () => {
+    const USERNAME = 'petrov';
+    const FULLNAME = 'newFullName';
+    const userService = new UserService();
+    mockedUsers.changeFullName = userMocks.changeFullName();
+
+    await userService.changeFullName(USERNAME, FULLNAME);
+
+    expect(mockedUsers.changeFullName).toBeCalledTimes(1);
+  });
+
   it('test getting user by username', async () => {
     const USERNAME = 'user';
     const userService = new UserService();

@@ -5,6 +5,7 @@ import {
   changePassword,
   changeRole,
   getUsers,
+  changeFullName,
 } from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
@@ -66,6 +67,10 @@ export class UserService {
       throw new NotFoundError('User or group is not found');
     }
     await changeRole(userId, roleType);
+  }
+
+  public async changeFullName(username: string, fullName: string) {
+    await changeFullName(username, fullName);
   }
 
   public async getUserByUsername(username: string): Promise<User> {

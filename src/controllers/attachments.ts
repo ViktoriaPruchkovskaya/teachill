@@ -9,7 +9,7 @@ interface AttachmentData {
   url: string;
 }
 
-export async function createAttachmentController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: AttachmentData;
   const validator = new Validator<AttachmentData>([
     shouldHaveField('name', 'string'),
@@ -38,7 +38,7 @@ export async function createAttachmentController(ctx: Koa.ParameterizedContext, 
   await next();
 }
 
-export async function assignToGroupLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function assignToGroupLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const attachmentService = new AttachmentService();
   try {
     await attachmentService.assignToGroupLesson(
@@ -61,10 +61,7 @@ export async function assignToGroupLessonController(ctx: Koa.ParameterizedContex
   await next();
 }
 
-export async function getGroupLessonAttachmentController(
-  ctx: Koa.ParameterizedContext,
-  next: Koa.Next
-) {
+export async function getGroupLessonAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const attachmentService = new AttachmentService();
   try {
     const attachments = await attachmentService.getGroupLessonAttachment(
@@ -86,10 +83,7 @@ export async function getGroupLessonAttachmentController(
   await next();
 }
 
-export async function deleteGroupLessonAttachmentController(
-  ctx: Koa.ParameterizedContext,
-  next: Koa.Next
-) {
+export async function deleteGroupLessonAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const attachmentService = new AttachmentService();
   try {
     await attachmentService.deleteGroupLessonAttachment(
@@ -112,7 +106,7 @@ export async function deleteGroupLessonAttachmentController(
   await next();
 }
 
-export async function deleteAttachmentController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function deleteAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const attachmentService = new AttachmentService();
   try {
     await attachmentService.deleteAttachment(ctx.params.id);
