@@ -45,8 +45,7 @@ export class GroupService {
     if (!group || !user) {
       throw new NotFoundError('Group or user does not exist');
     }
-
-    const membership = await getMembershipById(userId, groupId);
+    const membership = await getMembershipById(userId);
     if (membership) {
       throw new ExistError('User is already in another group');
     }

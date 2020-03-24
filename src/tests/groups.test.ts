@@ -81,7 +81,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
+    expect(await mockedGroups.getMembershipById(USER_ID)).toBeNull();
   });
 
   it('test member assignment to nonexistent group', async () => {
@@ -109,7 +109,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
+    expect(await mockedGroups.getMembershipById(USER_ID)).toBeNull();
   });
 
   it('test assignment of nonexistent member to a group', async () => {
@@ -158,7 +158,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toEqual(GROUP_ID);
+    expect(await mockedGroups.getMembershipById(USER_ID)).toEqual(2);
   });
 
   it('test getting group members', async () => {

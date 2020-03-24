@@ -231,7 +231,7 @@ describe('test user service', () => {
   it('test changing user role', async () => {
     const USER_ID = 1;
     const ROLE_TYPE = 1;
-    const GROUP_ID = 1;
+    const GROUP_ID = 2;
     const userService = new UserService();
     mockedGroups.getMembershipById = getMembershipById();
     mockedUsers.changeRole = userMocks.createUserRole();
@@ -240,7 +240,7 @@ describe('test user service', () => {
 
     expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedUsers.changeRole).toBeCalledTimes(1);
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBe(GROUP_ID);
+    expect(await mockedGroups.getMembershipById(USER_ID)).toBe(2);
   });
 
   it('test changing user role with membership in another group or group does not exist', async () => {
@@ -257,7 +257,7 @@ describe('test user service', () => {
 
     expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedUsers.changeRole).not.toBeCalled();
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
+    expect(await mockedGroups.getMembershipById(USER_ID)).toBeNull();
   });
 
   it('test getting user by username', async () => {

@@ -61,8 +61,8 @@ export class UserService {
   }
 
   public async changeRole(userId: number, roleType: RoleType, groupId: number): Promise<void> {
-    const membership = await getMembershipById(userId, groupId);
-    if (!membership) {
+    const membership = await getMembershipById(userId);
+    if (!membership || membership != groupId) {
       throw new NotFoundError('User or group is not found');
     }
     await changeRole(userId, roleType);
