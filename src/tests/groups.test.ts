@@ -3,6 +3,7 @@ import * as groupsRepository from '../repositories/groups';
 import * as usersRepository from '../repositories/users';
 import * as groupMocks from './mocks/groups';
 import { getUserById, getNonexistentUserById } from './mocks/users';
+import { RoleType } from '../services/users';
 
 const mockedGroups = groupsRepository as jest.Mocked<typeof groupsRepository>;
 const mockedUsers = usersRepository as jest.Mocked<typeof usersRepository>;
@@ -173,8 +174,8 @@ describe('test groups service', () => {
     expect(mockedGroups.getGroupMembers).toBeCalledTimes(1);
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(members).toEqual([
-      { id: 1, username: 'petrov', fullName: 'Petrov V.V.', role: 'Member' },
-      { id: 1, username: 'ivanov', fullName: 'Ivanov V.V.', role: 'Administrator' },
+      { id: 1, username: 'petrov', fullName: 'Petrov V.V.', role: RoleType['Member'] },
+      { id: 2, username: 'ivanov', fullName: 'Ivanov V.V.', role: RoleType['Administrator'] },
     ]);
   });
 

@@ -32,7 +32,7 @@ export const getGroupMembers = () =>
   jest.fn((groupId: number) =>
     Promise.resolve([
       { id: 1, username: 'petrov', fullName: 'Petrov V.V.', role: 'Member' },
-      { id: 1, username: 'ivanov', fullName: 'Ivanov V.V.', role: 'Administrator' },
+      { id: 2, username: 'ivanov', fullName: 'Ivanov V.V.', role: 'Administrator' },
     ])
   );
 

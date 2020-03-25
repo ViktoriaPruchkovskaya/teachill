@@ -72,7 +72,6 @@ export class UserService {
 
   public async deleteUserById(groupId: number, userId: number): Promise<void> {
     const membership = await getMembershipById(userId);
-
     if (!membership || membership != groupId) {
       throw new NotFoundError('User is not found');
     }

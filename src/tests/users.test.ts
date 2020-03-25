@@ -281,4 +281,34 @@ describe('test user service', () => {
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
     expect(await mockedUsers.getUserByUsername(USERNAME)).toBeNull();
   });
+
+  it('test user removing', async () => {
+    const GROUP_ID = 2;
+    const USER_ID = 1;
+    const userService = new UserService();
+    mockedGroups.getMembershipById = getMembershipById();
+    mockedUsers.deleteById = userMocks.deleteById();
+
+    await userService.deleteUserById(GROUP_ID, USER_ID);
+
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
+    expect(mockedUsers.deleteById).toBeCalledTimes(1);
+    expect(await mockedGroups.getMembershipById(USER_ID)).toBe(GROUP_ID);
+  });
+
+  it('test delete user who does not exist in current group', async () => {
+    const GROUP_ID = 1;
+    const USER_ID = 1;
+    const userService = new UserService();
+    mockedGroups.getMembershipById = getMembershipById();
+    mockedUsers.deleteById = userMocks.deleteById();
+
+    await expect(userService.deleteUserById(GROUP_ID, USER_ID)).rejects.toThrow(
+      'User is not found'
+    );
+
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
+    expect(mockedUsers.deleteById).not.toBeCalled();
+    expect(await mockedGroups.getMembershipById(USER_ID)).not.toBe(GROUP_ID);
+  });
 });
