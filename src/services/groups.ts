@@ -9,17 +9,18 @@ import {
 } from '../repositories/groups';
 import { ExistError, NotFoundError } from '../errors';
 import { getUserById } from '../repositories/users';
+import { RoleType } from './users';
 
 interface Group {
   id: number;
   name: string;
 }
 
-interface GroupMember {
+export interface GroupMember {
   id: number;
   username: string;
   fullName: string;
-  role: string;
+  role: RoleType;
 }
 
 export class GroupService {
@@ -62,7 +63,7 @@ export class GroupService {
       id: groupMember.id,
       username: groupMember.username,
       fullName: groupMember.fullName,
-      role: groupMember.role,
+      role: RoleType[groupMember.role],
     }));
   }
 

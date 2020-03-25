@@ -5,6 +5,7 @@ import {
   changePassword,
   changeRole,
   getUsers,
+  deleteById,
 } from '../repositories/users';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
@@ -65,7 +66,18 @@ export class UserService {
     if (!membership || membership != groupId) {
       throw new NotFoundError('User or group is not found');
     }
+
     await changeRole(userId, roleType);
+  }
+
+  public async deleteUserById(groupId: number, userId: number): Promise<void> {
+    const membership = await getMembershipById(userId);
+
+    if (!membership || membership != groupId) {
+      throw new NotFoundError('User is not found');
+    }
+
+    await deleteById(userId);
   }
 
   public async getUserByUsername(username: string): Promise<User> {

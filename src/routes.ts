@@ -6,6 +6,7 @@ import {
   changePasswordController,
   changeRoleController,
   currentUserController,
+  deleteUser,
 } from './controllers/users';
 import { authMiddleware } from './middlewares/authentication';
 import {
@@ -55,6 +56,7 @@ router.get(
   getGroupMembersController
 );
 router.put('/groups/:group_id/users/', authMiddleware, shouldHaveAdminRole, changeRoleController);
+router.delete('/groups/:group_id/users/:user_id', authMiddleware, deleteUser);
 router.post('/teachers/', authMiddleware, shouldHaveAdminRole, createTeacherController);
 router.get('/teachers/', authMiddleware, shouldHaveAdminRole, getTeachersController);
 router.post('/lessons/', authMiddleware, shouldHaveAdminRole, createLessonController);

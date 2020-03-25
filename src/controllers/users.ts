@@ -1,6 +1,7 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { SignupService, SigninService, RoleType, UserService } from '../services/users';
+import { GroupService, GroupMember } from '../services/groups';
 import {
   Validator,
   shouldHaveField,
@@ -202,8 +203,60 @@ export async function currentUserController(
 ) {
   const userService = new UserService();
   try {
-    const user = await userService.getUserByUsername(ctx.state.username);
+    const user = await userService.getUserByUsername(ctx.state.user.username);
     ctx.body = { ...user };
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return await next();
+    }
+  }
+
+  await next();
+}
+
+export async function deleteUser(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const ADMIN = 1;
+  const MEMBER = 2;
+  const groupService = new GroupService();
+  let groupMembers: GroupMember[];
+
+  try {
+    groupMembers = await groupService.getGroupMembers(ctx.params.group_id);
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return await next();
+    }
+  }
+
+  if (
+    (ctx.state.user.role === ADMIN &&
+      ctx.state.user.id == ctx.params.user_id &&
+      groupMembers.filter(member => member.role === ctx.state.user.role).length < 2) ||
+    (ctx.state.user.role === MEMBER && ctx.state.user.id != ctx.params.user_id)
+  ) {
+    ctx.body = {
+      error: 'You cannot perform deleting',
+    };
+    ctx.response.status = httpCodes.BAD_REQUEST;
+    return next();
+  }
+
+  const userService = new UserService();
+  try {
+    await userService.deleteUserById(ctx.params.group_id, ctx.params.user_id);
+    ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
