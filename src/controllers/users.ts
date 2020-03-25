@@ -8,6 +8,8 @@ import {
   shouldMatchRegexp,
   minLengthShouldBe,
   valueShouldBeInEnum,
+  shouldHaveSomeFields,
+  shouldHaveTypeField,
 } from '../validations';
 import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
 import { State } from '../state';
@@ -29,8 +31,8 @@ interface RoleData {
   roleId: number;
 }
 
-interface FullNameData {
-  fullName: string;
+interface UpdateData {
+  fullName?: string;
 }
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -201,12 +203,15 @@ export async function changeRole(
   await next();
 }
 
-export async function changeFullName(
+export async function updateUser(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
-  let validatedData: FullNameData;
-  const validator = new Validator<FullNameData>([shouldHaveField('fullName', 'string')]);
+  let validatedData: UpdateData;
+  const validator = new Validator<UpdateData>([
+    shouldHaveSomeFields(['fullName', 'username']),
+    shouldHaveTypeField('fullName', 'string'),
+  ]);
 
   try {
     validatedData = validator.validate(ctx.request.body);
@@ -221,7 +226,7 @@ export async function changeFullName(
   }
 
   const userService = new UserService();
-  await userService.changeFullName(ctx.state.user.username, validatedData.fullName);
+  await userService.updateUser(ctx.state.user.username, validatedData);
   ctx.body = {};
   ctx.response.status = httpCodes.OK;
   await next();

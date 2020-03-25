@@ -1,16 +1,8 @@
-import {
-  createUser,
-  getUserByUsername,
-  createUserRole,
-  changePassword,
-  changeRole,
-  getUsers,
-  changeFullName,
-} from '../repositories/users';
+import * as userRepository from '../repositories/users';
+import { getMembershipById } from '../repositories/groups';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 import { ExistError, InvalidCredentialsError, NotFoundError } from '../errors';
-import { getMembershipById } from '../repositories/groups';
 
 export enum RoleType {
   Administrator = 1,
@@ -24,6 +16,10 @@ export interface User {
   role: RoleType;
 }
 
+interface UpdateInformation {
+  fullName?: string;
+}
+
 export class UserService {
   private passwordService: PasswordService;
 
@@ -32,7 +28,7 @@ export class UserService {
   }
 
   public async getUsers(): Promise<User[]> {
-    const users = await getUsers();
+    const users = await userRepository.getUsers();
 
     return users.map(user => ({
       id: user.id,
@@ -47,7 +43,7 @@ export class UserService {
     currentPassword: string,
     newPassword: string
   ): Promise<void> {
-    const user = await getUserByUsername(username);
+    const user = await userRepository.getUserByUsername(username);
 
     const isPasswordCorrect = await this.passwordService.comparePasswords(
       currentPassword,
@@ -58,7 +54,7 @@ export class UserService {
     }
 
     const newPasswordHash = await this.passwordService.hashPassword(newPassword);
-    await changePassword(username, newPasswordHash);
+    await userRepository.changePassword(username, newPasswordHash);
   }
 
   public async changeRole(userId: number, roleType: RoleType, groupId: number): Promise<void> {
@@ -66,15 +62,27 @@ export class UserService {
     if (!membership) {
       throw new NotFoundError('User or group is not found');
     }
-    await changeRole(userId, roleType);
+    await userRepository.changeRole(userId, roleType);
   }
 
-  public async changeFullName(username: string, fullName: string) {
-    await changeFullName(username, fullName);
+  public async updateUser(username: string, info: UpdateInformation) {
+    const dbUser = await userRepository.getUserByUsername(username);
+    const user: User = {
+      id: dbUser.id,
+      username: dbUser.username,
+      fullName: dbUser.fullName,
+      role: RoleType[dbUser.role],
+    };
+
+    for (const key in info) {
+      user[key] = info[key];
+    }
+
+    await userRepository.updateUser(username, user);
   }
 
   public async getUserByUsername(username: string): Promise<User> {
-    const user = await getUserByUsername(username);
+    const user = await userRepository.getUserByUsername(username);
     if (!user) {
       throw new NotFoundError('User does not exist');
     }
@@ -100,19 +108,19 @@ export class SignupService {
     fullName: string,
     role: number
   ): Promise<number> {
-    const user = await getUserByUsername(username);
+    const user = await userRepository.getUserByUsername(username);
     if (user) {
       throw new ExistError('Username already exists');
     }
 
     const passwordHash = await this.passwordService.hashPassword(password);
-    const userId = await createUser(username, passwordHash, fullName);
+    const userId = await userRepository.createUser(username, passwordHash, fullName);
     await this.createUserRole(userId, RoleType[RoleType[role]]);
     return userId;
   }
 
   private async createUserRole(userId: number, roleType: RoleType): Promise<void> {
-    await createUserRole(userId, roleType);
+    await userRepository.createUserRole(userId, roleType);
   }
 }
 
@@ -125,7 +133,7 @@ export class SigninService {
     this.jwtService = new JWTService();
   }
   public async doSignin(username: string, password: string): Promise<string> {
-    const user = await getUserByUsername(username);
+    const user = await userRepository.getUserByUsername(username);
     if (!user) {
       throw new InvalidCredentialsError('Username is incorrect');
     }

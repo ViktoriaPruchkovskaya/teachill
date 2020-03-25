@@ -1,5 +1,6 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
+import { RoleType } from '../services/users';
 
 export interface User {
   id: number;
@@ -7,6 +8,13 @@ export interface User {
   passwordHash: string;
   fullName: string;
   role: string | null;
+}
+
+export interface RawUser {
+  id: number;
+  username: string;
+  fullName: string;
+  role: RoleType;
 }
 
 export async function getUsers(): Promise<User[]> {
@@ -109,11 +117,11 @@ export async function changeRole(userId: number, roleType: number) {
   });
 }
 
-export async function changeFullName(username: string, fullName: string) {
+export async function updateUser(username: string, user: RawUser) {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     UPDATE users
-    SET full_name = ${fullName}
+    SET full_name = ${user.fullName}
     WHERE username = ${username}`);
   });
 }
