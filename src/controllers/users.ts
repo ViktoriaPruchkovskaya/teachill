@@ -8,6 +8,8 @@ import {
   shouldMatchRegexp,
   minLengthShouldBe,
   valueShouldBeInEnum,
+  mayHaveFields,
+  optionalFieldShouldHaveType,
 } from '../validations';
 import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
 import { State } from '../state';
@@ -29,14 +31,19 @@ interface RoleData {
   roleId: number;
 }
 
+interface UserData {
+  fullName?: string;
+}
+
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const userService = new UserService();
   const users = await userService.getUsers();
+  ctx.response.status = httpCodes.OK;
   ctx.body = [...users];
   await next();
 }
 
-export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: SignupData;
   const validator = new Validator<SignupData>([
     shouldHaveField('username', 'string'),
@@ -82,7 +89,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
   await next();
 }
 
-export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function signin(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signinService = new SigninService();
   try {
     const authorize = await signinService.doSignin(
@@ -103,7 +110,7 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
   await next();
 }
 
-export async function changePasswordController(
+export async function changePassword(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
@@ -148,7 +155,7 @@ export async function changePasswordController(
   await next();
 }
 
-export async function changeRoleController(
+export async function changeRole(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
@@ -196,7 +203,36 @@ export async function changeRoleController(
   await next();
 }
 
-export async function currentUserController(
+export async function updateUser(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  let validatedData: UserData;
+  const validator = new Validator<UserData>([
+    mayHaveFields(['fullName', 'username']),
+    optionalFieldShouldHaveType('fullName', 'string'),
+  ]);
+
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return next();
+    }
+  }
+
+  const userService = new UserService();
+  await userService.updateUser(ctx.state.user.username, validatedData);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function currentUser(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {

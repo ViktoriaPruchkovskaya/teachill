@@ -1,4 +1,4 @@
-import { RoleType } from '../../services/users';
+import { RoleType, User } from '../../services/users';
 
 export const getUserById = () =>
   jest.fn((id: number) =>
@@ -57,3 +57,5 @@ export const getEmptyUsersArray = () => jest.fn(() => Promise.resolve([]));
 
 export const changePassword = () =>
   jest.fn((username: string, passwordHash: string) => Promise.resolve());
+
+export const updateUser = () => jest.fn((username: string, user: User) => Promise.resolve());

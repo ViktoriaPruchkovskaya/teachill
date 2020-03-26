@@ -1,9 +1,4 @@
-import {
-  createTeacher,
-  getTeachers,
-  getTeacherById,
-  getTeacherByFullName,
-} from '../repositories/teachers';
+import * as teachersRepository from '../repositories/teachers';
 import { NotFoundError, ExistError } from '../errors';
 
 export interface Teacher {
@@ -13,21 +8,21 @@ export interface Teacher {
 
 export class TeacherService {
   public async createTeacher(fullName: string): Promise<Teacher> {
-    const dbTeacher = await getTeacherByFullName(fullName);
+    const dbTeacher = await teachersRepository.getTeacherByFullName(fullName);
     if (dbTeacher) {
       throw new ExistError('Teacher already exists');
     }
-    const teacher = await createTeacher(fullName);
+    const teacher = await teachersRepository.createTeacher(fullName);
     return { id: teacher.id, fullName: teacher.fullName };
   }
 
   public async getTeachers(): Promise<Teacher[]> {
-    const teachers = await getTeachers();
+    const teachers = await teachersRepository.getTeachers();
     return teachers.map(teacher => ({ id: teacher.id, fullName: teacher.fullName }));
   }
 
   public async getTeacherById(id: number): Promise<Teacher> {
-    const teacher = await getTeacherById(id);
+    const teacher = await teachersRepository.getTeacherById(id);
     if (!teacher) {
       throw new NotFoundError('Teacher does not exist');
     }
@@ -35,7 +30,7 @@ export class TeacherService {
   }
 
   public async getTeacherByFullName(fullName: string): Promise<Teacher> {
-    const teacher = await getTeacherByFullName(fullName);
+    const teacher = await teachersRepository.getTeacherByFullName(fullName);
     if (!teacher) {
       throw new NotFoundError('Teacher does not exist');
     }
