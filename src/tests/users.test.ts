@@ -1,12 +1,18 @@
 import { SignupService, SigninService, UserService, RoleType } from '../services/users';
 import { PasswordService } from '../services/password';
 import { JWTService } from '../services/jwt';
+import { GroupService } from '../services/groups';
 import * as usersRepository from '../repositories/users';
 import * as groupsRepository from '../repositories/groups';
 import * as userMocks from './mocks/users';
 import * as passwordMock from './mocks/password';
 import { getToken } from './mocks/jwt';
-import { getMembershipById, getNonexistentMembershipById } from './mocks/groups';
+import {
+  getMembershipById,
+  getNonexistentMembershipById,
+  getGroupMembersMethod,
+  getNonexistentGroupMembersMethod,
+} from './mocks/groups';
 
 const mockedUsers = usersRepository as jest.Mocked<typeof usersRepository>;
 const mockedGroups = groupsRepository as jest.Mocked<typeof groupsRepository>;
@@ -229,33 +235,44 @@ describe('test user service', () => {
   });
 
   it('test changing user role', async () => {
-    const USER_ID = 1;
+    const USER_ID = 2;
     const ROLE_TYPE = 1;
-    const GROUP_ID = 2;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+
     const userService = new UserService();
     mockedGroups.getMembershipById = getMembershipById();
     mockedUsers.changeRole = userMocks.createUserRole();
 
-    await userService.changeRole(USER_ID, ROLE_TYPE, GROUP_ID);
+    await userService.changeRole(USER, USER_ID, ROLE_TYPE);
 
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(2);
     expect(mockedUsers.changeRole).toBeCalledTimes(1);
     expect(await mockedGroups.getMembershipById(USER_ID)).toBe(2);
   });
 
   it('test changing user role with membership in another group or group does not exist', async () => {
-    const USER_ID = 1;
+    const USER_ID = 2;
     const ROLE_TYPE = 1;
-    const GROUP_ID = 1;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
     const userService = new UserService();
     mockedGroups.getMembershipById = getNonexistentMembershipById();
     mockedUsers.changeRole = userMocks.createUserRole();
 
-    await expect(userService.changeRole(USER_ID, ROLE_TYPE, GROUP_ID)).rejects.toThrow(
+    await expect(userService.changeRole(USER, USER_ID, ROLE_TYPE)).rejects.toThrow(
       'User or group is not found'
     );
 
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(2);
     expect(mockedUsers.changeRole).not.toBeCalled();
     expect(await mockedGroups.getMembershipById(USER_ID)).toBeNull();
   });
@@ -283,32 +300,42 @@ describe('test user service', () => {
   });
 
   it('test user removing', async () => {
-    const GROUP_ID = 2;
-    const USER_ID = 1;
+    const USER_ID = 2;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
     const userService = new UserService();
+    (userService as any).groupService = new GroupService();
     mockedGroups.getMembershipById = getMembershipById();
+    (userService as any).groupService.getGroupMembers = getGroupMembersMethod();
     mockedUsers.deleteById = userMocks.deleteById();
 
-    await userService.deleteUserById(GROUP_ID, USER_ID);
+    await userService.deleteUserById(USER, USER_ID);
 
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(2);
     expect(mockedUsers.deleteById).toBeCalledTimes(1);
-    expect(await mockedGroups.getMembershipById(USER_ID)).toBe(GROUP_ID);
+    expect((userService as any).groupService.getGroupMembers).toBeCalledTimes(1);
+    expect(await mockedGroups.getMembershipById(USER_ID)).toBe(2);
   });
 
-  it('test delete user who does not exist in current group', async () => {
-    const GROUP_ID = 1;
-    const USER_ID = 1;
+  it('test user from nonexistent group wants to delete another user', async () => {
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
     const userService = new UserService();
-    mockedGroups.getMembershipById = getMembershipById();
-    mockedUsers.deleteById = userMocks.deleteById();
+    (userService as any).groupService = new GroupService();
+    (userService as any).groupService.getGroupMembers = getNonexistentGroupMembersMethod();
 
-    await expect(userService.deleteUserById(GROUP_ID, USER_ID)).rejects.toThrow(
-      'User is not found'
-    );
-
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
-    expect(mockedUsers.deleteById).not.toBeCalled();
-    expect(await mockedGroups.getMembershipById(USER_ID)).not.toBe(GROUP_ID);
+    await expect(
+      (userService as any).groupService.getGroupMembers(
+        await mockedGroups.getMembershipById(USER.id)
+      )
+    ).rejects.toThrow('Group does not exist');
   });
 });

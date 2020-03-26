@@ -1,3 +1,5 @@
+import { RoleType } from '../../services/users';
+
 export const getGroupById = () =>
   jest.fn((groupId: number) => Promise.resolve({ id: groupId, name: '123456' }));
 
@@ -37,3 +39,23 @@ export const getGroupMembers = () =>
   );
 
 export const getEmptyGroupMembersArray = () => jest.fn((groupId: number) => Promise.resolve([]));
+
+export const getGroupMembersMethod = () =>
+  jest.fn(async (groupId: number) => {
+    const group = await getGroupById()(groupId);
+    const members = await getGroupMembers()(group.id);
+    return members.map(groupMember => ({
+      id: groupMember.id,
+      username: groupMember.username,
+      fullName: groupMember.fullName,
+      role: RoleType[groupMember.role],
+    }));
+  });
+
+export const getNonexistentGroupMembersMethod = () =>
+  jest.fn(async (groupId: number) => {
+    const group = await getNonexistentGroup()(groupId);
+    if (!group) {
+      throw new Error('Group does not exist');
+    }
+  });

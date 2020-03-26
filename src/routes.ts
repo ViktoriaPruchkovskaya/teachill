@@ -55,8 +55,8 @@ router.get(
   shouldHaveAdminRole,
   getGroupMembersController
 );
-router.put('/groups/:group_id/users/', authMiddleware, shouldHaveAdminRole, changeRoleController);
-router.delete('/groups/:group_id/users/:user_id', authMiddleware, deleteUser);
+router.put('/users/:user_id/changeRole', authMiddleware, shouldHaveAdminRole, changeRoleController);
+router.delete('/users/:user_id/', authMiddleware, deleteUser);
 router.post('/teachers/', authMiddleware, shouldHaveAdminRole, createTeacherController);
 router.get('/teachers/', authMiddleware, shouldHaveAdminRole, getTeachersController);
 router.post('/lessons/', authMiddleware, shouldHaveAdminRole, createLessonController);

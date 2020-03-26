@@ -29,3 +29,11 @@ export class ConfigurationError extends Error {
     Object.setPrototypeOf(this, ConfigurationError.prototype);
   }
 }
+
+export class PerformingError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, PerformingError.prototype);
+  }
+}
