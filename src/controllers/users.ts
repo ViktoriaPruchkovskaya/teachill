@@ -8,8 +8,8 @@ import {
   shouldMatchRegexp,
   minLengthShouldBe,
   valueShouldBeInEnum,
-  shouldHaveSomeFields,
-  shouldHaveTypeField,
+  mayHaveFields,
+  optionalFieldShouldHaveType,
 } from '../validations';
 import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
 import { State } from '../state';
@@ -31,7 +31,7 @@ interface RoleData {
   roleId: number;
 }
 
-interface UpdateData {
+interface UserData {
   fullName?: string;
 }
 
@@ -207,10 +207,10 @@ export async function updateUser(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
-  let validatedData: UpdateData;
-  const validator = new Validator<UpdateData>([
-    shouldHaveSomeFields(['fullName', 'username']),
-    shouldHaveTypeField('fullName', 'string'),
+  let validatedData: UserData;
+  const validator = new Validator<UserData>([
+    mayHaveFields(['fullName', 'username']),
+    optionalFieldShouldHaveType('fullName', 'string'),
   ]);
 
   try {

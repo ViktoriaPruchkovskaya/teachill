@@ -67,7 +67,7 @@ export function valueShouldBeInEnum<E>(field: string, e: E): ValidatorType {
   };
 }
 
-export function shouldHaveSomeFields(fields: string[]): ValidatorType {
+export function mayHaveFields(fields: string[]): ValidatorType {
   return function(data: object): null | ValidationError {
     if (!Object.keys(data).some(data => fields.includes(data))) {
       return new ValidationError('Request does not contain the required fields');
@@ -76,7 +76,7 @@ export function shouldHaveSomeFields(fields: string[]): ValidatorType {
   };
 }
 
-export function shouldHaveTypeField(field: string, type: string): ValidatorType {
+export function optionalFieldShouldHaveType(field: string, type: string): ValidatorType {
   return function(data: object): null | ValidationError {
     if (data.hasOwnProperty(field)) {
       if (!(typeof data[field] === type)) {
