@@ -1,4 +1,4 @@
-import { RoleType } from '../../services/users';
+import { RoleType, User } from '../../services/users';
 
 export const getUserById = () =>
   jest.fn((id: number) =>
@@ -57,3 +57,15 @@ export const getEmptyUsersArray = () => jest.fn(() => Promise.resolve([]));
 
 export const changePassword = () =>
   jest.fn((username: string, passwordHash: string) => Promise.resolve());
+
+export const deleteById = () => jest.fn((userId: number) => Promise.resolve());
+
+export const getGroupIfCommon = (groupIdA: number, groupIdB: number) =>
+  jest.fn((userIdA: number, userIdB: number) => {
+    if (groupIdA !== groupIdB) {
+      throw new Error('Groups do not match');
+    }
+    return Promise.resolve(groupIdA);
+  });
+
+export const updateUser = () => jest.fn((username: string, user: User) => Promise.resolve());

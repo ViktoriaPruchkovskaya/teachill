@@ -1,8 +1,9 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
-import { JWTService, JWTAuthError } from '../services/jwt';
 import { UserService } from '../services/users';
 import { State } from '../state';
+import { JWTService, JWTAuthError } from '../services/jwt';
+import { NotFoundError } from '../errors';
 
 export async function authMiddleware(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
@@ -20,7 +21,7 @@ export async function authMiddleware(
       const { username } = jwtService.verify(token);
       ctx.state.user = await userService.getUserByUsername(username);
     } catch (err) {
-      if (err instanceof JWTAuthError) {
+      if (err instanceof JWTAuthError || err instanceof NotFoundError) {
         ctx.response.status = httpCodes.UNAUTHORIZED;
         return;
       }

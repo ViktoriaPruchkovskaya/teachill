@@ -8,8 +8,10 @@ import {
   shouldMatchRegexp,
   minLengthShouldBe,
   valueShouldBeInEnum,
+  mayHaveFields,
+  optionalFieldShouldHaveType,
 } from '../validations';
-import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
+import * as errorTypes from '../errors';
 import { State } from '../state';
 
 interface SignupData {
@@ -25,18 +27,22 @@ interface PasswordData {
 }
 
 interface RoleData {
-  userId: number;
   roleId: number;
+}
+
+interface UserData {
+  fullName?: string;
 }
 
 export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const userService = new UserService();
   const users = await userService.getUsers();
+  ctx.response.status = httpCodes.OK;
   ctx.body = [...users];
   await next();
 }
 
-export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: SignupData;
   const validator = new Validator<SignupData>([
     shouldHaveField('username', 'string'),
@@ -70,7 +76,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
     ctx.body = { userId };
     ctx.response.status = httpCodes.CREATED;
   } catch (err) {
-    if (err instanceof ExistError) {
+    if (err instanceof errorTypes.ExistError) {
       ctx.body = {
         error: err.message,
       };
@@ -82,7 +88,7 @@ export async function signupController(ctx: Koa.ParameterizedContext, next: Koa.
   await next();
 }
 
-export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function signin(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signinService = new SigninService();
   try {
     const authorize = await signinService.doSignin(
@@ -92,7 +98,7 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
     ctx.body = { token: authorize };
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof InvalidCredentialsError) {
+    if (err instanceof errorTypes.InvalidCredentialsError) {
       ctx.body = {
         error: err.message,
       };
@@ -103,7 +109,7 @@ export async function signinController(ctx: Koa.ParameterizedContext, next: Koa.
   await next();
 }
 
-export async function changePasswordController(
+export async function changePassword(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
@@ -136,7 +142,7 @@ export async function changePasswordController(
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof InvalidCredentialsError) {
+    if (err instanceof errorTypes.InvalidCredentialsError) {
       ctx.body = {
         error: err.message,
       };
@@ -148,13 +154,12 @@ export async function changePasswordController(
   await next();
 }
 
-export async function changeRoleController(
+export async function changeRole(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
   let validatedData: RoleData;
   const validator = new Validator<RoleData>([
-    shouldHaveField('userId', 'number'),
     shouldHaveField('roleId', 'number'),
     valueShouldBeInEnum('roleId', RoleType),
   ]);
@@ -170,21 +175,64 @@ export async function changeRoleController(
     }
   }
 
-  if (ctx.state.user.id === validatedData.userId) {
-    ctx.body = {
-      error: 'Administrator cannot change his own role',
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return next();
-  }
-
   const userService = new UserService();
   try {
-    await userService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
+    await userService.changeRole(ctx.state.user, ctx.params.user_id, validatedData.roleId);
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof NotFoundError) {
+    if (err instanceof errorTypes.ChangeError || err instanceof errorTypes.GroupMismatchError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return next();
+    }
+  }
+
+  await next();
+}
+
+export async function updateUser(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  let validatedData: UserData;
+  const validator = new Validator<UserData>([
+    mayHaveFields(['fullName']),
+    optionalFieldShouldHaveType('fullName', 'string'),
+  ]);
+
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return next();
+    }
+  }
+
+  const userService = new UserService();
+  await userService.updateUser(ctx.state.user.username, validatedData);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
+  await next();
+}
+
+export async function currentUser(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const userService = new UserService();
+  try {
+    const user = await userService.getUserByUsername(ctx.state.user.username);
+    ctx.body = { ...user };
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof errorTypes.NotFoundError) {
       ctx.body = {
         error: err.message,
       };
@@ -196,21 +244,21 @@ export async function changeRoleController(
   await next();
 }
 
-export async function currentUserController(
+export async function deleteUser(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
   const userService = new UserService();
   try {
-    const user = await userService.getUserByUsername(ctx.state.username);
-    ctx.body = { ...user };
+    await userService.deleteUserById(ctx.state.user, ctx.params.user_id);
+    ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof NotFoundError) {
+    if (err instanceof errorTypes.DeleteError || err instanceof errorTypes.GroupMismatchError) {
       ctx.body = {
         error: err.message,
       };
-      ctx.response.status = httpCodes.NOT_FOUND;
+      ctx.response.status = httpCodes.BAD_REQUEST;
       return await next();
     }
   }

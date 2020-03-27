@@ -1,5 +1,6 @@
 import { DatabaseConnection } from '../db/connection';
 import { sql } from 'slonik';
+import { RoleType } from '../services/users';
 
 export interface User {
   id: number;
@@ -7,6 +8,13 @@ export interface User {
   passwordHash: string;
   fullName: string;
   role: string | null;
+}
+
+export interface RawUser {
+  id: number;
+  username: string;
+  fullName: string;
+  role: RoleType;
 }
 
 export async function getUsers(): Promise<User[]> {
@@ -103,8 +111,39 @@ export async function changePassword(username: string, passwordHash: string): Pr
 export async function changeRole(userId: number, roleType: number) {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
-      UPDATE user_roles
-      SET role_id = ${roleType}
-      WHERE user_id = ${userId}`);
+    UPDATE user_roles
+    SET role_id = ${roleType}
+    WHERE user_id = ${userId}`);
+  });
+}
+
+export async function updateUser(username: string, user: RawUser) {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(sql`
+    UPDATE users
+    SET full_name = ${user.fullName}
+    WHERE username = ${username}`);
+  });
+}
+
+export async function deleteById(userId: number): Promise<void> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.transaction(async transaction => {
+      await Promise.all([
+        transaction.query(sql`
+        DELETE
+        FROM user_groups
+        WHERE user_id = ${userId}`),
+        transaction.query(sql`
+        DELETE
+        FROM user_roles
+        WHERE user_id = ${userId}`),
+      ]);
+
+      await transaction.query(sql`
+      DELETE
+      FROM users
+      WHERE id = ${userId}`);
+    });
   });
 }

@@ -8,7 +8,7 @@ interface TeacherData {
   fullName: string;
 }
 
-export async function createTeacherController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function createTeacher(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: TeacherData;
   const validator = new Validator<TeacherData>([
     shouldHaveField('fullName', 'string'),
@@ -44,7 +44,7 @@ export async function createTeacherController(ctx: Koa.ParameterizedContext, nex
   await next();
 }
 
-export async function getTeachersController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getTeachers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const teacherService = new TeacherService();
   const teachers = await teacherService.getTeachers();
   ctx.body = [...teachers];

@@ -1,15 +1,14 @@
 import { SignupService, SigninService, UserService, RoleType } from '../services/users';
 import { PasswordService } from '../services/password';
 import { JWTService } from '../services/jwt';
+import { GroupService } from '../services/groups';
 import * as usersRepository from '../repositories/users';
-import * as groupsRepository from '../repositories/groups';
 import * as userMocks from './mocks/users';
 import * as passwordMock from './mocks/password';
 import { getToken } from './mocks/jwt';
-import { getMembershipById, getNonexistentMembershipById } from './mocks/groups';
+import { getGroupMembersMethod } from './mocks/groups';
 
 const mockedUsers = usersRepository as jest.Mocked<typeof usersRepository>;
-const mockedGroups = groupsRepository as jest.Mocked<typeof groupsRepository>;
 
 describe('test signup service', () => {
   it('test user signup', async () => {
@@ -229,35 +228,63 @@ describe('test user service', () => {
   });
 
   it('test changing user role', async () => {
-    const USER_ID = 1;
+    const TARGET_USER_ID = 2;
+    const TARGER_USER_GROUP = 2;
     const ROLE_TYPE = 1;
-    const GROUP_ID = 1;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const USER_GROUP = 2;
     const userService = new UserService();
-    mockedGroups.getMembershipById = getMembershipById();
+    (userService as any).getGroupIfCommon = userMocks.getGroupIfCommon(
+      USER_GROUP,
+      TARGER_USER_GROUP
+    );
     mockedUsers.changeRole = userMocks.createUserRole();
 
-    await userService.changeRole(USER_ID, ROLE_TYPE, GROUP_ID);
-
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
+    await userService.changeRole(USER, TARGET_USER_ID, ROLE_TYPE);
+    expect((userService as any).getGroupIfCommon).toBeCalledTimes(1);
     expect(mockedUsers.changeRole).toBeCalledTimes(1);
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBe(GROUP_ID);
+    expect(await (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toBe(2);
   });
 
   it('test changing user role with membership in another group or group does not exist', async () => {
-    const USER_ID = 1;
-    const ROLE_TYPE = 1;
-    const GROUP_ID = 1;
+    const TARGET_USER_ID = 2;
+    const TARGET_USER_GROUP = 1;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const USER_GROUP = 2;
     const userService = new UserService();
-    mockedGroups.getMembershipById = getNonexistentMembershipById();
-    mockedUsers.changeRole = userMocks.createUserRole();
-
-    await expect(userService.changeRole(USER_ID, ROLE_TYPE, GROUP_ID)).rejects.toThrow(
-      'User or group is not found'
+    (userService as any).getGroupIfCommon = userMocks.getGroupIfCommon(
+      USER_GROUP,
+      TARGET_USER_GROUP
     );
 
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
-    expect(mockedUsers.changeRole).not.toBeCalled();
-    expect(await mockedGroups.getMembershipById(USER_ID, GROUP_ID)).toBeNull();
+    expect(() => (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toThrow(
+      'Groups do not match'
+    );
+
+    expect((userService as any).getGroupIfCommon).toBeCalledTimes(1);
+  });
+
+  it('test update user', async () => {
+    const USERNAME = 'petrov';
+    const UPDATE_INFO = {
+      fullName: 'newFullName',
+    };
+    const userService = new UserService();
+    mockedUsers.updateUser = userMocks.updateUser();
+
+    await userService.updateUser(USERNAME, UPDATE_INFO);
+
+    expect(mockedUsers.updateUser).toBeCalledTimes(1);
   });
 
   it('test getting user by username', async () => {
@@ -280,5 +307,53 @@ describe('test user service', () => {
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
     expect(await mockedUsers.getUserByUsername(USERNAME)).toBeNull();
+  });
+
+  it('test user removing', async () => {
+    const TARGET_USER_ID = 2;
+    const TARGET_USER_GROUP = 2;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const USER_GROUP = 2;
+    const userService = new UserService();
+    (userService as any).groupService = new GroupService();
+    (userService as any).getGroupIfCommon = userMocks.getGroupIfCommon(
+      USER_GROUP,
+      TARGET_USER_GROUP
+    );
+    (userService as any).groupService.getGroupMembers = getGroupMembersMethod();
+    mockedUsers.deleteById = userMocks.deleteById();
+
+    await userService.deleteUserById(USER, TARGET_USER_ID);
+
+    expect((userService as any).getGroupIfCommon).toBeCalledTimes(1);
+    expect(mockedUsers.deleteById).toBeCalledTimes(1);
+    expect((userService as any).groupService.getGroupMembers).toBeCalledTimes(1);
+    expect(await (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toBe(2);
+  });
+
+  it('test user from nonexistent group wants to delete another user', async () => {
+    const TARGET_USER_ID = 2;
+    const TARGET_USER_GROUP = 2;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const USER_GROUP = 9;
+    const userService = new UserService();
+    (userService as any).getGroupIfCommon = userMocks.getGroupIfCommon(
+      USER_GROUP,
+      TARGET_USER_GROUP
+    );
+
+    expect(() => (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toThrow(
+      'Groups do not match'
+    );
   });
 });
