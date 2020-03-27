@@ -51,11 +51,3 @@ export const getGroupMembersMethod = () =>
       role: RoleType[groupMember.role],
     }));
   });
-
-export const getNonexistentGroupMembersMethod = () =>
-  jest.fn(async (groupId: number) => {
-    const group = await getNonexistentGroup()(groupId);
-    if (!group) {
-      throw new Error('Group does not exist');
-    }
-  });

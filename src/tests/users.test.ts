@@ -251,10 +251,9 @@ describe('test user service', () => {
     expect(await (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toBe(2);
   });
 
-  it.skip('test changing user role with membership in another group or group does not exist', async () => {
+  it('test changing user role with membership in another group or group does not exist', async () => {
     const TARGET_USER_ID = 2;
     const TARGET_USER_GROUP = 1;
-    const ROLE_TYPE = 1;
     const USER = {
       id: 1,
       username: 'user',
@@ -268,7 +267,7 @@ describe('test user service', () => {
       TARGET_USER_GROUP
     );
 
-    await expect((userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).rejects.toThrow(
+    expect(() => (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toThrow(
       'Groups do not match'
     );
 
@@ -324,7 +323,7 @@ describe('test user service', () => {
     expect(await (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toBe(2);
   });
 
-  it.skip('test user from nonexistent group wants to delete another user', async () => {
+  it('test user from nonexistent group wants to delete another user', async () => {
     const TARGET_USER_ID = 2;
     const TARGET_USER_GROUP = 2;
     const USER = {
@@ -340,7 +339,7 @@ describe('test user service', () => {
       TARGET_USER_GROUP
     );
 
-    await expect((userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).rejects.toThrow(
+    expect(() => (userService as any).getGroupIfCommon(USER.id, TARGET_USER_ID)).toThrow(
       'Groups do not match'
     );
   });
