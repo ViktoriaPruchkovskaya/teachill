@@ -59,3 +59,11 @@ export const changePassword = () =>
   jest.fn((username: string, passwordHash: string) => Promise.resolve());
 
 export const deleteById = () => jest.fn((userId: number) => Promise.resolve());
+
+export const getGroupIfCommon = (groupIdA: number, groupIdB: number) =>
+  jest.fn((userIdA: number, userIdB: number) => {
+    if (groupIdA !== groupIdB) {
+      throw new Error('Groups do not match');
+    }
+    return Promise.resolve(groupIdA);
+  });

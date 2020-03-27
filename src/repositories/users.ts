@@ -112,7 +112,7 @@ export async function changeRole(userId: number, roleType: number) {
 export async function deleteById(userId: number): Promise<void> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.transaction(async transaction => {
-      Promise.all([
+      await Promise.all([
         transaction.query(sql`
         DELETE
         FROM user_groups

@@ -9,7 +9,14 @@ import {
   minLengthShouldBe,
   valueShouldBeInEnum,
 } from '../validations';
-import { ExistError, NotFoundError, InvalidCredentialsError, PerformingError } from '../errors';
+import {
+  ExistError,
+  NotFoundError,
+  InvalidCredentialsError,
+  ChangeError,
+  DeleteError,
+  GroupMismatchError,
+} from '../errors';
 import { State } from '../state';
 
 interface SignupData {
@@ -174,7 +181,7 @@ export async function changeRoleController(
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof NotFoundError || err instanceof PerformingError) {
+    if (err instanceof ChangeError || err instanceof GroupMismatchError) {
       ctx.body = {
         error: err.message,
       };
@@ -218,7 +225,7 @@ export async function deleteUser(
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof NotFoundError || err instanceof PerformingError) {
+    if (err instanceof DeleteError || err instanceof GroupMismatchError) {
       ctx.body = {
         error: err.message,
       };

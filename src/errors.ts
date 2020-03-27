@@ -30,10 +30,26 @@ export class ConfigurationError extends Error {
   }
 }
 
-export class PerformingError extends Error {
+export class DeleteError extends Error {
   constructor(message: string) {
     super();
     this.message = message;
-    Object.setPrototypeOf(this, PerformingError.prototype);
+    Object.setPrototypeOf(this, DeleteError.prototype);
+  }
+}
+
+export class ChangeError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, ChangeError.prototype);
+  }
+}
+
+export class GroupMismatchError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, GroupMismatchError.prototype);
   }
 }

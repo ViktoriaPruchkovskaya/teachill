@@ -11,7 +11,14 @@ import { getMembershipById } from '../repositories/groups';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
 import { GroupService } from './groups';
-import { ExistError, InvalidCredentialsError, NotFoundError, PerformingError } from '../errors';
+import {
+  ExistError,
+  InvalidCredentialsError,
+  NotFoundError,
+  ChangeError,
+  DeleteError,
+  GroupMismatchError,
+} from '../errors';
 
 export enum RoleType {
   Administrator = 1,
@@ -23,11 +30,6 @@ export interface User {
   username: string;
   fullName: string;
   role: RoleType;
-}
-
-interface UserRoleData {
-  userId: number;
-  roleId: number;
 }
 
 export class UserService {
@@ -69,34 +71,39 @@ export class UserService {
     await changePassword(username, newPasswordHash);
   }
 
-  public async changeRole(user: User, userId: number, roleType: RoleType): Promise<void> {
-    if (user.id === userId) {
-      throw new PerformingError('Administrator cannot change his own role');
-    }
-    const userMembership = await getMembershipById(user.id);
-    const userMembershipForChangeRole = await getMembershipById(userId);
-    if (!userMembership || userMembership != userMembershipForChangeRole) {
-      throw new NotFoundError('User or group is not found');
-    }
+  /**
+   * Change role of a user
+   * @param currentUser - User that is performing change role action.
+   * @param targetUserId - User ID of entity that change role.
+   * @param roleType - Type of role that are going to be applied to user.
+   **/
 
-    await changeRole(userId, roleType);
+  public async changeRole(
+    currentUser: User,
+    targetUserId: number,
+    roleType: RoleType
+  ): Promise<void> {
+    if (currentUser.id == targetUserId) {
+      throw new ChangeError('Administrator cannot change his own role');
+    }
+    await this.getGroupIfCommon(currentUser.id, targetUserId);
+
+    await changeRole(targetUserId, roleType);
   }
 
   public async deleteUserById(user: User, userIdForDelete: number): Promise<void> {
-    const userMembership = await getMembershipById(user.id);
-    const userMembershipForDelete = await getMembershipById(userIdForDelete);
-    if (userMembership != userMembershipForDelete) {
-      throw new NotFoundError('User is not found');
-    }
+    const groupId = await this.getGroupIfCommon(user.id, userIdForDelete);
+    const groupMembers = await this.groupService.getGroupMembers(groupId);
 
-    const groupMembers = await this.groupService.getGroupMembers(userMembership);
     if (
-      (user.role === RoleType.Administrator &&
-        user.id == userIdForDelete &&
-        groupMembers.filter(member => member.role === user.role).length < 2) ||
-      (user.role === RoleType.Member && user.id != userIdForDelete)
+      user.role === RoleType.Administrator &&
+      user.id == userIdForDelete &&
+      groupMembers.filter(member => member.role === user.role).length < 2
     ) {
-      throw new PerformingError('You cannot perform deleting');
+      throw new DeleteError('You cannot perform deleting');
+    }
+    if (user.role === RoleType.Member && user.id != userIdForDelete) {
+      throw new DeleteError('You cannot delete other users');
     }
 
     await deleteById(userIdForDelete);
@@ -113,6 +120,15 @@ export class UserService {
       fullName: user.fullName,
       role: RoleType[user.role],
     };
+  }
+
+  private async getGroupIfCommon(userIdA: number, userIdB: number): Promise<number> {
+    const membershipA = await getMembershipById(userIdA);
+    const membershipB = await getMembershipById(userIdB);
+    if (!membershipA || membershipA !== membershipB) {
+      throw new GroupMismatchError('Groups do not match');
+    }
+    return membershipA;
   }
 }
 
