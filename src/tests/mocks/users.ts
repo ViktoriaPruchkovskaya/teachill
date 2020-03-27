@@ -1,4 +1,4 @@
-import { RoleType } from '../../services/users';
+import { RoleType, User } from '../../services/users';
 
 export const getUserById = () =>
   jest.fn((id: number) =>
@@ -67,3 +67,5 @@ export const getGroupIfCommon = (groupIdA: number, groupIdB: number) =>
     }
     return Promise.resolve(groupIdA);
   });
+
+export const updateUser = () => jest.fn((username: string, user: User) => Promise.resolve());

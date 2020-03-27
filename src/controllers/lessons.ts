@@ -21,7 +21,7 @@ interface TeacherData {
   teacherId: number;
 }
 
-export async function createLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function createLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: LessonData;
   const validator = new Validator<LessonData>([
     shouldHaveField('name', 'string'),
@@ -50,7 +50,7 @@ export async function createLessonController(ctx: Koa.ParameterizedContext, next
   await next();
 }
 
-export async function getLessonTypesController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getLessonTypes(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const lessonService = new LessonService();
   const lessonTypes = await lessonService.getLessonTypes();
   ctx.body = [...lessonTypes];
@@ -58,7 +58,7 @@ export async function getLessonTypesController(ctx: Koa.ParameterizedContext, ne
   await next();
 }
 
-export async function createGroupLessonController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function createGroupLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: GroupLessonData;
   const validator = new Validator<GroupLessonData>([shouldHaveField('lessonId', 'number')]);
   try {
@@ -91,7 +91,7 @@ export async function createGroupLessonController(ctx: Koa.ParameterizedContext,
   await next();
 }
 
-export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getGroupLessons(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const lessonService = new LessonService();
   try {
     const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
@@ -110,10 +110,7 @@ export async function getGroupLessonsController(ctx: Koa.ParameterizedContext, n
   await next();
 }
 
-export async function assignTeacherToLessonController(
-  ctx: Koa.ParameterizedContext,
-  next: Koa.Next
-) {
+export async function assignTeacherToLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: TeacherData;
   const validator = new Validator<TeacherData>([shouldHaveField('teacherId', 'number')]);
   try {

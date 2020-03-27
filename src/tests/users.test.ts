@@ -274,6 +274,19 @@ describe('test user service', () => {
     expect((userService as any).getGroupIfCommon).toBeCalledTimes(1);
   });
 
+  it('test update user', async () => {
+    const USERNAME = 'petrov';
+    const UPDATE_INFO = {
+      fullName: 'newFullName',
+    };
+    const userService = new UserService();
+    mockedUsers.updateUser = userMocks.updateUser();
+
+    await userService.updateUser(USERNAME, UPDATE_INFO);
+
+    expect(mockedUsers.updateUser).toBeCalledTimes(1);
+  });
+
   it('test getting user by username', async () => {
     const USERNAME = 'user';
     const userService = new UserService();
