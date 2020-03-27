@@ -29,3 +29,27 @@ export class ConfigurationError extends Error {
     Object.setPrototypeOf(this, ConfigurationError.prototype);
   }
 }
+
+export class DeleteError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, DeleteError.prototype);
+  }
+}
+
+export class ChangeError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, ChangeError.prototype);
+  }
+}
+
+export class GroupMismatchError extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    Object.setPrototypeOf(this, GroupMismatchError.prototype);
+  }
+}

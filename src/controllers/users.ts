@@ -11,7 +11,7 @@ import {
   mayHaveFields,
   optionalFieldShouldHaveType,
 } from '../validations';
-import { ExistError, NotFoundError, InvalidCredentialsError } from '../errors';
+import * as errorTypes from '../errors';
 import { State } from '../state';
 
 interface SignupData {
@@ -27,7 +27,6 @@ interface PasswordData {
 }
 
 interface RoleData {
-  userId: number;
   roleId: number;
 }
 
@@ -77,7 +76,7 @@ export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
     ctx.body = { userId };
     ctx.response.status = httpCodes.CREATED;
   } catch (err) {
-    if (err instanceof ExistError) {
+    if (err instanceof errorTypes.ExistError) {
       ctx.body = {
         error: err.message,
       };
@@ -99,7 +98,7 @@ export async function signin(ctx: Koa.ParameterizedContext, next: Koa.Next) {
     ctx.body = { token: authorize };
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof InvalidCredentialsError) {
+    if (err instanceof errorTypes.InvalidCredentialsError) {
       ctx.body = {
         error: err.message,
       };
@@ -143,7 +142,7 @@ export async function changePassword(
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof InvalidCredentialsError) {
+    if (err instanceof errorTypes.InvalidCredentialsError) {
       ctx.body = {
         error: err.message,
       };
@@ -161,7 +160,6 @@ export async function changeRole(
 ) {
   let validatedData: RoleData;
   const validator = new Validator<RoleData>([
-    shouldHaveField('userId', 'number'),
     shouldHaveField('roleId', 'number'),
     valueShouldBeInEnum('roleId', RoleType),
   ]);
@@ -177,25 +175,17 @@ export async function changeRole(
     }
   }
 
-  if (ctx.state.user.id === validatedData.userId) {
-    ctx.body = {
-      error: 'Administrator cannot change his own role',
-    };
-    ctx.response.status = httpCodes.BAD_REQUEST;
-    return next();
-  }
-
   const userService = new UserService();
   try {
-    await userService.changeRole(validatedData.userId, validatedData.roleId, ctx.params.group_id);
+    await userService.changeRole(ctx.state.user, ctx.params.user_id, validatedData.roleId);
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof NotFoundError) {
+    if (err instanceof errorTypes.ChangeError || err instanceof errorTypes.GroupMismatchError) {
       ctx.body = {
         error: err.message,
       };
-      ctx.response.status = httpCodes.NOT_FOUND;
+      ctx.response.status = httpCodes.BAD_REQUEST;
       return next();
     }
   }
@@ -209,7 +199,7 @@ export async function updateUser(
 ) {
   let validatedData: UserData;
   const validator = new Validator<UserData>([
-    mayHaveFields(['fullName', 'username']),
+    mayHaveFields(['fullName']),
     optionalFieldShouldHaveType('fullName', 'string'),
   ]);
 
@@ -238,15 +228,37 @@ export async function currentUser(
 ) {
   const userService = new UserService();
   try {
-    const user = await userService.getUserByUsername(ctx.state.username);
+    const user = await userService.getUserByUsername(ctx.state.user.username);
     ctx.body = { ...user };
     ctx.response.status = httpCodes.OK;
   } catch (err) {
-    if (err instanceof NotFoundError) {
+    if (err instanceof errorTypes.NotFoundError) {
       ctx.body = {
         error: err.message,
       };
       ctx.response.status = httpCodes.NOT_FOUND;
+      return next();
+    }
+  }
+
+  await next();
+}
+
+export async function deleteUser(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const userService = new UserService();
+  try {
+    await userService.deleteUserById(ctx.state.user, ctx.params.user_id);
+    ctx.body = {};
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof errorTypes.DeleteError || err instanceof errorTypes.GroupMismatchError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
       return await next();
     }
   }

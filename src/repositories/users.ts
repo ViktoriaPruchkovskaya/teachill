@@ -125,3 +125,25 @@ export async function updateUser(username: string, user: RawUser) {
     WHERE username = ${username}`);
   });
 }
+
+export async function deleteById(userId: number): Promise<void> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.transaction(async transaction => {
+      await Promise.all([
+        transaction.query(sql`
+        DELETE
+        FROM user_groups
+        WHERE user_id = ${userId}`),
+        transaction.query(sql`
+        DELETE
+        FROM user_roles
+        WHERE user_id = ${userId}`),
+      ]);
+
+      await transaction.query(sql`
+      DELETE
+      FROM users
+      WHERE id = ${userId}`);
+    });
+  });
+}

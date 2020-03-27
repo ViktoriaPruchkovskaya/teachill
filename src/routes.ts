@@ -32,11 +32,12 @@ router.get(
   groupsControllers.getGroupMembers
 );
 router.put(
-  '/groups/:group_id/users/',
+  '/users/:user_id/changeRole',
   authMiddleware,
   shouldHaveAdminRole,
   usersControllers.changeRole
 );
+router.delete('/users/:user_id/', authMiddleware, usersControllers.deleteUser);
 router.post('/teachers/', authMiddleware, shouldHaveAdminRole, teachersControllers.createTeacher);
 router.get('/teachers/', authMiddleware, shouldHaveAdminRole, teachersControllers.getTeachers);
 router.post('/lessons/', authMiddleware, shouldHaveAdminRole, lessonsControllers.createLesson);

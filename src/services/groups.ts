@@ -1,17 +1,18 @@
 import * as groupsRepository from '../repositories/groups';
 import { getUserById } from '../repositories/users';
 import { ExistError, NotFoundError } from '../errors';
+import { RoleType } from './users';
 
 interface Group {
   id: number;
   name: string;
 }
 
-interface GroupMember {
+export interface GroupMember {
   id: number;
   username: string;
   fullName: string;
-  role: string;
+  role: RoleType;
 }
 
 export class GroupService {
@@ -37,8 +38,7 @@ export class GroupService {
     if (!group || !user) {
       throw new NotFoundError('Group or user does not exist');
     }
-
-    const membership = await groupsRepository.getMembershipById(userId, groupId);
+    const membership = await groupsRepository.getMembershipById(userId);
     if (membership) {
       throw new ExistError('User is already in another group');
     }
@@ -55,7 +55,7 @@ export class GroupService {
       id: groupMember.id,
       username: groupMember.username,
       fullName: groupMember.fullName,
-      role: groupMember.role,
+      role: RoleType[groupMember.role],
     }));
   }
 
