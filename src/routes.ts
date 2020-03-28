@@ -89,5 +89,10 @@ router.delete(
   shouldHaveAdminRole,
   attachmentsControllers.deleteGroupLessonAttachment
 );
-
+router.patch(
+  '/attachments/:attachment_id',
+  authMiddleware,
+  shouldHaveAdminRole,
+  attachmentsControllers.editAttachment
+);
 export { router };

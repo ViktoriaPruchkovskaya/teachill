@@ -1,12 +1,20 @@
 import * as attachmentsRepository from '../repositories/attachments';
 import { getGroupLessonById } from '../repositories/lessons';
 import { NotFoundError } from '../errors';
+import { User } from './users';
+import { getMembershipById } from '../repositories/groups';
 
 export interface Attachment {
   id: number;
   name: string;
   url: string;
 }
+
+interface UpdateAttachment {
+  name?: string;
+  url?: string;
+}
+
 export class AttachmentService {
   public async createAttachment(name: string, url: string): Promise<void> {
     return attachmentsRepository.createAttachment(name, url);
@@ -65,21 +73,21 @@ export class AttachmentService {
   }
 
   public async editAttachment(
-    groupId: number,
-    lessonId: number,
+    currentUser: User,
     attachmentId: number,
-    name: string,
-    url: string
+    attachmentInfo: UpdateAttachment
   ): Promise<Attachment> {
-    const lessonAttachments = await attachmentsRepository.getGroupLessonAttachment(
-      lessonId,
-      groupId
-    );
-    if (!lessonAttachments.some(attachment => attachment.id == attachmentId)) {
-      throw new NotFoundError('Group, lesson or attachment does not exist');
+    const currentGroup = await getMembershipById(currentUser.id);
+    const attachment = await attachmentsRepository.attachmentInGroup(attachmentId, currentGroup);
+    if (!attachment) {
+      throw new NotFoundError('Attachment not found');
     }
 
-    const attachment = await attachmentsRepository.editAttachment(attachmentId, name, url);
-    return { id: attachment.id, name: attachment.name, url: attachment.url };
+    for (const key in attachmentInfo) {
+      attachment[key] = attachmentInfo[key];
+    }
+
+    const changedAttachment = await attachmentsRepository.editAttachment(attachmentId, attachment);
+    return { id: changedAttachment.id, name: changedAttachment.name, url: changedAttachment.url };
   }
 }

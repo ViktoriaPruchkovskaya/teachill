@@ -1,3 +1,5 @@
+import { RawAttachment } from '../../repositories/attachments';
+
 export const createAttachment = () => jest.fn((name: string, url: string) => Promise.resolve());
 
 export const getAttachmentById = () =>
@@ -27,6 +29,14 @@ export const deleteGroupLessonAttachment = () =>
 export const deleteAttachment = () => jest.fn((attachmentId: number) => Promise.resolve());
 
 export const editAttachment = () =>
-  jest.fn((attachmentId: number, name: string, url: string) =>
-    Promise.resolve({ id: attachmentId, name: name, url: url })
+  jest.fn((attachmentId: number, rawAttachment: RawAttachment) =>
+    Promise.resolve({ id: attachmentId, name: rawAttachment.name, url: rawAttachment.url })
   );
+
+export const attachmentInGroup = () =>
+  jest.fn((attachmentId: number, groupId: number) =>
+    Promise.resolve({ id: attachmentId, name: 'attachment', url: 'https://attachment.com/4vd1o' })
+  );
+
+export const NonexistentAttachmentInGroup = () =>
+  jest.fn((attachmentId: number, groupId: number) => Promise.resolve(null));

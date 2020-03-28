@@ -1,12 +1,25 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
-import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
+import {
+  Validator,
+  shouldHaveField,
+  ValidationFailed,
+  shouldMatchRegexp,
+  mayHaveFields,
+  optionalFieldShouldHaveType,
+} from '../validations';
 import { AttachmentService } from '../services/attachments';
 import { NotFoundError } from '../errors';
+import { State } from '../state';
 
 interface AttachmentData {
   name: string;
   url: string;
+}
+
+interface UpdateAttachmentData {
+  name?: string;
+  url?: string;
 }
 
 export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -125,11 +138,15 @@ export async function deleteAttachment(ctx: Koa.ParameterizedContext, next: Koa.
   await next();
 }
 
-export async function editAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  let validatedData: AttachmentData;
-  const validator = new Validator<AttachmentData>([
-    shouldHaveField('name', 'string'),
-    shouldHaveField('url', 'string'),
+export async function editAttachment(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  let validatedData: UpdateAttachmentData;
+  const validator = new Validator<UpdateAttachmentData>([
+    mayHaveFields(['name', 'url']),
+    optionalFieldShouldHaveType('name', 'string'),
+    optionalFieldShouldHaveType('url', 'string'),
     shouldMatchRegexp(
       'url',
       '^(http://www.|https://www.|http://|https://)?[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5})?(/.*)?$'
@@ -150,11 +167,9 @@ export async function editAttachment(ctx: Koa.ParameterizedContext, next: Koa.Ne
   const attachmentService = new AttachmentService();
   try {
     const attachment = await attachmentService.editAttachment(
-      ctx.params.group_id,
-      ctx.params.lesson_id,
+      ctx.state.user,
       ctx.params.attachment_id,
-      validatedData.name,
-      validatedData.url
+      validatedData
     );
     ctx.body = { ...attachment };
     ctx.response.status = httpCodes.OK;

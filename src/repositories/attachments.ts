@@ -7,6 +7,12 @@ interface DBAttachment {
   url: string;
 }
 
+export interface RawAttachment {
+  id: number;
+  name: string;
+  url: string;
+}
+
 export async function createAttachment(name: string, url: string): Promise<void> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`INSERT INTO attachments (name, url) VALUES (${name}, ${url})`);
@@ -82,12 +88,15 @@ export async function deleteAttachment(attachmentId: number): Promise<void> {
   });
 }
 
-export async function editAttachment(id: number, name: string, url: string): Promise<DBAttachment> {
+export async function editAttachment(
+  id: number,
+  rowAttachment: RawAttachment
+): Promise<DBAttachment> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     const attachment = await connection.one(sql`
       UPDATE attachments
-      SET name = ${name},
-          url =  ${url}
+      SET name = ${rowAttachment.name},
+          url =  ${rowAttachment.url}
       WHERE id = ${id}
       RETURNING id, name, url`);
     return {
@@ -95,5 +104,28 @@ export async function editAttachment(id: number, name: string, url: string): Pro
       name: attachment.name as string,
       url: attachment.url as string,
     };
+  });
+}
+
+export async function attachmentInGroup(
+  attachmentId: number,
+  groupId: number
+): Promise<DBAttachment> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    const attachment = await connection.maybeOne(sql`
+    SELECT attachments.id, attachments.name, attachments.url
+    FROM attachments
+    JOIN group_lesson_attachments on attachments.id = attachment_id
+    JOIN groups on group_lesson_attachments.group_id = groups.id
+    WHERE group_lesson_attachments.attachment_id = ${attachmentId} AND group_lesson_attachments.group_id = ${groupId}
+  `);
+    if (attachment) {
+      return {
+        id: attachment.id as number,
+        name: attachment.name as string,
+        url: attachment.url as string,
+      };
+    }
+    return null;
   });
 }
