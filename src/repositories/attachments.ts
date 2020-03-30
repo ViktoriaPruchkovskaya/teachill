@@ -5,7 +5,7 @@ interface DBAttachment {
   id: number;
   name: string;
   url: string;
-  groupId: number;
+  groupId: number | null;
 }
 
 export interface RawAttachment {
@@ -14,9 +14,12 @@ export interface RawAttachment {
   url: string;
 }
 
-export async function createAttachment(name: string, url: string): Promise<void> {
+export async function createAttachment(name: string, url: string): Promise<number> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    await connection.query(sql`INSERT INTO attachments (name, url) VALUES (${name}, ${url})`);
+    const attachment = await connection.one(
+      sql`INSERT INTO attachments (name, url) VALUES (${name}, ${url}) RETURNING id`
+    );
+    return attachment.id as number;
   });
 }
 
@@ -57,14 +60,14 @@ export async function getAttachmentById(attachmentId: number): Promise<DBAttachm
     const row = await connection.maybeOne(sql`
     SELECT attachments.id, attachments.name, attachments.url, group_lesson_attachments.group_id
     FROM attachments
-    INNER JOIN group_lesson_attachments  on attachments.id = attachment_id
-    WHERE attachment_id = ${attachmentId}`);
+    LEFT JOIN group_lesson_attachments  on attachments.id = attachment_id
+    WHERE attachments.id = ${attachmentId}`);
     if (row) {
       return {
         id: row.id as number,
         name: row.name as string,
         url: row.url as string,
-        groupId: row.group_id as number,
+        groupId: row.group_id as number | null,
       };
     }
     return null;

@@ -60,11 +60,12 @@ router.post(
   attachmentsControllers.createAttachment
 );
 router.delete(
-  '/attachments/:id/',
+  '/attachments/:attachment_id/',
   authMiddleware,
   shouldHaveAdminRole,
   attachmentsControllers.deleteAttachment
 );
+router.get('/attachments/:attachment_id/', authMiddleware, attachmentsControllers.getAttachment);
 router.post(
   '/groups/:group_id/lessons/',
   authMiddleware,

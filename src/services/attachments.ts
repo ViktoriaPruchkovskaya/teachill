@@ -17,7 +17,7 @@ interface UpdateAttachment {
 }
 
 export class AttachmentService {
-  public async createAttachment(name: string, url: string): Promise<void> {
+  public async createAttachment(name: string, url: string): Promise<number> {
     return attachmentsRepository.createAttachment(name, url);
   }
 
@@ -53,6 +53,10 @@ export class AttachmentService {
   public async deleteAttachment(currentUser: User, attachmentId: number): Promise<void> {
     const attachment = await this.getAttachmentIfCommon(currentUser.id, attachmentId);
     await attachmentsRepository.deleteAttachment(attachment.id, attachment.groupId);
+  }
+
+  public async getAttachment(currentUser: User, attachmentId: number): Promise<Attachment> {
+    return await this.getAttachmentIfCommon(currentUser.id, attachmentId);
   }
 
   public async editAttachment(

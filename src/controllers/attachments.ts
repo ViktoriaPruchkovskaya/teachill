@@ -45,8 +45,11 @@ export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.
   }
 
   const attachmentService = new AttachmentService();
-  await attachmentService.createAttachment(validatedData.name, validatedData.url);
-  ctx.body = {};
+  const attachmentId = await attachmentService.createAttachment(
+    validatedData.name,
+    validatedData.url
+  );
+  ctx.body = { attachmentId };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
@@ -102,8 +105,33 @@ export async function deleteAttachment(
 ) {
   const attachmentService = new AttachmentService();
   try {
-    await attachmentService.deleteAttachment(ctx.state.user, ctx.params.id);
+    await attachmentService.deleteAttachment(ctx.state.user, ctx.params.attachment_id);
     ctx.body = {};
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return next();
+    }
+  }
+
+  await next();
+}
+
+export async function getAttachment(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const attachmentService = new AttachmentService();
+  try {
+    const attachment = await attachmentService.getAttachment(
+      ctx.state.user,
+      ctx.params.attachment_id
+    );
+    ctx.body = { ...attachment };
     ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {
