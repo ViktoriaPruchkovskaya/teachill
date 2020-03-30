@@ -80,12 +80,15 @@ export async function assignAttachmentToLesson(
   await next();
 }
 
-export async function getLessonAttachments(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getLessonAttachments(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const attachmentService = new AttachmentService();
   try {
     const attachments = await attachmentService.getLessonAttachments(
-      ctx.params.lesson_id,
-      ctx.params.group_id
+      ctx.state.user,
+      ctx.params.lesson_id
     );
     ctx.body = [...attachments];
     ctx.response.status = httpCodes.OK;

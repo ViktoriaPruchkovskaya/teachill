@@ -1,4 +1,5 @@
 import { RawAttachment } from '../../repositories/attachments';
+// import { getGroupLessonById } from './lessons';
 
 export const createAttachment = () => jest.fn((name: string, url: string) => Promise.resolve(1));
 
@@ -55,4 +56,13 @@ export const getAttachmentIfCommon = (currentGroup: number, attachmentGroup: num
       url: 'https://attachment.com/4vd1o',
       groupId: attachmentGroup,
     });
+  });
+
+export const getGroupIfLessonExist = (groupId: number, getGroupLessonById) =>
+  jest.fn(async (userId: number, lessonId) => {
+    const lesson = await getGroupLessonById()(groupId, lessonId);
+    if (!lesson) {
+      throw new Error('Lesson not found');
+    }
+    return Promise.resolve(groupId);
   });

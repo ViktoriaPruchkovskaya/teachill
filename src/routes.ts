@@ -80,7 +80,7 @@ router.post(
   attachmentsControllers.assignAttachmentToLesson
 );
 router.get(
-  '/groups/:group_id/lessons/:lesson_id/attachments/',
+  '/lessons/:lesson_id/attachments/',
   authMiddleware,
   attachmentsControllers.getLessonAttachments
 );

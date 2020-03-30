@@ -1,14 +1,9 @@
 import { AttachmentService } from '../services/attachments';
 import * as attachmentsRepository from '../repositories/attachments';
-import * as lessonsRepository from '../repositories/lessons';
-import * as groupsRepository from '../repositories/groups';
 import * as attachmentsMocks from './mocks/attachments';
-import { getGroupLessonById, getNonexistentGroupLessonById } from './mocks/lessons';
-import { getMembershipById } from './mocks/groups';
+import { getGroupLessonById, getNonexistentLessonById } from './mocks/lessons';
 
 const mockedAttachments = attachmentsRepository as jest.Mocked<typeof attachmentsRepository>;
-const mockedLessons = lessonsRepository as jest.Mocked<typeof lessonsRepository>;
-const mockedGroups = groupsRepository as jest.Mocked<typeof groupsRepository>;
 
 describe('test attachments service', () => {
   it('test attachment creation', async () => {
@@ -32,24 +27,23 @@ describe('test attachments service', () => {
       fullName: 'useruser',
       role: 1,
     };
+    const CURRENT_GROUP = 2;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getGroupLessonById();
+    (attachmentService as any).getGroupIfLessonExist = attachmentsMocks.getGroupIfLessonExist(
+      CURRENT_GROUP,
+      getGroupLessonById
+    );
     mockedAttachments.getAttachmentById = attachmentsMocks.getAttachmentById();
     mockedAttachments.assignAttachmentToLesson = attachmentsMocks.assignAttachmentToLesson();
-    mockedGroups.getMembershipById = getMembershipById();
 
     await attachmentService.assignAttachmentToLesson(CURRENT_USER, ATTACHMENT_ID, LESSON_ID);
 
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
+    expect((attachmentService as any).getGroupIfLessonExist).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.assignAttachmentToLesson).toBeCalledTimes(1);
-    expect(
-      await mockedLessons.getGroupLessonById(
-        await mockedGroups.getMembershipById(CURRENT_USER.id),
-        LESSON_ID
-      )
-    ).toBe(LESSON_ID);
+    expect(await (attachmentService as any).getGroupIfLessonExist(CURRENT_USER.id, LESSON_ID)).toBe(
+      CURRENT_GROUP
+    );
     expect((await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).id).toBe(ATTACHMENT_ID);
   });
 
@@ -62,26 +56,18 @@ describe('test attachments service', () => {
       fullName: 'useruser',
       role: 1,
     };
+    const CURRENT_GROUP = 2;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getNonexistentGroupLessonById();
+    (attachmentService as any).getGroupIfLessonExist = attachmentsMocks.getGroupIfLessonExist(
+      CURRENT_GROUP,
+      getNonexistentLessonById
+    );
     mockedAttachments.getAttachmentById = attachmentsMocks.getAttachmentById();
     mockedAttachments.assignAttachmentToLesson = attachmentsMocks.assignAttachmentToLesson();
-    mockedGroups.getMembershipById = getMembershipById();
 
     await expect(
-      attachmentService.assignAttachmentToLesson(CURRENT_USER, ATTACHMENT_ID, LESSON_ID)
-    ).rejects.toThrow('Group, lesson or attachment does not exist');
-
-    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
-    expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
-    expect(mockedAttachments.assignAttachmentToLesson).not.toBeCalled();
-    expect(
-      await mockedLessons.getGroupLessonById(
-        await mockedGroups.getMembershipById(CURRENT_USER.id),
-        LESSON_ID
-      )
-    ).toBeNull();
+      (attachmentService as any).getGroupIfLessonExist(CURRENT_USER.id, LESSON_ID)
+    ).rejects.toThrow('Lesson not found');
   });
 
   it('test nonexistent attachment assignment to lesson group', async () => {
@@ -94,34 +80,51 @@ describe('test attachments service', () => {
       fullName: 'useruser',
       role: 1,
     };
+    const CURRENT_GROUP = 2;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getGroupLessonById();
+    (attachmentService as any).getGroupIfLessonExist = attachmentsMocks.getGroupIfLessonExist(
+      CURRENT_GROUP,
+      getGroupLessonById
+    );
     mockedAttachments.getAttachmentById = attachmentsMocks.getNonexistentAttachmentById();
     mockedAttachments.assignAttachmentToLesson = attachmentsMocks.assignAttachmentToLesson();
 
     await expect(
       attachmentService.assignAttachmentToLesson(CURRENT_USER, ATTACHMENT_ID, LESSON_ID)
-    ).rejects.toThrow('Group, lesson or attachment does not exist');
+    ).rejects.toThrow('Attachment not found');
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
+    expect((attachmentService as any).getGroupIfLessonExist).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.assignAttachmentToLesson).not.toBeCalled();
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect(await (attachmentService as any).getGroupIfLessonExist(CURRENT_USER.id, LESSON_ID)).toBe(
+      CURRENT_GROUP
+    );
     expect(await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).toBeNull();
   });
 
   it('test getting attachments of lesson group', async () => {
-    const LESSON_ID = 6;
-    const GROUP_ID = 5;
+    const CURRENT_USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const CURRENT_GROUP = 2;
+    const LESSON_ID = 2;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getGroupLessonById();
+    (attachmentService as any).getGroupIfLessonExist = attachmentsMocks.getGroupIfLessonExist(
+      CURRENT_GROUP,
+      getGroupLessonById
+    );
     mockedAttachments.getLessonAttachments = attachmentsMocks.getAttachmentsArray();
 
-    const attachments = await attachmentService.getLessonAttachments(LESSON_ID, GROUP_ID);
+    const attachments = await attachmentService.getLessonAttachments(CURRENT_USER, LESSON_ID);
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
+    expect((attachmentService as any).getGroupIfLessonExist).toBeCalledTimes(1);
     expect(mockedAttachments.getLessonAttachments).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect(await (attachmentService as any).getGroupIfLessonExist(CURRENT_USER.id, LESSON_ID)).toBe(
+      CURRENT_GROUP
+    );
     expect(attachments).toEqual([
       { id: 1, name: 'attachment1', url: 'https://attachment.com/4vd1o', groupId: 2 },
       { id: 2, name: 'attachment2', url: 'https://attachment.com/4voq', groupId: 2 },
@@ -129,33 +132,49 @@ describe('test attachments service', () => {
   });
 
   it('test getting attachments of nonexistent lesson group', async () => {
+    const CURRENT_USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const CURRENT_GROUP = 2;
     const LESSON_ID = 6;
-    const GROUP_ID = 5;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getNonexistentGroupLessonById();
+    (attachmentService as any).getGroupIfLessonExist = attachmentsMocks.getGroupIfLessonExist(
+      CURRENT_GROUP,
+      getNonexistentLessonById
+    );
     mockedAttachments.getLessonAttachments = attachmentsMocks.getAttachmentsArray();
 
-    await expect(attachmentService.getLessonAttachments(LESSON_ID, GROUP_ID)).rejects.toThrow(
-      'Group or lesson does not exist'
-    );
-
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
-    expect(mockedAttachments.getLessonAttachments).not.toBeCalled();
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBeNull();
+    await expect(
+      (attachmentService as any).getGroupIfLessonExist(CURRENT_USER.id, LESSON_ID)
+    ).rejects.toThrow('Lesson not found');
   });
 
   it('test getting empty attachments array of lesson group', async () => {
-    const LESSON_ID = 6;
-    const GROUP_ID = 5;
+    const CURRENT_USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const CURRENT_GROUP = 2;
+    const LESSON_ID = 2;
     const attachmentService = new AttachmentService();
-    mockedLessons.getGroupLessonById = getGroupLessonById();
+    (attachmentService as any).getGroupIfLessonExist = attachmentsMocks.getGroupIfLessonExist(
+      CURRENT_GROUP,
+      getGroupLessonById
+    );
     mockedAttachments.getLessonAttachments = attachmentsMocks.getEmptyAttachmentsArray();
 
-    const attachments = await attachmentService.getLessonAttachments(LESSON_ID, GROUP_ID);
+    const attachments = await attachmentService.getLessonAttachments(CURRENT_USER, LESSON_ID);
 
-    expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
+    expect((attachmentService as any).getGroupIfLessonExist).toBeCalledTimes(1);
     expect(mockedAttachments.getLessonAttachments).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect(await (attachmentService as any).getGroupIfLessonExist(CURRENT_USER.id, LESSON_ID)).toBe(
+      CURRENT_GROUP
+    );
     expect(attachments).toEqual([]);
   });
 

@@ -26,23 +26,19 @@ export class AttachmentService {
     attachmentId: number,
     lessonId: number
   ): Promise<void> {
-    const currentGroup = await getMembershipById(currentUser.id);
-    const lesson = await getGroupLessonById(currentGroup, lessonId);
+    const group = await this.getGroupIfLessonExist(currentUser.id, lessonId);
     const attachment = await attachmentsRepository.getAttachmentById(attachmentId);
-    if (!lesson || !attachment) {
-      throw new NotFoundError('Group, lesson or attachment does not exist');
+    if (!attachment) {
+      throw new NotFoundError('Attachment not found');
     }
 
-    return attachmentsRepository.assignAttachmentToLesson(attachmentId, lessonId, currentGroup);
+    return attachmentsRepository.assignAttachmentToLesson(attachmentId, lessonId, group);
   }
 
-  public async getLessonAttachments(lessonId: number, groupId: number): Promise<Attachment[]> {
-    const lesson = await getGroupLessonById(groupId, lessonId);
-    if (!lesson) {
-      throw new NotFoundError('Group or lesson does not exist');
-    }
+  public async getLessonAttachments(currentUser: User, lessonId: number): Promise<Attachment[]> {
+    const group = await this.getGroupIfLessonExist(currentUser.id, lessonId);
 
-    const attachments = await attachmentsRepository.getLessonAttachments(lessonId, groupId);
+    const attachments = await attachmentsRepository.getLessonAttachments(lessonId, group);
     return attachments.map(attachment => ({
       id: attachment.id,
       name: attachment.name,
@@ -94,5 +90,14 @@ export class AttachmentService {
       url: attachment.url,
       groupId: attachment.groupId,
     };
+  }
+
+  private async getGroupIfLessonExist(userId: number, lessonId: number): Promise<number> {
+    const currentGroup = await getMembershipById(userId);
+    const lesson = await getGroupLessonById(currentGroup, lessonId);
+    if (!lesson) {
+      throw new NotFoundError('Lesson not found');
+    }
+    return currentGroup;
   }
 }
