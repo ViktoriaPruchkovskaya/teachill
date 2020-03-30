@@ -21,18 +21,19 @@ export class AttachmentService {
     return attachmentsRepository.createAttachment(name, url);
   }
 
-  public async assignToGroupLesson(
+  public async assignAttachmentToLesson(
+    currentUser: User,
     attachmentId: number,
-    lessonId: number,
-    groupId: number
+    lessonId: number
   ): Promise<void> {
-    const lesson = await getGroupLessonById(groupId, lessonId);
+    const currentGroup = await getMembershipById(currentUser.id);
+    const lesson = await getGroupLessonById(currentGroup, lessonId);
     const attachment = await attachmentsRepository.getAttachmentById(attachmentId);
     if (!lesson || !attachment) {
       throw new NotFoundError('Group, lesson or attachment does not exist');
     }
 
-    return attachmentsRepository.assignToGroupLesson(attachmentId, lessonId, groupId);
+    return attachmentsRepository.assignAttachmentToLesson(attachmentId, lessonId, currentGroup);
   }
 
   public async getLessonAttachments(lessonId: number, groupId: number): Promise<Attachment[]> {

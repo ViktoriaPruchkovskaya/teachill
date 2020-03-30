@@ -54,13 +54,16 @@ export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.
   await next();
 }
 
-export async function assignToGroupLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function assignAttachmentToLesson(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const attachmentService = new AttachmentService();
   try {
-    await attachmentService.assignToGroupLesson(
+    await attachmentService.assignAttachmentToLesson(
+      ctx.state.user,
       ctx.params.attachment_id,
-      ctx.params.lesson_id,
-      ctx.params.group_id
+      ctx.params.lesson_id
     );
     ctx.body = {};
     ctx.response.status = httpCodes.CREATED;

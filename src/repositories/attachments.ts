@@ -23,7 +23,7 @@ export async function createAttachment(name: string, url: string): Promise<numbe
   });
 }
 
-export async function assignToGroupLesson(
+export async function assignAttachmentToLesson(
   attachmentId: number,
   lessonId: number,
   groupId: number

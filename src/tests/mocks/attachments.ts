@@ -7,7 +7,7 @@ export const getAttachmentById = () =>
     Promise.resolve({ id: id, name: 'attachment', url: 'https://attachment.com/4vd1o', groupId: 2 })
   );
 
-export const assignToGroupLesson = () =>
+export const assignAttachmentToLesson = () =>
   jest.fn((attachmentId: number, lessonId: number, groupId: number) => Promise.resolve());
 
 export const getNonexistentAttachmentById = () => jest.fn((id: number) => Promise.resolve(null));

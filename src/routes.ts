@@ -74,10 +74,10 @@ router.post(
 );
 router.get('/groups/:group_id/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
 router.post(
-  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
+  '/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,
   shouldHaveAdminRole,
-  attachmentsControllers.assignToGroupLesson
+  attachmentsControllers.assignAttachmentToLesson
 );
 router.get(
   '/groups/:group_id/lessons/:lesson_id/attachments/',
