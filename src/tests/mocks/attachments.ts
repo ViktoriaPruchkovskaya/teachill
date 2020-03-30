@@ -4,7 +4,7 @@ export const createAttachment = () => jest.fn((name: string, url: string) => Pro
 
 export const getAttachmentById = () =>
   jest.fn((id: number) =>
-    Promise.resolve({ id: id, name: 'attachment', url: 'https://attachment.com/4vd1o' })
+    Promise.resolve({ id: id, name: 'attachment', url: 'https://attachment.com/4vd1o', groupId: 2 })
   );
 
 export const assignToGroupLesson = () =>
@@ -15,8 +15,8 @@ export const getNonexistentAttachmentById = () => jest.fn((id: number) => Promis
 export const getAttachmentsArray = () =>
   jest.fn((lessonId: number, groupId: number) =>
     Promise.resolve([
-      { id: 1, name: 'attachment1', url: 'https://attachment.com/4vd1o' },
-      { id: 2, name: 'attachment2', url: 'https://attachment.com/4voq' },
+      { id: 1, name: 'attachment1', url: 'https://attachment.com/4vd1o', groupId: 2 },
+      { id: 2, name: 'attachment2', url: 'https://attachment.com/4voq', groupId: 2 },
     ])
   );
 
@@ -30,7 +30,12 @@ export const deleteAttachment = () => jest.fn((attachmentId: number) => Promise.
 
 export const editAttachment = () =>
   jest.fn((attachmentId: number, rawAttachment: RawAttachment) =>
-    Promise.resolve({ id: attachmentId, name: rawAttachment.name, url: rawAttachment.url })
+    Promise.resolve({
+      id: attachmentId,
+      name: rawAttachment.name,
+      url: rawAttachment.url,
+      groupId: 2,
+    })
   );
 
 export const attachmentInGroup = () =>

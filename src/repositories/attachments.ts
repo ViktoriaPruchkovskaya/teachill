@@ -5,6 +5,7 @@ interface DBAttachment {
   id: number;
   name: string;
   url: string;
+  groupId: number;
 }
 
 export interface RawAttachment {
@@ -30,13 +31,13 @@ export async function assignToGroupLesson(
   });
 }
 
-export async function getGroupLessonAttachment(
+export async function getGroupLessonAttachments(
   lessonId: number,
   groupId: number
 ): Promise<DBAttachment[]> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     const row = await connection.any(sql`
-      SELECT id, name, url
+      SELECT id, name, url, group_id
       FROM attachments
       JOIN group_lesson_attachments on attachments.id = attachment_id
       WHERE lesson_id = ${lessonId} AND group_id = ${groupId}
@@ -46,20 +47,24 @@ export async function getGroupLessonAttachment(
       id: attachment.id as number,
       name: attachment.name as string,
       url: attachment.url as string,
+      groupId: attachment.group_id as number,
     }));
   });
 }
 
 export async function getAttachmentById(attachmentId: number): Promise<DBAttachment | null> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    const row = await connection.maybeOne(
-      sql`SELECT id, name, url FROM attachments WHERE id=${attachmentId}`
-    );
+    const row = await connection.maybeOne(sql`
+    SELECT attachments.id, attachments.name, attachments.url, group_lesson_attachments.group_id
+    FROM attachments
+    INNER JOIN group_lesson_attachments  on attachments.id = attachment_id
+    WHERE attachment_id = ${attachmentId}`);
     if (row) {
       return {
         id: row.id as number,
         name: row.name as string,
         url: row.url as string,
+        groupId: row.group_id as number,
       };
     }
     return null;
@@ -97,35 +102,14 @@ export async function editAttachment(
       UPDATE attachments
       SET name = ${rowAttachment.name},
           url =  ${rowAttachment.url}
-      WHERE id = ${id}
-      RETURNING id, name, url`);
+      FROM group_lesson_attachments
+      WHERE id = ${id} AND  id = group_lesson_attachments.attachment_id
+      RETURNING id, name, url, group_id`);
     return {
       id: attachment.id as number,
       name: attachment.name as string,
       url: attachment.url as string,
+      groupId: attachment.group_id as number,
     };
-  });
-}
-
-export async function attachmentInGroup(
-  attachmentId: number,
-  groupId: number
-): Promise<DBAttachment> {
-  return DatabaseConnection.getConnectionPool().connect(async connection => {
-    const attachment = await connection.maybeOne(sql`
-    SELECT attachments.id, attachments.name, attachments.url
-    FROM attachments
-    JOIN group_lesson_attachments on attachments.id = attachment_id
-    JOIN groups on group_lesson_attachments.group_id = groups.id
-    WHERE group_lesson_attachments.attachment_id = ${attachmentId} AND group_lesson_attachments.group_id = ${groupId}
-  `);
-    if (attachment) {
-      return {
-        id: attachment.id as number,
-        name: attachment.name as string,
-        url: attachment.url as string,
-      };
-    }
-    return null;
   });
 }

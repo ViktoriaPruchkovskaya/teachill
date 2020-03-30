@@ -8,6 +8,7 @@ export interface Attachment {
   id: number;
   name: string;
   url: string;
+  groupId: number;
 }
 
 interface UpdateAttachment {
@@ -40,11 +41,12 @@ export class AttachmentService {
       throw new NotFoundError('Group or lesson does not exist');
     }
 
-    const attachments = await attachmentsRepository.getGroupLessonAttachment(lessonId, groupId);
+    const attachments = await attachmentsRepository.getGroupLessonAttachments(lessonId, groupId);
     return attachments.map(attachment => ({
       id: attachment.id,
       name: attachment.name,
       url: attachment.url,
+      groupId: attachment.groupId,
     }));
   }
 
@@ -53,7 +55,7 @@ export class AttachmentService {
     lessonId: number,
     groupId: number
   ): Promise<void> {
-    const lessonAttachments = await attachmentsRepository.getGroupLessonAttachment(
+    const lessonAttachments = await attachmentsRepository.getGroupLessonAttachments(
       lessonId,
       groupId
     );
@@ -78,16 +80,19 @@ export class AttachmentService {
     attachmentInfo: UpdateAttachment
   ): Promise<Attachment> {
     const currentGroup = await getMembershipById(currentUser.id);
-    const attachment = await attachmentsRepository.attachmentInGroup(attachmentId, currentGroup);
-    if (!attachment) {
+    let attachment = await attachmentsRepository.getAttachmentById(attachmentId);
+    if (!attachment || currentGroup !== attachment.groupId) {
       throw new NotFoundError('Attachment not found');
     }
 
-    for (const key in attachmentInfo) {
-      attachment[key] = attachmentInfo[key];
-    }
+    attachment = Object.assign(attachment, attachmentInfo);
 
     const changedAttachment = await attachmentsRepository.editAttachment(attachmentId, attachment);
-    return { id: changedAttachment.id, name: changedAttachment.name, url: changedAttachment.url };
+    return {
+      id: changedAttachment.id,
+      name: changedAttachment.name,
+      url: changedAttachment.url,
+      groupId: changedAttachment.groupId,
+    };
   }
 }
