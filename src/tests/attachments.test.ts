@@ -14,9 +14,10 @@ describe('test attachments service', () => {
     const attachmentService = new AttachmentService();
     mockedAttachments.createAttachment = attachmentsMocks.createAttachment();
 
-    await attachmentService.createAttachment(NAME, URL);
+    const attachmentId = await attachmentService.createAttachment(NAME, URL);
 
     expect(mockedAttachments.createAttachment).toBeCalledTimes(1);
+    expect(attachmentId).toBe(1);
   });
 
   it('test attachment assignment to lesson group', async () => {
@@ -151,7 +152,7 @@ describe('test attachments service', () => {
     ).toBe(ATTACHMENT_ID);
   });
 
-  it('test remove attachment, which not exist in current group', async () => {
+  it('test remove attachment, which does not exist in current group', async () => {
     const CURRENT_USER = {
       id: 1,
       username: 'user',
@@ -213,7 +214,7 @@ describe('test attachments service', () => {
     });
   });
 
-  it('test update attachment which not exist in current group', async () => {
+  it('test update attachment which does not exist in current group', async () => {
     const CURRENT_USER = {
       id: 1,
       username: 'user',
@@ -227,6 +228,48 @@ describe('test attachments service', () => {
     };
     const CURRENT_GROUP = 6;
     const ATTACHMENT_GROUP = 2;
+    const attachmentService = new AttachmentService();
+    (attachmentService as any).getAttachmentIfCommon = attachmentsMocks.getAttachmentIfCommon(
+      CURRENT_GROUP,
+      ATTACHMENT_GROUP
+    );
+
+    expect(() =>
+      (attachmentService as any).getAttachmentIfCommon(CURRENT_USER.id, ATTACHMENT_ID)
+    ).toThrow('Attachment not found');
+  });
+
+  it('test attachment displaying', async () => {
+    const CURRENT_USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const CURRENT_GROUP = 2;
+    const ATTACHMENT_GROUP = 2;
+    const ATTACHMENT_ID = 2;
+    const attachmentService = new AttachmentService();
+    (attachmentService as any).getAttachmentIfCommon = attachmentsMocks.getAttachmentIfCommon(
+      CURRENT_GROUP,
+      ATTACHMENT_GROUP
+    );
+
+    const attachment = await attachmentService.getAttachment(CURRENT_USER, ATTACHMENT_ID);
+
+    expect(Object.keys(attachment)).toEqual(['id', 'name', 'url', 'groupId']);
+  });
+
+  it('test display attachment which does not exist in current group', async () => {
+    const CURRENT_USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
+    const CURRENT_GROUP = 8;
+    const ATTACHMENT_GROUP = 2;
+    const ATTACHMENT_ID = 2;
     const attachmentService = new AttachmentService();
     (attachmentService as any).getAttachmentIfCommon = attachmentsMocks.getAttachmentIfCommon(
       CURRENT_GROUP,

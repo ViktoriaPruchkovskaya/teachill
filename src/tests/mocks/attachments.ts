@@ -1,6 +1,6 @@
 import { RawAttachment } from '../../repositories/attachments';
 
-export const createAttachment = () => jest.fn((name: string, url: string) => Promise.resolve());
+export const createAttachment = () => jest.fn((name: string, url: string) => Promise.resolve(1));
 
 export const getAttachmentById = () =>
   jest.fn((id: number) =>
