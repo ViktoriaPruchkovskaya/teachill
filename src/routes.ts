@@ -69,7 +69,7 @@ router.post(
   '/groups/:group_id/lessons/',
   authMiddleware,
   shouldHaveAdminRole,
-  lessonsControllers.createGroupLesson
+  lessonsControllers.assignLessonToGroup
 );
 router.get('/groups/:group_id/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
 router.post(
@@ -81,13 +81,7 @@ router.post(
 router.get(
   '/groups/:group_id/lessons/:lesson_id/attachments/',
   authMiddleware,
-  attachmentsControllers.getGroupLessonAttachment
-);
-router.delete(
-  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id',
-  authMiddleware,
-  shouldHaveAdminRole,
-  attachmentsControllers.deleteGroupLessonAttachment
+  attachmentsControllers.getLessonAttachments
 );
 router.patch(
   '/attachments/:attachment_id',

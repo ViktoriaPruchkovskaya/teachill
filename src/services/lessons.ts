@@ -51,7 +51,7 @@ export class LessonService {
     return lessonTypes.map(type => ({ id: type.id, name: type.name }));
   }
 
-  public async createGroupLesson(
+  public async assignLessonToGroup(
     lessonId: number,
     groupId: number,
     subgroup: number = null
@@ -61,7 +61,7 @@ export class LessonService {
     if (!lesson || !group) {
       throw new NotFoundError('Lesson or group does not exist');
     }
-    return lessonsRepository.createGroupLesson(lesson, group, subgroup);
+    return lessonsRepository.assignLessonToGroup(lesson, group, subgroup);
   }
 
   public async getGroupLessons(groupId: number): Promise<Lesson[]> {

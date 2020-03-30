@@ -23,10 +23,8 @@ export const getAttachmentsArray = () =>
 export const getEmptyAttachmentsArray = () =>
   jest.fn((lessonId: number, groupId: number) => Promise.resolve([]));
 
-export const deleteGroupLessonAttachment = () =>
-  jest.fn((attachmentId: number, lessonId: number, groupId: number) => Promise.resolve());
-
-export const deleteAttachment = () => jest.fn((attachmentId: number) => Promise.resolve());
+export const deleteAttachment = () =>
+  jest.fn((attachmentId: number, groupId: number) => Promise.resolve());
 
 export const editAttachment = () =>
   jest.fn((attachmentId: number, rawAttachment: RawAttachment) =>
@@ -45,3 +43,16 @@ export const attachmentInGroup = () =>
 
 export const NonexistentAttachmentInGroup = () =>
   jest.fn((attachmentId: number, groupId: number) => Promise.resolve(null));
+
+export const getAttachmentIfCommon = (currentGroup: number, attachmentGroup: number) =>
+  jest.fn((userId: number, attachmentId: number) => {
+    if (currentGroup !== attachmentGroup) {
+      throw new Error('Attachment not found');
+    }
+    return Promise.resolve({
+      id: attachmentId,
+      name: 'attachment',
+      url: 'https://attachment.com/4vd1o',
+      groupId: attachmentGroup,
+    });
+  });

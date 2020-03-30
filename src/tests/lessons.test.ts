@@ -57,13 +57,13 @@ describe('test lessons service', () => {
     const lessonService = new LessonService();
     mockedGroups.getGroupById = getGroupById();
     mockedLessons.getLessonById = lessonMocks.getLessonById();
-    mockedLessons.createGroupLesson = lessonMocks.createGroupLesson();
+    mockedLessons.assignLessonToGroup = lessonMocks.assignLessonToGroup();
 
-    await lessonService.createGroupLesson(LESSON_ID, GROUP_ID);
+    await lessonService.assignLessonToGroup(LESSON_ID, GROUP_ID);
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedLessons.getLessonById).toBeCalledTimes(1);
-    expect(mockedLessons.createGroupLesson).toBeCalledTimes(1);
+    expect(mockedLessons.assignLessonToGroup).toBeCalledTimes(1);
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect((await mockedLessons.getLessonById(LESSON_ID)).id).toBe(LESSON_ID);
   });
@@ -74,15 +74,15 @@ describe('test lessons service', () => {
     const lessonService = new LessonService();
     mockedGroups.getGroupById = getNonexistentGroup();
     mockedLessons.getLessonById = lessonMocks.getLessonById();
-    mockedLessons.createGroupLesson = lessonMocks.createGroupLesson();
+    mockedLessons.assignLessonToGroup = lessonMocks.assignLessonToGroup();
 
-    await expect(lessonService.createGroupLesson(LESSON_ID, GROUP_ID)).rejects.toThrow(
+    await expect(lessonService.assignLessonToGroup(LESSON_ID, GROUP_ID)).rejects.toThrow(
       'Lesson or group does not exist'
     );
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedLessons.getLessonById).toBeCalledTimes(1);
-    expect(mockedLessons.createGroupLesson).not.toBeCalled();
+    expect(mockedLessons.assignLessonToGroup).not.toBeCalled();
     expect(await mockedGroups.getGroupById(GROUP_ID)).toBeNull();
     expect((await mockedLessons.getLessonById(LESSON_ID)).id).toBe(LESSON_ID);
   });
@@ -93,15 +93,15 @@ describe('test lessons service', () => {
     const lessonService = new LessonService();
     mockedGroups.getGroupById = getGroupById();
     mockedLessons.getLessonById = lessonMocks.getNonexistentLessonById();
-    mockedLessons.createGroupLesson = lessonMocks.createGroupLesson();
+    mockedLessons.assignLessonToGroup = lessonMocks.assignLessonToGroup();
 
-    await expect(lessonService.createGroupLesson(LESSON_ID, GROUP_ID)).rejects.toThrow(
+    await expect(lessonService.assignLessonToGroup(LESSON_ID, GROUP_ID)).rejects.toThrow(
       'Lesson or group does not exist'
     );
 
     expect(mockedGroups.getGroupById).toBeCalledTimes(1);
     expect(mockedLessons.getLessonById).toBeCalledTimes(1);
-    expect(mockedLessons.createGroupLesson).not.toBeCalled();
+    expect(mockedLessons.assignLessonToGroup).not.toBeCalled();
     expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
     expect(await mockedLessons.getLessonById(LESSON_ID)).toBeNull();
   });

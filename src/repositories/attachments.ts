@@ -31,7 +31,7 @@ export async function assignToGroupLesson(
   });
 }
 
-export async function getGroupLessonAttachments(
+export async function getLessonAttachments(
   lessonId: number,
   groupId: number
 ): Promise<DBAttachment[]> {
@@ -71,25 +71,19 @@ export async function getAttachmentById(attachmentId: number): Promise<DBAttachm
   });
 }
 
-export async function deleteGroupLessonAttachment(
-  attachmentId: number,
-  lessonId: number,
-  groupId: number
-): Promise<void> {
+export async function deleteAttachment(attachmentId: number, groupId: number): Promise<void> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    await connection.query(sql`
+    await connection.transaction(async transaction => {
+      await transaction.query(sql`
       DELETE
       FROM group_lesson_attachments
-      WHERE attachment_id = ${attachmentId} AND lesson_id = ${lessonId} AND group_id = ${groupId};`);
-  });
-}
+      WHERE attachment_id = ${attachmentId} AND group_id = ${groupId}`);
 
-export async function deleteAttachment(attachmentId: number): Promise<void> {
-  return DatabaseConnection.getConnectionPool().connect(async connection => {
-    await connection.query(sql`
-    DELETE
-    FROM attachments
-    WHERE id = ${attachmentId};`);
+      await transaction.query(sql`
+      DELETE
+      FROM attachments
+      WHERE id = ${attachmentId}`);
+    });
   });
 }
 

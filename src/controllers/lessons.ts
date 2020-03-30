@@ -58,7 +58,7 @@ export async function getLessonTypes(ctx: Koa.ParameterizedContext, next: Koa.Ne
   await next();
 }
 
-export async function createGroupLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function assignLessonToGroup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let validatedData: GroupLessonData;
   const validator = new Validator<GroupLessonData>([shouldHaveField('lessonId', 'number')]);
   try {
@@ -75,7 +75,7 @@ export async function createGroupLesson(ctx: Koa.ParameterizedContext, next: Koa
 
   const lessonService = new LessonService();
   try {
-    await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
+    await lessonService.assignLessonToGroup(validatedData.lessonId, ctx.params.group_id);
     ctx.body = {};
     ctx.response.status = httpCodes.CREATED;
   } catch (err) {
