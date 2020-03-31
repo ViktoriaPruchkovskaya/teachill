@@ -2,7 +2,6 @@ import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { LessonService } from '../services/lessons';
 import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
-import { NotFoundError } from '../errors';
 
 interface LessonData {
   name: string;
@@ -74,38 +73,18 @@ export async function createGroupLesson(ctx: Koa.ParameterizedContext, next: Koa
   }
 
   const lessonService = new LessonService();
-  try {
-    await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
-    ctx.body = {};
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  await lessonService.createGroupLesson(validatedData.lessonId, ctx.params.group_id);
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }
 
 export async function getGroupLessons(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const lessonService = new LessonService();
-  try {
-    const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
-    ctx.body = [...groupLessons];
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
+  ctx.body = [...groupLessons];
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -126,19 +105,9 @@ export async function assignTeacherToLesson(ctx: Koa.ParameterizedContext, next:
   }
 
   const lessonService = new LessonService();
-  try {
-    await lessonService.assignTeacherToLesson(ctx.params.id, validatedData.teacherId);
-    ctx.body = {};
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  await lessonService.assignTeacherToLesson(ctx.params.id, validatedData.teacherId);
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }

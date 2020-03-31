@@ -2,7 +2,6 @@ import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { GroupService } from '../services/groups';
 import { Validator, shouldHaveField, ValidationFailed } from '../validations';
-import { ExistError, NotFoundError } from '../errors';
 
 interface GroupMemberData {
   userId: number;
@@ -29,19 +28,9 @@ export async function createGroup(ctx: Koa.ParameterizedContext, next: Koa.Next)
   }
 
   const groupService = new GroupService();
-  try {
-    const groupId = await groupService.createGroup(validatedData.name);
-    ctx.body = { groupId };
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof ExistError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const groupId = await groupService.createGroup(validatedData.name);
+  ctx.body = { groupId };
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }
@@ -69,38 +58,18 @@ export async function createGroupMember(ctx: Koa.ParameterizedContext, next: Koa
   }
 
   const groupService = new GroupService();
-  try {
-    await groupService.createGroupMember(validatedData.userId, ctx.params.group_id);
-    ctx.body = {};
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof ExistError || err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  await groupService.createGroupMember(validatedData.userId, ctx.params.group_id);
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }
 
 export async function getGroupMembers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const groupService = new GroupService();
-  try {
-    const members = await groupService.getGroupMembers(ctx.params.group_id);
-    ctx.body = [...members];
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  const members = await groupService.getGroupMembers(ctx.params.group_id);
+  ctx.body = [...members];
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }

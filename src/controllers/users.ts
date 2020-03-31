@@ -11,7 +11,6 @@ import {
   mayHaveFields,
   optionalFieldShouldHaveType,
 } from '../validations';
-import * as errorTypes from '../errors';
 import { State } from '../state';
 
 interface SignupData {
@@ -66,46 +65,26 @@ export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   }
 
   const signupService = new SignupService();
-  try {
-    const userId = await signupService.doSignup(
-      validatedData.username,
-      validatedData.password,
-      validatedData.fullName,
-      validatedData.role
-    );
-    ctx.body = { userId };
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof errorTypes.ExistError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const userId = await signupService.doSignup(
+    validatedData.username,
+    validatedData.password,
+    validatedData.fullName,
+    validatedData.role
+  );
+  ctx.body = { userId };
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }
 
 export async function signin(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const signinService = new SigninService();
-  try {
-    const authorize = await signinService.doSignin(
-      ctx.request.body.username,
-      ctx.request.body.password
-    );
-    ctx.body = { token: authorize };
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof errorTypes.InvalidCredentialsError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
-    }
-  }
+  const authorize = await signinService.doSignin(
+    ctx.request.body.username,
+    ctx.request.body.password
+  );
+  ctx.body = { token: authorize };
+  ctx.response.status = httpCodes.OK;
   await next();
 }
 
@@ -133,23 +112,13 @@ export async function changePassword(
   }
 
   const userService = new UserService();
-  try {
-    await userService.changePassword(
-      ctx.state.username,
-      validatedData.currentPassword,
-      validatedData.newPassword
-    );
-    ctx.body = {};
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof errorTypes.InvalidCredentialsError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  await userService.changePassword(
+    ctx.state.user.username,
+    validatedData.currentPassword,
+    validatedData.newPassword
+  );
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -176,19 +145,9 @@ export async function changeRole(
   }
 
   const userService = new UserService();
-  try {
-    await userService.changeRole(ctx.state.user, ctx.params.user_id, validatedData.roleId);
-    ctx.body = {};
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof errorTypes.ChangeError || err instanceof errorTypes.GroupMismatchError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  await userService.changeRole(ctx.state.user, ctx.params.user_id, validatedData.roleId);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -227,19 +186,9 @@ export async function currentUser(
   next: Koa.Next
 ) {
   const userService = new UserService();
-  try {
-    const user = await userService.getUserByUsername(ctx.state.user.username);
-    ctx.body = { ...user };
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof errorTypes.NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  const user = await userService.getUserByUsername(ctx.state.user.username);
+  ctx.body = { ...user };
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -249,19 +198,9 @@ export async function deleteUser(
   next: Koa.Next
 ) {
   const userService = new UserService();
-  try {
-    await userService.deleteUserById(ctx.state.user, ctx.params.user_id);
-    ctx.body = {};
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof errorTypes.DeleteError || err instanceof errorTypes.GroupMismatchError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return await next();
-    }
-  }
+  await userService.deleteUserById(ctx.state.user, ctx.params.user_id);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }

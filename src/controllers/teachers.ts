@@ -2,7 +2,7 @@ import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
 import { TeacherService } from '../services/teachers';
-import { ExistError } from '../errors';
+
 
 interface TeacherData {
   fullName: string;
@@ -27,19 +27,9 @@ export async function createTeacher(ctx: Koa.ParameterizedContext, next: Koa.Nex
   }
 
   const teacherService = new TeacherService();
-  try {
-    const teacher = await teacherService.createTeacher(validatedData.fullName);
-    ctx.body = { ...teacher };
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof ExistError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const teacher = await teacherService.createTeacher(validatedData.fullName);
+  ctx.body = { ...teacher };
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }
