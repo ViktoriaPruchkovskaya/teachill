@@ -3,7 +3,12 @@ import * as lessonsRepository from '../repositories/lessons';
 import * as groupsRepository from '../repositories/groups';
 import * as teachersRepository from '../repositories/teachers';
 import * as lessonMocks from './mocks/lessons';
-import { getGroupById, getNonexistentGroup } from './mocks/groups';
+import {
+  getGroupById,
+  getNonexistentGroup,
+  getMembershipById,
+  getNonexistentMembershipById,
+} from './mocks/groups';
 import { getTeacherById, getNonexistentTeacher } from './mocks/teachers';
 
 const mockedLessons = lessonsRepository as jest.Mocked<typeof lessonsRepository>;
@@ -107,14 +112,19 @@ describe('test lessons service', () => {
   });
 
   it('test getting lessons of group', async () => {
-    const GROUP_ID = 2;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
     const lessonService = new LessonService();
-    mockedGroups.getGroupById = getGroupById();
+    mockedGroups.getMembershipById = getMembershipById();
     mockedLessons.getGroupLessons = lessonMocks.getGroupLessons();
 
-    const lessons = await lessonService.getGroupLessons(GROUP_ID);
+    const lessons = await lessonService.getGroupLessons(USER);
 
-    expect(mockedGroups.getGroupById).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).toBeCalledTimes(1);
     lessons.map(lesson =>
       expect(Object.keys(lesson)).toEqual([
@@ -126,34 +136,46 @@ describe('test lessons service', () => {
         'duration',
         'description',
         'teacher',
+        'subgroup',
       ])
     );
+    expect(await mockedGroups.getMembershipById(USER.id)).toBe(2);
   });
 
   it('test getting lessons of nonexistent group', async () => {
-    const GROUP_ID = 3;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
     const lessonService = new LessonService();
-    mockedGroups.getGroupById = getNonexistentGroup();
+    mockedGroups.getMembershipById = getNonexistentMembershipById();
     mockedLessons.getGroupLessons = lessonMocks.getGroupLessons();
 
-    await expect(lessonService.getGroupLessons(GROUP_ID)).rejects.toThrow('Group does not exist');
+    await expect(lessonService.getGroupLessons(USER)).rejects.toThrow('Group not found');
 
-    expect(mockedGroups.getGroupById).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).not.toBeCalled();
-    expect(await mockedGroups.getGroupById(GROUP_ID)).toBeNull();
+    expect(await mockedGroups.getMembershipById(USER.id)).toBeNull();
   });
 
   it('test getting emty array lessons of group', async () => {
-    const GROUP_ID = 4;
+    const USER = {
+      id: 1,
+      username: 'user',
+      fullName: 'useruser',
+      role: 1,
+    };
     const lessonService = new LessonService();
-    mockedGroups.getGroupById = getGroupById();
+    mockedGroups.getMembershipById = getMembershipById();
     mockedLessons.getGroupLessons = lessonMocks.getEmptyLessonsArray();
 
-    const lessons = await lessonService.getGroupLessons(GROUP_ID);
+    const lessons = await lessonService.getGroupLessons(USER);
 
-    expect(mockedGroups.getGroupById).toBeCalledTimes(1);
+    expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).toBeCalledTimes(1);
-    expect((await mockedGroups.getGroupById(GROUP_ID)).id).toBe(GROUP_ID);
+    expect(await mockedGroups.getMembershipById(USER.id)).toBe(2);
     expect(lessons).toEqual([]);
   });
 

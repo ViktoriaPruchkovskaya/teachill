@@ -1,7 +1,8 @@
 import * as lessonsRepository from '../repositories/lessons';
-import { getGroupById } from '../repositories/groups';
+import { getGroupById, getMembershipById } from '../repositories/groups';
 import { getTeacherById } from '../repositories/teachers';
 import { NotFoundError } from '../errors';
+import { User } from './users';
 
 interface LessonData {
   name: string;
@@ -21,6 +22,7 @@ export interface Lesson {
   duration: number;
   description?: string;
   teacher?: Teacher[];
+  subgroup?: number | null;
 }
 
 interface LessonType {
@@ -64,13 +66,13 @@ export class LessonService {
     return lessonsRepository.createGroupLesson(lesson, group, subgroup);
   }
 
-  public async getGroupLessons(groupId: number): Promise<Lesson[]> {
-    const group = await getGroupById(groupId);
-    if (!group) {
-      throw new NotFoundError('Group does not exist');
+  public async getGroupLessons(currentUser: User): Promise<Lesson[]> {
+    const currentGroup = await getMembershipById(currentUser.id);
+    if (!currentGroup) {
+      throw new NotFoundError('Group not found');
     }
 
-    const lessons = await lessonsRepository.getGroupLessons(groupId);
+    const lessons = await lessonsRepository.getGroupLessons(currentGroup);
     return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,
@@ -80,6 +82,7 @@ export class LessonService {
       duration: lesson.duration,
       description: lesson.description,
       teacher: lesson.teacher,
+      subgroup: lesson.subgroup,
     }));
   }
 

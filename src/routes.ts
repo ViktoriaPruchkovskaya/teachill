@@ -71,7 +71,7 @@ router.post(
   shouldHaveAdminRole,
   lessonsControllers.createGroupLesson
 );
-router.get('/groups/:group_id/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
+router.get('/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
 router.post(
   '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,

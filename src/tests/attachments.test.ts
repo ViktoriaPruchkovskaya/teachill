@@ -33,7 +33,7 @@ describe('test attachments service', () => {
     expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.assignToGroupLesson).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect((await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).id).toBe(LESSON_ID);
     expect((await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).id).toBe(ATTACHMENT_ID);
   });
 
@@ -72,7 +72,7 @@ describe('test attachments service', () => {
     expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.assignToGroupLesson).not.toBeCalled();
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect((await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).id).toBe(LESSON_ID);
     expect(await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).toBeNull();
   });
 
@@ -87,7 +87,7 @@ describe('test attachments service', () => {
 
     expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect((await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).id).toBe(LESSON_ID);
     expect(attachments).toEqual([
       { id: 1, name: 'attachment1', url: 'https://attachment.com/4vd1o' },
       { id: 2, name: 'attachment2', url: 'https://attachment.com/4voq' },
@@ -121,7 +121,7 @@ describe('test attachments service', () => {
 
     expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getGroupLessonAttachment).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect((await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).id).toBe(LESSON_ID);
     expect(attachments).toEqual([]);
   });
 
@@ -139,7 +139,7 @@ describe('test attachments service', () => {
     expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.deleteGroupLessonAttachment).toBeCalledTimes(1);
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect((await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).id).toBe(LESSON_ID);
     expect((await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).id).toBe(ATTACHMENT_ID);
   });
 
@@ -179,7 +179,7 @@ describe('test attachments service', () => {
     expect(mockedLessons.getGroupLessonById).toBeCalledTimes(1);
     expect(mockedAttachments.getAttachmentById).toBeCalledTimes(1);
     expect(mockedAttachments.deleteGroupLessonAttachment).not.toBeCalled();
-    expect(await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).toBe(LESSON_ID);
+    expect((await mockedLessons.getGroupLessonById(GROUP_ID, LESSON_ID)).id).toBe(LESSON_ID);
     expect(await mockedAttachments.getAttachmentById(ATTACHMENT_ID)).toBeNull();
   });
 
