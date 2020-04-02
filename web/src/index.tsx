@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import 'antd/dist/antd.css';
+import App from './containers/App';
 
-import { Hello } from './components/Hello';
-
-ReactDOM.render(<Hello compiler='TypeScript' framework='React' />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
