@@ -1,12 +1,25 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
-import { Validator, shouldHaveField, ValidationFailed, shouldMatchRegexp } from '../validations';
+import {
+  Validator,
+  shouldHaveField,
+  ValidationFailed,
+  shouldMatchRegexp,
+  mayHaveFields,
+  optionalFieldShouldHaveType,
+} from '../validations';
 import { AttachmentService } from '../services/attachments';
 import { NotFoundError } from '../errors';
+import { State } from '../state';
 
 interface AttachmentData {
   name: string;
   url: string;
+}
+
+interface UpdateAttachmentData {
+  name?: string;
+  url?: string;
 }
 
 export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -32,19 +45,25 @@ export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.
   }
 
   const attachmentService = new AttachmentService();
-  await attachmentService.createAttachment(validatedData.name, validatedData.url);
-  ctx.body = {};
+  const attachmentId = await attachmentService.createAttachment(
+    validatedData.name,
+    validatedData.url
+  );
+  ctx.body = { attachmentId };
   ctx.response.status = httpCodes.CREATED;
   await next();
 }
 
-export async function assignToGroupLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function assignAttachmentToLesson(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const attachmentService = new AttachmentService();
   try {
-    await attachmentService.assignToGroupLesson(
+    await attachmentService.assignAttachmentToLesson(
+      ctx.state.user,
       ctx.params.attachment_id,
-      ctx.params.lesson_id,
-      ctx.params.group_id
+      ctx.params.lesson_id
     );
     ctx.body = {};
     ctx.response.status = httpCodes.CREATED;
@@ -61,12 +80,15 @@ export async function assignToGroupLesson(ctx: Koa.ParameterizedContext, next: K
   await next();
 }
 
-export async function getGroupLessonAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getLessonAttachments(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const attachmentService = new AttachmentService();
   try {
-    const attachments = await attachmentService.getGroupLessonAttachment(
-      ctx.params.lesson_id,
-      ctx.params.group_id
+    const attachments = await attachmentService.getLessonAttachments(
+      ctx.state.user,
+      ctx.params.lesson_id
     );
     ctx.body = [...attachments];
     ctx.response.status = httpCodes.OK;
@@ -83,14 +105,13 @@ export async function getGroupLessonAttachment(ctx: Koa.ParameterizedContext, ne
   await next();
 }
 
-export async function deleteGroupLessonAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function deleteAttachment(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const attachmentService = new AttachmentService();
   try {
-    await attachmentService.deleteGroupLessonAttachment(
-      ctx.params.attachment_id,
-      ctx.params.lesson_id,
-      ctx.params.group_id
-    );
+    await attachmentService.deleteAttachment(ctx.state.user, ctx.params.attachment_id);
     ctx.body = {};
     ctx.response.status = httpCodes.OK;
   } catch (err) {
@@ -106,11 +127,65 @@ export async function deleteGroupLessonAttachment(ctx: Koa.ParameterizedContext,
   await next();
 }
 
-export async function deleteAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getAttachment(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const attachmentService = new AttachmentService();
   try {
-    await attachmentService.deleteAttachment(ctx.params.id);
-    ctx.body = {};
+    const attachment = await attachmentService.getAttachment(
+      ctx.state.user,
+      ctx.params.attachment_id
+    );
+    ctx.body = { ...attachment };
+    ctx.response.status = httpCodes.OK;
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      ctx.body = {
+        error: err.message,
+      };
+      ctx.response.status = httpCodes.NOT_FOUND;
+      return next();
+    }
+  }
+
+  await next();
+}
+
+export async function editAttachment(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  let validatedData: UpdateAttachmentData;
+  const validator = new Validator<UpdateAttachmentData>([
+    mayHaveFields(['name', 'url']),
+    optionalFieldShouldHaveType('name', 'string'),
+    optionalFieldShouldHaveType('url', 'string'),
+    shouldMatchRegexp(
+      'url',
+      '^(http://www.|https://www.|http://|https://)?[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5})?(/.*)?$'
+    ),
+  ]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return next();
+    }
+  }
+
+  const attachmentService = new AttachmentService();
+  try {
+    const attachment = await attachmentService.editAttachment(
+      ctx.state.user,
+      ctx.params.attachment_id,
+      validatedData
+    );
+    ctx.body = { ...attachment };
     ctx.response.status = httpCodes.OK;
   } catch (err) {
     if (err instanceof NotFoundError) {

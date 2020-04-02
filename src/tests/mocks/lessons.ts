@@ -57,7 +57,7 @@ export const getLessonById = () =>
 
 export const getNonexistentLessonById = () => jest.fn((lessonId: number) => Promise.resolve(null));
 
-export const createGroupLesson = () =>
+export const assignLessonToGroup = () =>
   jest.fn((lesson: DBLesson, group: DBGroup, subgroup: number) => Promise.resolve());
 
 export const getGroupLessons = () =>

@@ -62,7 +62,7 @@ export async function getLessonTypes(): Promise<LessonType[]> {
   });
 }
 
-export async function createGroupLesson(
+export async function assignLessonToGroup(
   lesson: DBLesson,
   group: DBGroup,
   subgroup: number = null
