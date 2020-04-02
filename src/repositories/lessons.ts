@@ -21,6 +21,7 @@ export interface DBLesson {
   duration: number;
   description?: string;
   teacher?: Teacher[];
+  subgroup?: number | null;
 }
 
 interface LessonType {
@@ -73,25 +74,27 @@ export async function assignLessonToGroup(
   });
 }
 
-export async function getGroupLessons(groupId: number) {
+export async function getGroupLessons(groupId: number): Promise<DBLesson[]> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    let groupLessons: DBLesson[];
-    await connection.transaction(async transaction => {
+    return connection.transaction(async transaction => {
       const rows = await transaction.any(sql`
         SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, lessons.location,
-        lessons.start_time, lessons.duration 
+        lessons.start_time, lessons.duration, lesson_groups.subgroup 
         FROM lessons
-        JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
-        WHERE lesson_groups.group_id = ${groupId}
-        `);
+        INNER JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
+        WHERE lesson_groups.group_id = ${groupId}`);
+
+      if (rows.length === 0) {
+        return [];
+      }
 
       const lessonIds = rows.map(row => Number(row.id));
 
       const teachers = await transaction.any(sql`
-          SELECT full_name, lesson_id
-          FROM lesson_teachers
-          JOIN teachers on lesson_teachers.teacher_id = teachers.id
-          WHERE lesson_id IN (${sql.join(lessonIds, sql`,`)})`);
+        SELECT full_name, lesson_id
+        FROM lesson_teachers
+        INNER JOIN teachers on lesson_teachers.teacher_id = teachers.id
+        WHERE lesson_id IN (${sql.join(lessonIds, sql`,`)})`);
 
       const lessonsMap = new Map<number, DBLesson>();
       rows.map(row =>
@@ -104,33 +107,55 @@ export async function getGroupLessons(groupId: number) {
           duration: row.duration as number,
           description: row.description as string,
           teacher: [],
+          subgroup: row.subgroup as number | null,
         })
       );
 
-      groupLessons = teachers.map(teacher => {
+      teachers.map(teacher => {
         const lesson = lessonsMap.get(teacher.lesson_id as number);
         lesson.teacher.push({ fullName: teacher.full_name as string });
         return lesson;
       });
-    });
 
-    return groupLessons;
+      return Array.from(lessonsMap.values());
+    });
   });
 }
 
-export async function getGroupLessonById(
-  groupId: number,
-  lessonId: number
-): Promise<number | null> {
+export async function getGroupLessonById(groupId: number, lessonId: number): Promise<DBLesson> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
-    const row = await connection.maybeOne(sql`
-    SELECT group_id, lesson_id
-    FROM lesson_groups
-    WHERE group_id = ${groupId} AND lesson_id = ${lessonId}`);
-    if (row) {
-      return row.lesson_id as number;
-    }
-    return null;
+    return connection.transaction(async transaction => {
+      const row = await transaction.maybeOne(sql`
+      SELECT lessons.id, lessons.name, lessons.description, lessons.type_id, 
+      lessons.location, lessons.start_time, lessons.duration, lesson_groups.subgroup
+      FROM lessons
+      INNER JOIN lesson_groups on lessons.id = lesson_groups.lesson_id
+      WHERE lesson_groups.group_id = ${groupId} AND lesson_groups.lesson_id = ${lessonId}`);
+
+      if (!row) {
+        return null;
+      }
+
+      const teachers = await transaction.any(sql`
+          SELECT full_name, lesson_id
+          FROM lesson_teachers
+          JOIN teachers on lesson_teachers.teacher_id = teachers.id
+          WHERE lesson_id = ${row.id}`);
+
+      return {
+        id: row.id as number,
+        name: row.name as string,
+        typeId: row.type_id as number,
+        location: row.location as string,
+        startTime: toDateFromUnix(row.start_time as number),
+        duration: row.duration as number,
+        description: row.description as string,
+        teacher: teachers.map(teacher => ({
+          fullName: teacher.full_name as string,
+        })),
+        subgroup: row.subgroup as number | null,
+      };
+    });
   });
 }
 
@@ -143,6 +168,7 @@ export async function getLessonById(lessonId: number): Promise<DBLesson> {
       FROM lessons
       WHERE id = ${lessonId}
       `);
+
       if (!row) {
         lesson = null;
       }

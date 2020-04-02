@@ -1,5 +1,4 @@
 import { RawAttachment } from '../../repositories/attachments';
-// import { getGroupLessonById } from './lessons';
 
 export const createAttachment = () => jest.fn((name: string, url: string) => Promise.resolve(1));
 

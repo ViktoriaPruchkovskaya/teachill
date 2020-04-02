@@ -3,6 +3,7 @@ import * as httpCodes from '../constants/httpCodes';
 import { LessonService } from '../services/lessons';
 import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
 import { NotFoundError } from '../errors';
+import { State } from '../state';
 
 interface LessonData {
   name: string;
@@ -91,10 +92,13 @@ export async function assignLessonToGroup(ctx: Koa.ParameterizedContext, next: K
   await next();
 }
 
-export async function getGroupLessons(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function getGroupLessons(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
   const lessonService = new LessonService();
   try {
-    const groupLessons = await lessonService.getGroupLessons(ctx.params.group_id);
+    const groupLessons = await lessonService.getGroupLessons(ctx.state.user);
     ctx.body = [...groupLessons];
     ctx.response.status = httpCodes.OK;
   } catch (err) {
