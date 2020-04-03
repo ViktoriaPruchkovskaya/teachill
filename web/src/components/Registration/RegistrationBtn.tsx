@@ -11,16 +11,13 @@ export interface SignupData {
   name: string;
 }
 
-export const Registration = () => {
+export const Registration: React.FC<{}> = () => {
   const [visibility, setVisibility] = useState<boolean>(false);
+
   const [form] = Form.useForm();
 
-  const showModal = (): void => {
-    setVisibility(true);
-  };
-
-  const handleCancel = (): void => {
-    setVisibility(false);
+  const toggleModal = (): void => {
+    setVisibility(!visibility);
   };
 
   const handleSubmit = async (values: SignupData): Promise<void> => {
@@ -58,7 +55,7 @@ export const Registration = () => {
     });
     const { groupId } = await group.json();
 
-    await fetch(`/groups/${groupId}/users/`, {
+    await fetch(`/api/groups/${groupId}/users/`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -72,14 +69,14 @@ export const Registration = () => {
   };
   return (
     <div>
-      <Button type='primary' onClick={showModal}>
+      <Button type='primary' onClick={toggleModal}>
         Sign up
       </Button>
       <RegistrationForm
         form={form}
         visible={visibility}
         onSubmit={handleSubmit}
-        onCancel={handleCancel}
+        onCancel={toggleModal}
       />
     </div>
   );
