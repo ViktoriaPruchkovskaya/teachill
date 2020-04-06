@@ -1,9 +1,8 @@
 import * as React from 'react';
-import {useState} from 'react';
-import {Form, Button} from 'antd';
-import {SigninForm} from './SigninForm';
-import {AuthService} from '../../services/authService';
-import './SigninButton.less';
+import { useState } from 'react';
+import { Form, Button } from 'antd';
+import { SigninForm } from './SigninForm';
+import { AuthService } from '../../services/authService';
 
 export interface SigninData {
   username: string;
@@ -29,7 +28,7 @@ export const SigninButton: React.FC = () => {
       <Button block type='primary' size='large' onClick={toggleModal}>
         Log in with an existing account
       </Button>
-      <SigninForm form={form} visible={visibility} onSubmit={handleSubmit} onCancel={toggleModal}/>
+      <SigninForm form={form} visible={visibility} onSubmit={handleSubmit} onCancel={toggleModal} />
     </div>
   );
 };
