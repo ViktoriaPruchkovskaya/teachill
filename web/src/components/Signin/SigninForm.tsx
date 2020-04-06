@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { SigninData } from './AuthorizationBtn';
+import { SigninData } from './SigninButton';
 
 interface SigninProps {
   form: FormInstance;
@@ -10,20 +10,20 @@ interface SigninProps {
   onCancel(): void;
 }
 
-export const AuthorizationForm: React.FC<SigninProps> = ({ form, visible, onSubmit, onCancel }) => {
+export const SigninForm: React.FC<SigninProps> = ({ form, visible, onSubmit, onCancel }) => {
   return (
     <Modal
       visible={visible}
-      title='Authorization'
+      title='Log in'
       onOk={() => onSubmit(form.getFieldsValue() as SigninData)}
       onCancel={onCancel}
     >
       <Form form={form}>
-        <Form.Item label='Username' name='username'>
-          <Input />
+        <Form.Item name='username'>
+          <Input placeholder='Username' />
         </Form.Item>
-        <Form.Item label='Password' name='password'>
-          <Input />
+        <Form.Item name='password'>
+          <Input placeholder='Password'/>
         </Form.Item>
       </Form>
     </Modal>
