@@ -94,3 +94,5 @@ public/
 dist/
 
 .vscode/
+
+.idea/
