@@ -36,6 +36,7 @@ module.exports = {
 
     // React rules
     'react/display-name': 0,
+    'react/prop-types': 0,
     'react/forbid-prop-types': 0,
     'react/jsx-closing-bracket-location': 1,
     'react/jsx-curly-spacing': 1,

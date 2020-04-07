@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import 'normalize.css';
+import './globals.less';
+import App from './containers/App';
 
-import { Hello } from './components/Hello';
-
-ReactDOM.render(<Hello compiler='TypeScript' framework='React' />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
