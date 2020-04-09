@@ -1,15 +1,19 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Form, Button } from 'antd';
+import { Form, Button, message } from 'antd';
 import { SigninForm } from './SigninForm';
 import { AuthService } from '../../services/authService';
+import { History } from 'history';
 
 export interface SigninData {
   username: string;
   password: string;
 }
+interface SigninProps {
+  history: History;
+}
 
-export const SigninButton: React.FC = () => {
+export const SigninButton: React.FC<SigninProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const [form] = Form.useForm();
 
@@ -18,11 +22,17 @@ export const SigninButton: React.FC = () => {
   };
 
   const handleSubmit = async (values: SigninData): Promise<void> => {
-    const authService = new AuthService();
-    const token = await authService.signin(values);
-    localStorage.setItem('teachillToken', token);
-    form.resetFields();
+    try {
+      const authService = new AuthService();
+      const token = await authService.signin(values);
+      localStorage.setItem('teachillToken', token);
+      history.push('/schedule');
+    } catch (error) {
+      form.resetFields();
+      message.error(error.message);
+    }
   };
+
   return (
     <div>
       <Button block type='primary' size='large' onClick={toggleModal}>

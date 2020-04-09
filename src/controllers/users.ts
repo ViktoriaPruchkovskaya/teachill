@@ -21,6 +21,11 @@ interface SignupData {
   role: number;
 }
 
+interface SigninData {
+  username: string;
+  password: string;
+}
+
 interface PasswordData {
   currentPassword: string;
   newPassword: string;
@@ -89,12 +94,26 @@ export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 }
 
 export async function signin(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  let validatedData: SigninData;
+  const validator = new Validator<SigninData>([
+    shouldHaveField('username', 'string'),
+    shouldHaveField('password', 'string'),
+  ]);
+  try {
+    validatedData = validator.validate(ctx.request.body);
+  } catch (err) {
+    if (err instanceof ValidationFailed) {
+      ctx.body = {
+        errors: err.errors,
+      };
+      ctx.response.status = httpCodes.BAD_REQUEST;
+      return next();
+    }
+  }
+
   const signinService = new SigninService();
   try {
-    const authorize = await signinService.doSignin(
-      ctx.request.body.username,
-      ctx.request.body.password
-    );
+    const authorize = await signinService.doSignin(validatedData.username, validatedData.password);
     ctx.body = { token: authorize };
     ctx.response.status = httpCodes.OK;
   } catch (err) {

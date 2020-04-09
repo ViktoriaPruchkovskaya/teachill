@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Button, Form, message } from 'antd';
 import { SignupForm } from './SignupForm';
+import { History } from 'history';
 import { AuthService } from '../../services/authService';
 import { GroupService } from '../../services/groupService';
 
@@ -13,9 +14,12 @@ export interface SignupData {
   name: string;
 }
 
-export const SignupButton: React.FC = () => {
-  const [visibility, setVisibility] = useState<boolean>(false);
+interface SignupProps {
+  history: History;
+}
 
+export const SignupButton: React.FC<SignupProps> = ({ history }) => {
+  const [visibility, setVisibility] = useState<boolean>(false);
   const [form] = Form.useForm();
 
   const toggleModal = (): void => {
@@ -24,6 +28,7 @@ export const SignupButton: React.FC = () => {
 
   const handleSubmit = async (values: SignupData): Promise<void> => {
     values.role = 1;
+
     try {
       const authService = new AuthService();
       const userId = await authService.signup(values);
@@ -35,10 +40,11 @@ export const SignupButton: React.FC = () => {
       const groupId = await groupService.createGroup(values);
 
       await groupService.assignUserToGroup(groupId, userId);
+      history.push('/schedule');
     } catch (error) {
+      form.resetFields();
       message.error(error.message);
     }
-    form.resetFields();
   };
   return (
     <div>

@@ -24,6 +24,11 @@ export class AuthService extends BaseTeachillClient {
       headers: this.getCommonHeaders(),
       body: JSON.stringify(payload),
     });
+    if (!response.ok) {
+      const { errors } = await response.json();
+      const messages = errors.map((error: { message: string }) => error.message);
+      throw new Error(`Authentication error: Reason: ${messages.join(', ')}`);
+    }
     const { token } = await response.json();
     return token;
   }
@@ -37,7 +42,7 @@ export class AuthService extends BaseTeachillClient {
     if (!response.ok) {
       const { errors } = await response.json();
       const messages = errors.map((error: { message: string }) => error.message);
-      throw new Error(`Authentication error: Reason: ${messages.join(', ')}`);
+      throw new Error(`Registration error: Reason: ${messages.join(', ')}`);
     }
     const { userId } = await response.json();
     return userId;

@@ -51,7 +51,7 @@ export class GroupSyncService {
     dbTeachers: AppTeacher[]
   ): Promise<void> {
     const createdLesson = await this.lessonService.createLesson(lesson);
-    await this.lessonService.createGroupLesson(createdLesson.id, groupId, lesson.subgroup);
+    await this.lessonService.assignLessonToGroup(createdLesson.id, groupId, lesson.subgroup);
     await Promise.all(
       lesson.teacher.map(teacher => this.assignTeacher(createdLesson, dbTeachers, teacher))
     );
