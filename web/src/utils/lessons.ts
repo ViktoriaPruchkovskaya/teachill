@@ -42,3 +42,8 @@ export function organizeLessons(lessons: Lesson[]): Lesson[][][] {
 
   return formedSchedule;
 }
+
+export function defineWeekday(order: number): string {
+  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  return weekdays[order];
+}

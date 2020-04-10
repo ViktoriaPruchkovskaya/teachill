@@ -1,16 +1,19 @@
 import * as React from 'react';
-import { Lesson } from '../../services/groupService';
+import { Lesson as LessonModel } from '../../services/groupService';
 import { Col, Card } from 'antd';
+import { defineWeekday } from '../../utils/lessons';
+import { Lesson } from './Lesson';
 
 interface DayScheduleProps {
-  dailyLessons: Lesson[];
+  dailyLessons: LessonModel[];
+  serialNumber: number;
 }
 
-export const DaySchedule: React.FC<DayScheduleProps> = ({ dailyLessons }) => {
-  const educationDay = dailyLessons.map((lesson, index) => <p key={index}>{lesson.name}</p>);
+export const DaySchedule: React.FC<DayScheduleProps> = ({ dailyLessons, serialNumber }) => {
+  const educationDay = dailyLessons.map(lesson => <Lesson lesson={lesson} key={lesson.id} />);
   return (
     <Col span={7} className='schedule-page-daily-card-container'>
-      <Card>{educationDay}</Card>
+      <Card title={defineWeekday(serialNumber)}>{educationDay}</Card>
     </Col>
   );
 };
