@@ -6,13 +6,11 @@ import * as attachmentsControllers from './controllers/attachments';
 import * as lessonsControllers from './controllers/lessons';
 import { authMiddleware } from './middlewares/authentication';
 import { shouldHaveRole } from './middlewares/permissions';
-import { errorHandler } from './middlewares/errorHandler';
 import { RoleType } from './services/users';
 
 const router = new Router();
 const shouldHaveAdminRole = shouldHaveRole([RoleType.Administrator]);
 
-router.use(errorHandler);
 router.get('/', authMiddleware, shouldHaveAdminRole, usersControllers.getUsers);
 router.post('/signup/', usersControllers.signup);
 router.post('/signin/', usersControllers.signin);

@@ -3,7 +3,6 @@ import * as httpCodes from '../constants/httpCodes';
 import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
 import { TeacherService } from '../services/teachers';
 
-
 interface TeacherData {
   fullName: string;
 }

@@ -15,7 +15,7 @@ export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next
     await next();
   } catch (err) {
     ctx.body = {
-      error: err.message,
+      errors: [err],
     };
     ctx.response.status =
       errorToHttpMapping[err.constructor.name] | httpCodes.INTERNAL_SERVER_ERROR;
