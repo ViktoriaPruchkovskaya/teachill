@@ -3,13 +3,11 @@ import * as httpCodes from '../constants/httpCodes';
 import {
   Validator,
   shouldHaveField,
-  ValidationFailed,
   shouldMatchRegexp,
   mayHaveFields,
   optionalFieldShouldHaveType,
 } from '../validations';
 import { AttachmentService } from '../services/attachments';
-import { NotFoundError } from '../errors';
 import { State } from '../state';
 
 interface AttachmentData {
@@ -23,7 +21,6 @@ interface UpdateAttachmentData {
 }
 
 export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  let validatedData: AttachmentData;
   const validator = new Validator<AttachmentData>([
     shouldHaveField('name', 'string'),
     shouldHaveField('url', 'string'),
@@ -32,17 +29,7 @@ export async function createAttachment(ctx: Koa.ParameterizedContext, next: Koa.
       '^(http://www.|https://www.|http://|https://)?[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5})?(/.*)?$'
     ),
   ]);
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const validatedData = validator.validate(ctx.request.body);
 
   const attachmentService = new AttachmentService();
   const attachmentId = await attachmentService.createAttachment(
@@ -59,23 +46,13 @@ export async function assignAttachmentToLesson(
   next: Koa.Next
 ) {
   const attachmentService = new AttachmentService();
-  try {
-    await attachmentService.assignAttachmentToLesson(
-      ctx.state.user,
-      ctx.params.attachment_id,
-      ctx.params.lesson_id
-    );
-    ctx.body = {};
-    ctx.response.status = httpCodes.CREATED;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  await attachmentService.assignAttachmentToLesson(
+    ctx.state.user,
+    ctx.params.attachment_id,
+    ctx.params.lesson_id
+  );
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }
@@ -85,22 +62,12 @@ export async function getLessonAttachments(
   next: Koa.Next
 ) {
   const attachmentService = new AttachmentService();
-  try {
-    const attachments = await attachmentService.getLessonAttachments(
-      ctx.state.user,
-      ctx.params.lesson_id
-    );
-    ctx.body = [...attachments];
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  const attachments = await attachmentService.getLessonAttachments(
+    ctx.state.user,
+    ctx.params.lesson_id
+  );
+  ctx.body = [...attachments];
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -110,19 +77,9 @@ export async function deleteAttachment(
   next: Koa.Next
 ) {
   const attachmentService = new AttachmentService();
-  try {
-    await attachmentService.deleteAttachment(ctx.state.user, ctx.params.attachment_id);
-    ctx.body = {};
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  await attachmentService.deleteAttachment(ctx.state.user, ctx.params.attachment_id);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -132,22 +89,12 @@ export async function getAttachment(
   next: Koa.Next
 ) {
   const attachmentService = new AttachmentService();
-  try {
-    const attachment = await attachmentService.getAttachment(
-      ctx.state.user,
-      ctx.params.attachment_id
-    );
-    ctx.body = { ...attachment };
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  const attachment = await attachmentService.getAttachment(
+    ctx.state.user,
+    ctx.params.attachment_id
+  );
+  ctx.body = { ...attachment };
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }
@@ -156,7 +103,6 @@ export async function editAttachment(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
-  let validatedData: UpdateAttachmentData;
   const validator = new Validator<UpdateAttachmentData>([
     mayHaveFields(['name', 'url']),
     optionalFieldShouldHaveType('name', 'string'),
@@ -166,36 +112,16 @@ export async function editAttachment(
       '^(http://www.|https://www.|http://|https://)?[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5})?(/.*)?$'
     ),
   ]);
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const validatedData = validator.validate(ctx.request.body);
 
   const attachmentService = new AttachmentService();
-  try {
-    const attachment = await attachmentService.editAttachment(
-      ctx.state.user,
-      ctx.params.attachment_id,
-      validatedData
-    );
-    ctx.body = { ...attachment };
-    ctx.response.status = httpCodes.OK;
-  } catch (err) {
-    if (err instanceof NotFoundError) {
-      ctx.body = {
-        error: err.message,
-      };
-      ctx.response.status = httpCodes.NOT_FOUND;
-      return next();
-    }
-  }
+  const attachment = await attachmentService.editAttachment(
+    ctx.state.user,
+    ctx.params.attachment_id,
+    validatedData
+  );
+  ctx.body = { ...attachment };
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }

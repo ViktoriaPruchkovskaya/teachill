@@ -25,7 +25,7 @@ export async function authMiddleware(
         ctx.response.status = httpCodes.UNAUTHORIZED;
         return;
       }
-      ctx.response.status = httpCodes.SERVER_ERROR;
+      ctx.response.status = httpCodes.INTERNAL_SERVER_ERROR;
     }
     await next();
   }

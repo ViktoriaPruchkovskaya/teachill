@@ -1,7 +1,7 @@
 import * as React from 'react';
-import {Form, Input, Modal} from 'antd';
-import {FormInstance} from 'antd/lib/form';
-import {SignupData} from './SignupButton';
+import { Form, Input, Modal } from 'antd';
+import { FormInstance } from 'antd/lib/form';
+import { SignupData } from './SignupButton';
 
 interface SignupProps {
   form: FormInstance;
@@ -12,7 +12,7 @@ interface SignupProps {
   onCancel(): void;
 }
 
-export const SignupForm: React.FC<SignupProps> = ({form, visible, onSubmit, onCancel}) => {
+export const SignupForm: React.FC<SignupProps> = ({ form, visible, onSubmit, onCancel }) => {
   return (
     <Modal
       visible={visible}
@@ -22,16 +22,16 @@ export const SignupForm: React.FC<SignupProps> = ({form, visible, onSubmit, onCa
     >
       <Form form={form}>
         <Form.Item name='fullName'>
-          <Input placeholder='Full Name'/>
+          <Input placeholder='Full Name' />
         </Form.Item>
         <Form.Item name='username'>
-          <Input placeholder='Username'/>
+          <Input placeholder='Username' />
         </Form.Item>
         <Form.Item name='password'>
-          <Input placeholder='Password'/>
+          <Input placeholder='Password' />
         </Form.Item>
         <Form.Item name='name'>
-          <Input placeholder='Group'/>
+          <Input placeholder='Group' />
         </Form.Item>
       </Form>
     </Modal>
