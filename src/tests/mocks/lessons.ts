@@ -2,7 +2,18 @@ import { DBGroup } from '../../repositories/groups';
 import { DBLesson, RawLesson } from '../../repositories/lessons';
 
 export const getGroupLessonById = () =>
-  jest.fn((groupId: number, lessonId: number) => Promise.resolve(lessonId));
+  jest.fn((groupId: number, lessonId: number) =>
+    Promise.resolve({
+      id: lessonId,
+      name: 'lesson1',
+      typeId: 2,
+      location: '610-5',
+      startTime: new Date('2020-01-01T00:00:00'),
+      duration: 100,
+      description: '',
+      teachers: ['Ivanov I.I.'],
+    })
+  );
 
 export const getNonexistentGroupLessonById = () =>
   jest.fn((groupId: number, lessonId: number) => Promise.resolve(null));
@@ -46,7 +57,7 @@ export const getLessonById = () =>
 
 export const getNonexistentLessonById = () => jest.fn((lessonId: number) => Promise.resolve(null));
 
-export const createGroupLesson = () =>
+export const assignLessonToGroup = () =>
   jest.fn((lesson: DBLesson, group: DBGroup, subgroup: number) => Promise.resolve());
 
 export const getGroupLessons = () =>
@@ -61,6 +72,7 @@ export const getGroupLessons = () =>
         duration: 100,
         description: '',
         teachers: ['Ivanov I.I.'],
+        subgroup: 1,
       },
       {
         id: 2,
@@ -71,6 +83,7 @@ export const getGroupLessons = () =>
         duration: 200,
         description: '',
         teachers: ['Petrov P.P'],
+        subgroup: 1,
       },
     ])
   );

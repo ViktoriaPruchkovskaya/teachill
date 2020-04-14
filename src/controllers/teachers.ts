@@ -1,6 +1,6 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
-import { Validator, shouldHaveField, ValidationFailed, minLengthShouldBe } from '../validations';
+import { Validator, shouldHaveField, minLengthShouldBe } from '../validations';
 import { TeacherService } from '../services/teachers';
 
 interface TeacherData {
@@ -8,22 +8,11 @@ interface TeacherData {
 }
 
 export async function createTeacher(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  let validatedData: TeacherData;
   const validator = new Validator<TeacherData>([
     shouldHaveField('fullName', 'string'),
     minLengthShouldBe('fullName', 6),
   ]);
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const validatedData = validator.validate(ctx.request.body);
 
   const teacherService = new TeacherService();
   const teacher = await teacherService.createTeacher(validatedData.fullName);

@@ -8,6 +8,7 @@ const errorToHttpMapping = {
   GroupMismatchError: httpCodes.BAD_REQUEST,
   ChangeError: httpCodes.BAD_REQUEST,
   DeleteError: httpCodes.BAD_REQUEST,
+  ValidationFailed: httpCodes.BAD_REQUEST,
 };
 
 export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next) {

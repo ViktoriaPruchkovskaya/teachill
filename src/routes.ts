@@ -17,7 +17,7 @@ router.post('/signin/', usersControllers.signin);
 router.put('/users/me/changePassword', authMiddleware, usersControllers.changePassword);
 router.patch('/users/me/', authMiddleware, usersControllers.updateUser);
 router.get('/users/me/', authMiddleware, usersControllers.currentUser);
-router.post('/groups/', authMiddleware, groupsControllers.createGroup);
+router.post('/groups/', authMiddleware, shouldHaveAdminRole, groupsControllers.createGroup);
 router.get('/groups/', authMiddleware, groupsControllers.getGroups);
 router.post(
   '/groups/:group_id/users/',
@@ -60,34 +60,34 @@ router.post(
   attachmentsControllers.createAttachment
 );
 router.delete(
-  '/attachments/:id/',
+  '/attachments/:attachment_id/',
   authMiddleware,
   shouldHaveAdminRole,
   attachmentsControllers.deleteAttachment
 );
+router.get('/attachments/:attachment_id/', authMiddleware, attachmentsControllers.getAttachment);
 router.post(
   '/groups/:group_id/lessons/',
   authMiddleware,
   shouldHaveAdminRole,
-  lessonsControllers.createGroupLesson
+  lessonsControllers.assignLessonToGroup
 );
-router.get('/groups/:group_id/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
+router.get('/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
 router.post(
-  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id/',
+  '/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,
   shouldHaveAdminRole,
-  attachmentsControllers.assignToGroupLesson
+  attachmentsControllers.assignAttachmentToLesson
 );
 router.get(
-  '/groups/:group_id/lessons/:lesson_id/attachments/',
+  '/lessons/:lesson_id/attachments/',
   authMiddleware,
-  attachmentsControllers.getGroupLessonAttachment
+  attachmentsControllers.getLessonAttachments
 );
-router.delete(
-  '/groups/:group_id/lessons/:lesson_id/attachments/:attachment_id',
+router.patch(
+  '/attachments/:attachment_id',
   authMiddleware,
   shouldHaveAdminRole,
-  attachmentsControllers.deleteGroupLessonAttachment
+  attachmentsControllers.editAttachment
 );
-
 export { router };

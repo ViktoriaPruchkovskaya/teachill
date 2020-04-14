@@ -4,7 +4,6 @@ import { SignupService, SigninService, RoleType, UserService } from '../services
 import {
   Validator,
   shouldHaveField,
-  ValidationFailed,
   shouldMatchRegexp,
   minLengthShouldBe,
   valueShouldBeInEnum,
@@ -42,7 +41,6 @@ export async function getUsers(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 }
 
 export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  let validatedData: SignupData;
   const validator = new Validator<SignupData>([
     shouldHaveField('username', 'string'),
     shouldHaveField('password', 'string'),
@@ -52,17 +50,8 @@ export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
     minLengthShouldBe('password', 6),
     valueShouldBeInEnum('role', RoleType),
   ]);
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+
+  const validatedData = validator.validate(ctx.request.body);
 
   const signupService = new SignupService();
   const userId = await signupService.doSignup(
@@ -92,24 +81,14 @@ export async function changePassword(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
-  let validatedData: PasswordData;
   const validator = new Validator<PasswordData>([
     shouldHaveField('currentPassword', 'string'),
     shouldHaveField('newPassword', 'string'),
     minLengthShouldBe('currentPassword', 6),
     minLengthShouldBe('newPassword', 6),
   ]);
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+
+  const validatedData = validator.validate(ctx.request.body);
 
   const userService = new UserService();
   await userService.changePassword(
@@ -127,22 +106,11 @@ export async function changeRole(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
-  let validatedData: RoleData;
   const validator = new Validator<RoleData>([
     shouldHaveField('roleId', 'number'),
     valueShouldBeInEnum('roleId', RoleType),
   ]);
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const validatedData = validator.validate(ctx.request.body);
 
   const userService = new UserService();
   await userService.changeRole(ctx.state.user, ctx.params.user_id, validatedData.roleId);
@@ -156,23 +124,11 @@ export async function updateUser(
   ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
   next: Koa.Next
 ) {
-  let validatedData: UserData;
   const validator = new Validator<UserData>([
     mayHaveFields(['fullName']),
     optionalFieldShouldHaveType('fullName', 'string'),
   ]);
-
-  try {
-    validatedData = validator.validate(ctx.request.body);
-  } catch (err) {
-    if (err instanceof ValidationFailed) {
-      ctx.body = {
-        errors: err.errors,
-      };
-      ctx.response.status = httpCodes.BAD_REQUEST;
-      return next();
-    }
-  }
+  const validatedData = validator.validate(ctx.request.body);
 
   const userService = new UserService();
   await userService.updateUser(ctx.state.user.username, validatedData);
