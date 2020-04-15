@@ -4,6 +4,7 @@ import { GroupService, Lesson } from '../services/groupService';
 import './SchedulePage.less';
 import { organizeLessons } from '../utils/lessons';
 import { WeekSchedule } from '../components/Schedule/WeekSchedule';
+import { LocalStorageService } from '../services/localStorageService';
 
 export const SchedulePage = () => {
   const [schedule, setSchedule] = useState<Lesson[][][]>([]);
@@ -13,7 +14,8 @@ export const SchedulePage = () => {
        * @name lessons - Array of lessons sorted by date
        * @name organizedLessons - Array, that contains array of lessons formed by weeks
        */
-      const token = localStorage.getItem('teachillToken');
+
+      const token = new LocalStorageService().getToken();
       const groupService = new GroupService(token);
       const groupLessons = await groupService.getLessons();
       const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());

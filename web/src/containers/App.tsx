@@ -11,7 +11,7 @@ class App extends Component {
     return (
       <Router>
         <div className='root-container'>
-          <PageHeader title='Teachill' />
+          <PageHeader className='header' title='Teachill' />
           <Route path='/' exact component={StartPage} />
           <Route path='/schedule' component={SchedulePage} />
         </div>

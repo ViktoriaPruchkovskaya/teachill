@@ -1,4 +1,11 @@
 import { BaseTeachillClient } from './baseClient';
+import { LocalStorageService } from './localStorageService';
+import { GroupService } from './groupService';
+
+export enum RoleType {
+  Administrator = 1,
+  Member = 2,
+}
 
 interface SigninPayload {
   username: string;
@@ -12,12 +19,27 @@ interface SignupPayload {
   role: number;
 }
 
+interface UserSignupPayload {
+  fullName: string;
+  username: string;
+  password: string;
+  role: number;
+  name: string;
+}
+
 export class AuthService extends BaseTeachillClient {
   /**
    * signin performs authentication against teachill backend.
    * @param payload - signin payload.
    * @returns string containing token.
    */
+  private localStorageService: LocalStorageService;
+
+  constructor() {
+    super();
+    this.localStorageService = new LocalStorageService();
+  }
+
   public async signin(payload: SigninPayload): Promise<string> {
     const response = await fetch('/api/signin/', {
       method: 'POST',
@@ -46,5 +68,32 @@ export class AuthService extends BaseTeachillClient {
     }
     const { userId } = await response.json();
     return userId;
+  }
+
+  public async signupAdmin(payload: UserSignupPayload): Promise<void> {
+    payload.role = RoleType.Administrator;
+    const userId = await this.signup(payload);
+
+    const token = await this.signin(payload);
+    this.localStorageService.setToken(token);
+
+    const groupService = new GroupService(token);
+    const groupId = await groupService.createGroup(payload);
+
+    await groupService.assignUserToGroup(groupId, userId);
+
+    const group = await groupService.getCurrentGroup();
+    this.localStorageService.setUserGroup(group);
+  }
+
+  public async signupUser(payload: UserSignupPayload): Promise<void> {
+    payload.role = RoleType.Member;
+    const userId = await this.signup(payload);
+
+    const token = this.localStorageService.getToken();
+    const { id } = this.localStorageService.getUserGroup();
+
+    const groupService = new GroupService(token);
+    await groupService.assignUserToGroup(id, userId);
   }
 }

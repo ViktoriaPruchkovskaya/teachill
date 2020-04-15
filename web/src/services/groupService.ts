@@ -4,6 +4,11 @@ interface GroupPayload {
   name: string;
 }
 
+export interface Group {
+  id: number;
+  name: string;
+}
+
 export interface Lesson {
   id: number;
   name: string;
@@ -40,6 +45,19 @@ export class GroupService extends BaseTeachillAuthClient {
       },
       body: JSON.stringify({ userId }),
     });
+  }
+
+  public async getCurrentGroup(): Promise<Group> {
+    const response = await fetch('/api/me/group/', {
+      method: 'GET',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+    });
+
+    const group = await response.json();
+    return { id: group.id as number, name: group.name as string };
   }
 
   public async getLessons(): Promise<Lesson[]> {

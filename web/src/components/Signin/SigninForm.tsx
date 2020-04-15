@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { SigninData } from './SigninButton';
+import { SigninData } from './Signin';
 
 interface SigninProps {
   form: FormInstance;

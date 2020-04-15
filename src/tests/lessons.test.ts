@@ -139,7 +139,7 @@ describe('test lessons service', () => {
         'subgroup',
       ])
     );
-    expect(await mockedGroups.getMembershipById(USER.id)).toBe(2);
+    expect((await mockedGroups.getMembershipById(USER.id)).id).toBe(2);
   });
 
   it('test getting lessons of nonexistent group', async () => {
@@ -175,7 +175,7 @@ describe('test lessons service', () => {
 
     expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).toBeCalledTimes(1);
-    expect(await mockedGroups.getMembershipById(USER.id)).toBe(2);
+    expect((await mockedGroups.getMembershipById(USER.id)).id).toBe(2);
     expect(lessons).toEqual([]);
   });
 

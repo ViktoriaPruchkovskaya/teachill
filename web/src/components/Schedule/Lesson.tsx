@@ -1,17 +1,20 @@
 import * as React from 'react';
 import { Card } from 'antd';
-import { Lesson as LessonProp } from '../../services/groupService';
+import { Lesson as LessonModel } from '../../services/groupService';
+import './Lesson.less';
 
 interface LessonProps {
-  lesson: LessonProp;
+  lesson: LessonModel;
 }
 
 export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
   return (
-    <Card className='schedule-page-daily-lesson-card-container'>
-      <p>
-        {lesson.name} {lesson.location}
-      </p>
+    <Card>
+      <div className='lesson-card'>
+        <span>
+          {lesson.name} {lesson.location}
+        </span>
+      </div>
     </Card>
   );
 };

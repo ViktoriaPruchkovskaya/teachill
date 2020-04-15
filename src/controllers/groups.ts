@@ -3,6 +3,7 @@ import * as httpCodes from '../constants/httpCodes';
 import { GroupService } from '../services/groups';
 import { Validator, shouldHaveField, ValidationFailed } from '../validations';
 import { ExistError, NotFoundError } from '../errors';
+import { State } from '../state';
 
 interface GroupMemberData {
   userId: number;
@@ -82,6 +83,19 @@ export async function createGroupMember(ctx: Koa.ParameterizedContext, next: Koa
       return next();
     }
   }
+
+  await next();
+}
+
+export async function getCurrentGroup(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const groupService = new GroupService();
+  const currentGroup = await groupService.getCurrentGroup(ctx.state.user);
+
+  ctx.body = { ...currentGroup };
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }

@@ -4,6 +4,7 @@ import { Form, Button, message } from 'antd';
 import { SigninForm } from './SigninForm';
 import { AuthService } from '../../services/authService';
 import { History } from 'history';
+import { LocalStorageService } from '../../services/localStorageService';
 
 export interface SigninData {
   username: string;
@@ -13,7 +14,7 @@ interface SigninProps {
   history: History;
 }
 
-export const SigninButton: React.FC<SigninProps> = ({ history }) => {
+export const Signin: React.FC<SigninProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const [form] = Form.useForm();
 
@@ -25,7 +26,7 @@ export const SigninButton: React.FC<SigninProps> = ({ history }) => {
     try {
       const authService = new AuthService();
       const token = await authService.signin(values);
-      localStorage.setItem('teachillToken', token);
+      new LocalStorageService().setToken(token);
       history.push('/schedule');
     } catch (error) {
       form.resetFields();

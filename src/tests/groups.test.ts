@@ -159,7 +159,7 @@ describe('test groups service', () => {
       'fullName',
       'role',
     ]);
-    expect(await mockedGroups.getMembershipById(USER_ID)).toEqual(2);
+    expect((await mockedGroups.getMembershipById(USER_ID)).id).toEqual(2);
   });
 
   it('test getting group members', async () => {

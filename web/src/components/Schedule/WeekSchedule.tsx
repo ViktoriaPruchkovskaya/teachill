@@ -9,7 +9,7 @@ interface WeekScheduleProps {
 
 export const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
   const weekSchedule = schedule.map((daySchedule, index) => {
-    return <DaySchedule dailyLessons={daySchedule} key={index} serialNumber={index} />;
+    return <DaySchedule dailyLessons={daySchedule} key={index} index={index} />;
   });
 
   return <Row className='row-container'>{weekSchedule}</Row>;

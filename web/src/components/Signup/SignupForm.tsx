@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { SignupData } from './SignupButton';
+import { SignupData } from './Signup';
 
 interface SignupProps {
   form: FormInstance;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { SignupButton } from '../components/Signup/SignupButton';
-import { SigninButton } from '../components/Signin/SigninButton';
+import { Signup } from '../components/Signup/Signup';
+import { Signin } from '../components/Signin/Signin';
 import './StartPage.less';
 
 export const StartPage: React.FC<RouteComponentProps> = ({ history }) => {
@@ -24,8 +24,8 @@ export const StartPage: React.FC<RouteComponentProps> = ({ history }) => {
           </p>
         </div>
         <div className='auth-select-container'>
-          <SignupButton history={history} />
-          <SigninButton history={history} />
+          <Signup history={history} />
+          <Signin history={history} />
         </div>
       </div>
     </div>
