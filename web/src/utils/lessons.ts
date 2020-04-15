@@ -56,3 +56,11 @@ export function getWeekday(order: number): string {
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   return weekdays[order];
 }
+
+export function getCurrentWeekNumber(lessons: Lesson[][][]): number {
+  const currentWeek = lessons.find(week =>
+    week.find(lessons => lessons.find(lesson => getWeek(lesson.startTime) === getWeek(new Date())))
+  );
+
+  return lessons.indexOf(currentWeek);
+}
