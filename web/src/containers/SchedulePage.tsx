@@ -13,8 +13,13 @@ export const SchedulePage = () => {
   const [schedule, setSchedule] = useState<Lesson[][][]>([]);
   const [weekNumber, setWeekNumber] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [groupName, setGroupName] = useState<string>('');
 
   useEffect(() => {
+    const localStorageService = new LocalStorageService();
+    const currentGroup = localStorageService.getUserGroup();
+    setGroupName(currentGroup.name);
+
     (async function() {
       try {
         /**
@@ -22,7 +27,7 @@ export const SchedulePage = () => {
          * @name organizedLessons - Array, that contains array of lessons formed by weeks
          */
         setLoading(true);
-        const token = new LocalStorageService().getToken();
+        const token = localStorageService.getToken();
         const groupService = new GroupService(token);
         const groupLessons = await groupService.getLessons();
         const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
@@ -77,6 +82,7 @@ export const SchedulePage = () => {
 
   return (
     <div className='schedule-page-container'>
+      <h3 className='schedule-group-name'>Group: {groupName}</h3>
       <Spin size='large' indicator={<LoadingOutlined />} spinning={loading} />
       <div className='schedule-page-content-container'>{content}</div>
     </div>

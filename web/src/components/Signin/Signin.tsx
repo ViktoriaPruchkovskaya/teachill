@@ -25,8 +25,8 @@ export const Signin: React.FC<SigninProps> = ({ history }) => {
   const handleSubmit = async (values: SigninData): Promise<void> => {
     try {
       const authService = new AuthService();
-      const token = await authService.signin(values);
-      new LocalStorageService().setToken(token);
+      await authService.signin(values);
+
       history.push('/schedule');
     } catch (error) {
       form.resetFields();

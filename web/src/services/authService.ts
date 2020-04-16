@@ -40,7 +40,7 @@ export class AuthService extends BaseTeachillClient {
     this.localStorageService = new LocalStorageService();
   }
 
-  public async signin(payload: SigninPayload): Promise<string> {
+  public async signin(payload: SigninPayload): Promise<void> {
     const response = await fetch('/api/signin/', {
       method: 'POST',
       headers: this.getCommonHeaders(),
@@ -52,7 +52,11 @@ export class AuthService extends BaseTeachillClient {
       throw new Error(`Authentication error: Reason: ${messages.join(', ')}`);
     }
     const { token } = await response.json();
-    return token;
+    this.localStorageService.setToken(token);
+
+    const groupService = new GroupService(token);
+    const group = await groupService.getCurrentGroup();
+    this.localStorageService.setUserGroup(group);
   }
 
   public async signup(payload: SignupPayload): Promise<number> {
@@ -74,8 +78,8 @@ export class AuthService extends BaseTeachillClient {
     payload.role = RoleType.Administrator;
     const userId = await this.signup(payload);
 
-    const token = await this.signin(payload);
-    this.localStorageService.setToken(token);
+    await this.signin(payload);
+    const token = this.localStorageService.getToken();
 
     const groupService = new GroupService(token);
     const groupId = await groupService.createGroup(payload);
