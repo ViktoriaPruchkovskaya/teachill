@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Lesson as LessonModel } from '../../services/groupService';
+import { Lesson as LessonModel } from '../../../services/groupService';
 import { Col, Card } from 'antd';
-import { getWeekday } from '../../utils/lessons';
+import { getWeekday } from '../../../utils/lessons';
 import { Lesson } from './Lesson';
 import './DaySchedule.less';
 

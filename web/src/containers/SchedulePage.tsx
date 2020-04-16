@@ -1,14 +1,13 @@
 import * as React from 'react';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 import { useEffect, useState } from 'react';
 import { GroupService, Lesson } from '../services/groupService';
 import { LocalStorageService } from '../services/localStorageService';
+import { EmptySchedule } from '../components/Schedule/EmptySchedule/EmptySchedule';
+import { FullSchedule } from '../components/Schedule/FullSchedule/FullSchedule';
+import { getCurrentWeekNumber, organizeLessons } from '../utils/lessons';
 import './SchedulePage.less';
-import { organizeLessons, getCurrentWeekNumber } from '../utils/lessons';
-import { WeekSchedule } from '../components/Schedule/WeekSchedule';
-import { PrevWeekButton } from '../components/Buttons/prevWeekButton';
-import { NextWeekButton } from '../components/Buttons/nextWeekButton';
-import { Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
 
 export const SchedulePage = () => {
   const [schedule, setSchedule] = useState<Lesson[][][]>([]);
@@ -17,22 +16,27 @@ export const SchedulePage = () => {
 
   useEffect(() => {
     (async function() {
-      /**
-       * @name lessons - Array of lessons sorted by date
-       * @name organizedLessons - Array, that contains array of lessons formed by weeks
-       */
-      setLoading(true);
-      const token = new LocalStorageService().getToken();
-      const groupService = new GroupService(token);
-      const groupLessons = await groupService.getLessons();
-      const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+      try {
+        /**
+         * @name lessons - Array of lessons sorted by date
+         * @name organizedLessons - Array, that contains array of lessons formed by weeks
+         */
+        setLoading(true);
+        const token = new LocalStorageService().getToken();
+        const groupService = new GroupService(token);
+        const groupLessons = await groupService.getLessons();
+        const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
-      const organizedLessons = organizeLessons(lessons);
-      setSchedule(organizedLessons);
+        const organizedLessons = organizeLessons(lessons);
+        setSchedule(organizedLessons);
 
-      const currentWeek = getCurrentWeekNumber(organizedLessons);
-      setWeekNumber(currentWeek);
-      setLoading(false);
+        const currentWeek = getCurrentWeekNumber(organizedLessons);
+        setWeekNumber(currentWeek);
+      } catch (err) {
+        console.error(err.message);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
@@ -48,14 +52,29 @@ export const SchedulePage = () => {
     }
   };
 
-  const content =
-    !loading && schedule.length > 0 ? (
-      <React.Fragment>
-        <PrevWeekButton prevWeekSwitch={prevWeekSwitch} />
-        <WeekSchedule schedule={schedule[weekNumber]} />
-        <NextWeekButton nextWeekSwitch={nextWeekSwitch} />
-      </React.Fragment>
-    ) : null;
+  const displaySchedule = () => {
+    if (loading) {
+      return null;
+    }
+
+    if (!loading && schedule.length === 0) {
+      return <EmptySchedule />;
+    }
+
+    if (schedule.length > 0) {
+      return (
+        <FullSchedule
+          prevWeekSwitch={prevWeekSwitch}
+          nextWeekSwitch={nextWeekSwitch}
+          schedule={schedule}
+          weekNumber={weekNumber}
+        />
+      );
+    }
+  };
+
+  const content = displaySchedule();
+
   return (
     <div className='schedule-page-container'>
       <Spin size='large' indicator={<LoadingOutlined />} spinning={loading} />
