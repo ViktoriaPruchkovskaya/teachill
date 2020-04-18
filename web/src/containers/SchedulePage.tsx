@@ -3,7 +3,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import { useEffect, useState } from 'react';
 import { GroupService, Lesson } from '../services/groupService';
-import { LocalStorageService } from '../services/localStorageService';
+import { StorageService } from '../services/storageService';
 import { EmptySchedule } from '../components/Schedule/EmptySchedule/EmptySchedule';
 import { FullSchedule } from '../components/Schedule/FullSchedule/FullSchedule';
 import { getCurrentWeekNumber, organizeLessons } from '../utils/lessons';
@@ -12,11 +12,11 @@ import './SchedulePage.less';
 export const SchedulePage = () => {
   const [schedule, setSchedule] = useState<Lesson[][][]>([]);
   const [weekNumber, setWeekNumber] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [groupName, setGroupName] = useState<string>('');
 
   useEffect(() => {
-    const localStorageService = new LocalStorageService();
+    const localStorageService = new StorageService();
     const currentGroup = localStorageService.getUserGroup();
     setGroupName(currentGroup.name);
 
@@ -82,7 +82,6 @@ export const SchedulePage = () => {
 
   return (
     <div className='schedule-page-container'>
-      <h3 className='schedule-group-name'>Group: {groupName}</h3>
       <Spin size='large' indicator={<LoadingOutlined />} spinning={loading} />
       <div className='schedule-page-content-container'>{content}</div>
     </div>

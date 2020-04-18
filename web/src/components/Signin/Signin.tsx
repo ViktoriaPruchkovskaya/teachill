@@ -4,7 +4,6 @@ import { Form, Button, message } from 'antd';
 import { SigninForm } from './SigninForm';
 import { AuthService } from '../../services/authService';
 import { History } from 'history';
-import { LocalStorageService } from '../../services/localStorageService';
 
 export interface SigninData {
   username: string;

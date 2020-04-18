@@ -1,5 +1,5 @@
 import { BaseTeachillClient } from './baseClient';
-import { LocalStorageService } from './localStorageService';
+import { StorageService } from './storageService';
 import { GroupService } from './groupService';
 
 export enum RoleType {
@@ -33,11 +33,11 @@ export class AuthService extends BaseTeachillClient {
    * @param payload - signin payload.
    * @returns string containing token.
    */
-  private localStorageService: LocalStorageService;
+  private storageService: StorageService;
 
   constructor() {
     super();
-    this.localStorageService = new LocalStorageService();
+    this.storageService = new StorageService();
   }
 
   public async signin(payload: SigninPayload): Promise<void> {
@@ -52,11 +52,11 @@ export class AuthService extends BaseTeachillClient {
       throw new Error(`Authentication error: Reason: ${messages.join(', ')}`);
     }
     const { token } = await response.json();
-    this.localStorageService.setToken(token);
+    this.storageService.setToken(token);
 
     const groupService = new GroupService(token);
     const group = await groupService.getCurrentGroup();
-    this.localStorageService.setUserGroup(group);
+    this.storageService.setUserGroup(group);
   }
 
   public async signup(payload: SignupPayload): Promise<number> {
@@ -79,7 +79,7 @@ export class AuthService extends BaseTeachillClient {
     const userId = await this.signup(payload);
 
     await this.signin(payload);
-    const token = this.localStorageService.getToken();
+    const token = this.storageService.getToken();
 
     const groupService = new GroupService(token);
     const groupId = await groupService.createGroup(payload);
@@ -87,15 +87,15 @@ export class AuthService extends BaseTeachillClient {
     await groupService.assignUserToGroup(groupId, userId);
 
     const group = await groupService.getCurrentGroup();
-    this.localStorageService.setUserGroup(group);
+    this.storageService.setUserGroup(group);
   }
 
   public async signupUser(payload: UserSignupPayload): Promise<void> {
     payload.role = RoleType.Member;
     const userId = await this.signup(payload);
 
-    const token = this.localStorageService.getToken();
-    const { id } = this.localStorageService.getUserGroup();
+    const token = this.storageService.getToken();
+    const { id } = this.storageService.getUserGroup();
 
     const groupService = new GroupService(token);
     await groupService.assignUserToGroup(id, userId);

@@ -1,5 +1,6 @@
 import { Lesson } from '../services/groupService';
-import { getWeek, getDay } from 'date-fns';
+import { getWeek, getDay, addDays } from 'date-fns';
+import { getDate } from './date';
 
 const STUDY_WEEK_LENGTH = 6;
 
@@ -63,4 +64,29 @@ export function getCurrentWeekNumber(lessons: Lesson[][][]): number {
   );
 
   return lessons.indexOf(currentWeek);
+}
+
+/**
+ * Set date for each day of schedule
+ * @param lessons - array of week, containing array of lesson for each day
+ * @return array of dates
+ */
+export function setDate(lessons: Lesson[][]): Array<string> {
+  const baseDay = lessons.find(day => day.find(lesson => Object.keys(lesson).length > 0));
+  const indexOfBaseDay = lessons.indexOf(baseDay);
+
+  const daysDate = [];
+  if (indexOfBaseDay > 0) {
+    for (let i = indexOfBaseDay; i > 0; i--) {
+      const date = getDate(addDays(baseDay[0].startTime, -i));
+      daysDate.push(date);
+    }
+  }
+
+  for (let i = 0; i < lessons.length - indexOfBaseDay; i++) {
+    const date = getDate(addDays(baseDay[0].startTime, i));
+    daysDate.push(date);
+  }
+
+  return daysDate;
 }

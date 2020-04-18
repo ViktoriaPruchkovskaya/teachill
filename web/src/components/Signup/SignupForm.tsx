@@ -6,9 +6,7 @@ import { SignupData } from './Signup';
 interface SignupProps {
   form: FormInstance;
   visible: boolean;
-
   onSubmit(values: SignupData): Promise<void>;
-
   onCancel(): void;
 }
 
