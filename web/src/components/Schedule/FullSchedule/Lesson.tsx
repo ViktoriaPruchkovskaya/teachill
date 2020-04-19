@@ -5,7 +5,6 @@ import { Lesson as LessonModel } from '../../../services/groupService';
 import { LessonModal } from '../../LessonModal/LessonModal';
 import { getTime, addDuration } from '../../../utils/date';
 import './Lesson.less';
-import { getGroupIfLessonExist } from '../../../../../src/tests/mocks/attachments';
 
 interface LessonProps {
   lesson: LessonModel;

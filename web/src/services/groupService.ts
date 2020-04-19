@@ -1,12 +1,13 @@
-import { BaseTeachillAuthClient } from './baseClient';
+import { GroupClient } from '../clients/groupClient';
+import { StorageService } from './storageService';
+import { organizeLessons } from '../utils/lessons';
 
 interface GroupPayload {
   name: string;
 }
 
-export interface Group {
-  id: number;
-  name: string;
+interface Teacher {
+  fullName: string;
 }
 
 export interface Lesson {
@@ -21,54 +22,36 @@ export interface Lesson {
   subgroup?: number | null;
 }
 
-interface Teacher {
-  fullName: string;
+export interface Group {
+  id: number;
+  name: string;
 }
 
-export class GroupService extends BaseTeachillAuthClient {
+export class GroupService {
+  private groupClient: GroupClient;
+  private storageService: StorageService;
+
+  constructor() {
+    this.storageService = new StorageService();
+    const token = this.storageService.getToken();
+    this.groupClient = new GroupClient(token);
+  }
+
   public async createGroup(payload: GroupPayload): Promise<number> {
-    const response = await fetch('/api/groups/', {
-      method: 'POST',
-      headers: { ...this.getCommonHeaders(), ...this.getAuthHeaders() },
-      body: JSON.stringify(payload),
-    });
-    const { groupId } = await response.json();
-    return groupId;
+    return this.groupClient.createGroup(payload);
   }
 
   public async assignUserToGroup(groupId: number, userId: number): Promise<void> {
-    await fetch(`/api/groups/${groupId}/users/`, {
-      method: 'POST',
-      headers: {
-        ...this.getCommonHeaders(),
-        ...this.getAuthHeaders(),
-      },
-      body: JSON.stringify({ userId }),
-    });
+    await this.groupClient.assignUserToGroup(groupId, userId);
   }
 
-  public async getCurrentGroup(): Promise<Group> {
-    const response = await fetch('/api/me/group/', {
-      method: 'GET',
-      headers: {
-        ...this.getCommonHeaders(),
-        ...this.getAuthHeaders(),
-      },
-    });
-
-    const group = await response.json();
-    return { id: group.id as number, name: group.name as string };
+  public async getCurrentGroup(): Promise<void> {
+    const group = await this.groupClient.getCurrentGroup();
+    this.storageService.setUserGroup(group);
   }
 
-  public async getLessons(): Promise<Lesson[]> {
-    const response = await fetch('/api/lessons/', {
-      method: 'GET',
-      headers: {
-        ...this.getCommonHeaders(),
-        ...this.getAuthHeaders(),
-      },
-    });
-    const lessons: Lesson[] = await response.json();
+  private async getLessons(): Promise<Lesson[]> {
+    const lessons = await this.groupClient.getLessons();
     return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,
@@ -80,5 +63,17 @@ export class GroupService extends BaseTeachillAuthClient {
       teacher: lesson.teacher,
       subgroup: lesson.subgroup,
     }));
+  }
+
+  public async getSchedule(): Promise<Lesson[][][]> {
+    /**
+     * @name lessons - Array of lessons sorted by date
+     * @function organizedLessons returns an array, that contains array of lessons formed by weeks
+     */
+
+    const groupLessons = await this.getLessons();
+    const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+
+    return organizeLessons(lessons);
   }
 }
