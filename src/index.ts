@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as bodyParser from 'koa-bodyparser';
 import { DatabaseConnection, DatabaseConfiguration } from './db/connection';
 import { router } from './routes';
+import { errorHandler } from './middlewares/errorHandler';
 
 dotenv.config();
 
@@ -19,5 +20,6 @@ const dbConfig: DatabaseConfiguration = {
 DatabaseConnection.initConnection(dbConfig);
 
 app.use(bodyParser());
+app.use(errorHandler);
 app.use(router.prefix('/api').routes());
 app.listen(3000, () => console.log('Server started'));

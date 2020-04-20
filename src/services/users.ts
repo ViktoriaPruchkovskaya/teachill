@@ -21,6 +21,13 @@ interface UpdateInformation {
   fullName?: string;
 }
 
+interface SignupData {
+  username: string;
+  password: string;
+  fullName: string;
+  role: number;
+}
+
 export class UserService {
   private passwordService: PasswordService;
   private groupService: GroupService;
@@ -144,20 +151,19 @@ export class SignupService {
     this.passwordService = new PasswordService();
   }
 
-  public async doSignup(
-    username: string,
-    password: string,
-    fullName: string,
-    role: number
-  ): Promise<number> {
-    const user = await userRepository.getUserByUsername(username);
+  public async doSignup(userInfo: SignupData): Promise<number> {
+    const user = await userRepository.getUserByUsername(userInfo.username);
     if (user) {
       throw new errorTypes.ExistError('Username already exists');
     }
 
-    const passwordHash = await this.passwordService.hashPassword(password);
-    const userId = await userRepository.createUser(username, passwordHash, fullName);
-    await this.createUserRole(userId, RoleType[RoleType[role]]);
+    const passwordHash = await this.passwordService.hashPassword(userInfo.password);
+    const userId = await userRepository.createUser(
+      userInfo.username,
+      passwordHash,
+      userInfo.password
+    );
+    await this.createUserRole(userId, RoleType[RoleType[userInfo.role]]);
     return userId;
   }
 

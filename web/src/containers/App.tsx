@@ -2,9 +2,9 @@ import * as React from 'react';
 import { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { StartPage } from './StartPage';
-import './App.less';
 import { PageHeader } from 'antd';
 import { SchedulePage } from './SchedulePage';
+import './App.less';
 
 class App extends Component {
   render() {
