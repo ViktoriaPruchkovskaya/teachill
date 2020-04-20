@@ -12,10 +12,12 @@ const mockedUsers = usersRepository as jest.Mocked<typeof usersRepository>;
 
 describe('test signup service', () => {
   it('test user signup', async () => {
-    const USERNAME = 'petrov';
-    const PASSWORD = '1234password';
-    const FULLNAME = 'Petrov A.A.';
-    const ROLE = 1;
+    const USER = {
+      username: 'petrov',
+      password: '1234password',
+      fullName: 'Petrov A.A.',
+      role: 1,
+    };
     const signupService = new SignupService();
     (signupService as any).passwordService = new PasswordService();
     mockedUsers.getUserByUsername = userMocks.getNonexistentUserByUsername();
@@ -23,24 +25,26 @@ describe('test signup service', () => {
     mockedUsers.createUser = userMocks.createUser();
     (signupService as any).createUserRole = userMocks.createUserRole();
 
-    const id = await signupService.doSignup(USERNAME, PASSWORD, FULLNAME, ROLE);
+    const id = await signupService.doSignup(USER);
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
     expect((signupService as any).passwordService.hashPassword).toBeCalledTimes(1);
     expect(mockedUsers.createUser).toBeCalledTimes(1);
     expect((signupService as any).createUserRole).toBeCalledTimes(1);
-    expect(await mockedUsers.getUserByUsername(USERNAME)).toBeNull();
-    expect(await (signupService as any).passwordService.hashPassword(PASSWORD)).toBe(
-      `2134${PASSWORD}`
+    expect(await mockedUsers.getUserByUsername(USER.username)).toBeNull();
+    expect(await (signupService as any).passwordService.hashPassword(USER.password)).toBe(
+      `2134${USER.password}`
     );
     expect(id).toBe(1);
   });
 
   it('test user signup with username that already exists', async () => {
-    const USERNAME = 'petrov';
-    const PASSWORD = '1234password';
-    const FULLNAME = 'Petrov A.A.';
-    const ROLE = 1;
+    const USER = {
+      username: 'petrov',
+      password: '1234password',
+      fullName: 'Petrov A.A.',
+      role: 1,
+    };
     const signupService = new SignupService();
     (signupService as any).passwordService = new PasswordService();
     mockedUsers.getUserByUsername = userMocks.getUserByUsername();
@@ -48,15 +52,13 @@ describe('test signup service', () => {
     mockedUsers.createUser = userMocks.createUser();
     (signupService as any).createUserRole = userMocks.createUserRole();
 
-    await expect(signupService.doSignup(USERNAME, PASSWORD, FULLNAME, ROLE)).rejects.toThrow(
-      'Username already exists'
-    );
+    await expect(signupService.doSignup(USER)).rejects.toThrow('Username already exists');
 
     expect(mockedUsers.getUserByUsername).toBeCalledTimes(1);
     expect((signupService as any).passwordService.hashPassword).not.toBeCalled();
     expect(mockedUsers.createUser).not.toBeCalled();
     expect((signupService as any).createUserRole).not.toBeCalled();
-    expect((await mockedUsers.getUserByUsername(USERNAME)).username).toBe(USERNAME);
+    expect((await mockedUsers.getUserByUsername(USER.username)).username).toBe(USER.username);
   });
 });
 
