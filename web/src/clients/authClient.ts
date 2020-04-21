@@ -1,4 +1,5 @@
 import { BaseTeachillClient } from './baseClient';
+import { handleError } from '../handleError';
 
 export enum RoleType {
   Administrator = 1,
@@ -23,7 +24,6 @@ export class AuthClient extends BaseTeachillClient {
    * @param payload - signin payload.
    * @returns string containing token.
    */
-
   public async signin(payload: SigninPayload): Promise<string> {
     const response = await fetch('/api/signin/', {
       method: 'POST',
@@ -31,9 +31,7 @@ export class AuthClient extends BaseTeachillClient {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      const { errors } = await response.json();
-      const messages = errors.map((error: { message: string }) => error.message);
-      throw new Error(`Authentication error: Reason: ${messages.join(', ')}`);
+      await handleError(response, 'Authentication');
     }
     const { token } = await response.json();
     return token;
@@ -46,9 +44,7 @@ export class AuthClient extends BaseTeachillClient {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      const { errors } = await response.json();
-      const messages = errors.map((error: { message: string }) => error.message);
-      throw new Error(`Registration error: Reason: ${messages.join(', ')}`);
+      await handleError(response, 'Registration');
     }
     const { userId } = await response.json();
     return userId;

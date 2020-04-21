@@ -73,7 +73,6 @@ export class UserService {
    * @param targetUserId - User ID of entity that change role.
    * @param roleType - Type of role that are going to be applied to user.
    **/
-
   public async changeRole(
     currentUser: User,
     targetUserId: number,
@@ -140,7 +139,7 @@ export class UserService {
     if (!membershipA || membershipA !== membershipB) {
       throw new errorTypes.GroupMismatchError('Groups do not match');
     }
-    return { id: membershipA.id, name: membershipA.name };
+    return membershipA;
   }
 }
 

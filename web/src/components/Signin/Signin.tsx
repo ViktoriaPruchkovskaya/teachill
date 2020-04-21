@@ -9,6 +9,7 @@ export interface SigninData {
   username: string;
   password: string;
 }
+
 interface SigninProps {
   history: History;
 }
@@ -28,7 +29,6 @@ export const Signin: React.FC<SigninProps> = ({ history }) => {
 
       history.push('/schedule');
     } catch (error) {
-      form.resetFields();
       message.error(error.message);
     }
   };

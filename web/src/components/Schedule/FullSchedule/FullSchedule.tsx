@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { PrevWeekButton } from '../../Buttons/prevWeekButton';
+import { WeekPaginationButton } from '../../Buttons/WeekPaginationButton';
 import { WeekSchedule } from './WeekSchedule';
-import { NextWeekButton } from '../../Buttons/nextWeekButton';
 import { Lesson } from '../../../services/groupService';
 
 interface FullScheduleProps {
-  prevWeekSwitch(): void;
-  nextWeekSwitch(): void;
+  prevWeekSwitch(event: React.MouseEvent): void;
+  nextWeekSwitch(event: React.MouseEvent): void;
   schedule: Lesson[][][];
   weekNumber: number;
 }
@@ -18,10 +17,10 @@ export const FullSchedule: React.FC<FullScheduleProps> = ({
   weekNumber,
 }) => {
   return (
-    <React.Fragment>
-      <PrevWeekButton prevWeekSwitch={prevWeekSwitch} />
+    <>
+      <WeekPaginationButton onClick={prevWeekSwitch} direction='prev' />
       <WeekSchedule schedule={schedule[weekNumber]} />
-      <NextWeekButton nextWeekSwitch={nextWeekSwitch} />
-    </React.Fragment>
+      <WeekPaginationButton onClick={nextWeekSwitch} direction='next' />
+    </>
   );
 };

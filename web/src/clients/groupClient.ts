@@ -1,4 +1,5 @@
 import { BaseTeachillAuthClient } from './baseClient';
+import { handleError } from '../handleError';
 
 interface GroupPayload {
   name: string;
@@ -32,6 +33,9 @@ export class GroupClient extends BaseTeachillAuthClient {
       headers: { ...this.getCommonHeaders(), ...this.getAuthHeaders() },
       body: JSON.stringify(payload),
     });
+    if (!response.ok) {
+      await handleError(response, 'Registration');
+    }
     const { groupId } = await response.json();
     return groupId;
   }

@@ -7,7 +7,7 @@ interface SigninProps {
   form: FormInstance;
   visible: boolean;
   onSubmit(values: SigninData): Promise<void>;
-  onCancel(): void;
+  onCancel(event: React.MouseEvent): void;
 }
 
 export const SigninForm: React.FC<SigninProps> = ({ form, visible, onSubmit, onCancel }) => {

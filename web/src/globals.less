@@ -1,13 +1,13 @@
 @import '~antd/dist/antd.less'; // Import Ant Design styles by less entry
 
 // Ant design color scheme
-@primary-color: @Miyake-1-rgba; // primary color for all components
+@primary-color: @accent-color; // primary color for all components
 @link-color: #1890ff; // link color
 @success-color: #52c41a; // success state color
 @warning-color: #faad14; // warning state color
 @error-color: #f5222d; // error state color
 @font-size-base: 14px; // major text font size
-@heading-color: @Miyake-5-rgba; // heading text color
+@heading-color: @dark-color; // heading text color
 @text-color: rgba(0, 0, 0, 0.65); // major text color
 @text-color-secondary: rgba(0, 0, 0, 0.45); // secondary text color
 @disabled-color: rgba(0, 0, 0, 0.25); // disable state color
@@ -16,14 +16,14 @@
 @box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // major shadow for layers
 
 /* Color Theme Swatches in RGBA */
-@Miyake-1-rgba: rgba(23, 111, 165, 1);
-@Miyake-2-rgba: rgba(65, 142, 191, 1);
-@Miyake-3-rgba: rgba(152, 207, 242, 1);
-@Miyake-4-rgba: rgba(242, 242, 242, 1);
-@Miyake-5-rgba: rgba(12, 12, 12, 1);
+@accent-color: rgba(23, 111, 165, 1);
+@blue-color: rgba(65, 142, 191, 1);
+@light-blue-color: rgba(152, 207, 242, 1);
+@light-color: rgba(242, 242, 242, 1);
+@dark-color: rgba(12, 12, 12, 1);
 
 .ant-card-head {
-  background-color: @Miyake-3-rgba;
+  background-color: @light-blue-color;
 }
 
 .ant-card-head-title {

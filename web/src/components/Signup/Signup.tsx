@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Button, Form, message } from 'antd';
 import { SignupForm } from './SignupForm';
-import { History } from 'history';
 import { AuthService } from '../../services/authService';
+import { History } from 'history';
 
 export interface SignupData {
   fullName: string;
@@ -32,7 +32,6 @@ export const Signup: React.FC<SignupProps> = ({ history }) => {
 
       history.push('/schedule');
     } catch (error) {
-      form.resetFields();
       message.error(error.message);
     }
   };
