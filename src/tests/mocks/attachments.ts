@@ -1,4 +1,5 @@
 import { RawAttachment } from '../../repositories/attachments';
+import { DBLesson } from '../../repositories/lessons';
 
 export const createAttachment = () => jest.fn((name: string, url: string) => Promise.resolve(1));
 
@@ -57,7 +58,10 @@ export const getAttachmentIfCommon = (currentGroup: number, attachmentGroup: num
     });
   });
 
-export const getGroupIfLessonExist = (groupId: number, getGroupLessonById) =>
+export const getGroupIfLessonExist = (
+  groupId: number,
+  getGroupLessonById: () => (arg0: number, arg1: number) => Promise<DBLesson>
+) =>
   jest.fn(async (userId: number, lessonId) => {
     const lesson = await getGroupLessonById()(groupId, lessonId);
     if (!lesson) {

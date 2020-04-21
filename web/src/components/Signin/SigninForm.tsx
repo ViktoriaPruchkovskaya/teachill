@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { SigninData } from './SigninButton';
+import { SigninData } from './Signin';
 
 interface SigninProps {
   form: FormInstance;
   visible: boolean;
   onSubmit(values: SigninData): Promise<void>;
-  onCancel(): void;
+  onCancel(event: React.MouseEvent): void;
 }
 
 export const SigninForm: React.FC<SigninProps> = ({ form, visible, onSubmit, onCancel }) => {

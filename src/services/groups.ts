@@ -1,9 +1,9 @@
 import * as groupsRepository from '../repositories/groups';
 import { getUserById } from '../repositories/users';
 import { ExistError, NotFoundError } from '../errors';
-import { RoleType } from './users';
+import { RoleType, User } from './users';
 
-interface Group {
+export interface Group {
   id: number;
   name: string;
 }
@@ -61,6 +61,14 @@ export class GroupService {
 
   public async getGroupByName(name: string): Promise<Group> {
     const group = await groupsRepository.getGroupByName(name);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
+    return { id: group.id, name: group.name };
+  }
+
+  public async getCurrentGroup(user: User): Promise<Group> {
+    const group = await groupsRepository.getMembershipById(user.id);
     if (!group) {
       throw new NotFoundError('Group does not exist');
     }

@@ -17,6 +17,7 @@ router.post('/signin/', usersControllers.signin);
 router.put('/users/me/changePassword', authMiddleware, usersControllers.changePassword);
 router.patch('/users/me/', authMiddleware, usersControllers.updateUser);
 router.get('/users/me/', authMiddleware, usersControllers.currentUser);
+router.get('/me/group/', authMiddleware, groupsControllers.getCurrentGroup);
 router.post('/groups/', authMiddleware, shouldHaveAdminRole, groupsControllers.createGroup);
 router.get('/groups/', authMiddleware, groupsControllers.getGroups);
 router.post(

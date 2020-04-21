@@ -19,6 +19,11 @@ interface SignupData {
   role: number;
 }
 
+interface SigninData {
+  username: string;
+  password: string;
+}
+
 interface PasswordData {
   currentPassword: string;
   newPassword: string;
@@ -54,12 +59,7 @@ export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const validatedData = validator.validate(ctx.request.body);
 
   const signupService = new SignupService();
-  const userId = await signupService.doSignup(
-    validatedData.username,
-    validatedData.password,
-    validatedData.fullName,
-    validatedData.role
-  );
+  const userId = await signupService.doSignup(validatedData);
   ctx.body = { userId };
   ctx.response.status = httpCodes.CREATED;
 
@@ -67,13 +67,19 @@ export async function signup(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 }
 
 export async function signin(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const validator = new Validator<SigninData>([
+    shouldHaveField('username', 'string'),
+    shouldHaveField('password', 'string'),
+  ]);
+
+  const validatedData = validator.validate(ctx.request.body);
+
   const signinService = new SigninService();
-  const authorize = await signinService.doSignin(
-    ctx.request.body.username,
-    ctx.request.body.password
-  );
+
+  const authorize = await signinService.doSignin(validatedData.username, validatedData.password);
   ctx.body = { token: authorize };
   ctx.response.status = httpCodes.OK;
+
   await next();
 }
 

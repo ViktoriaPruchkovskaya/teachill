@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { SignupButton } from '../components/Signup/SignupButton';
-import { SigninButton } from '../components/Signin/SigninButton';
-import './MainPage.less';
+import { RouteComponentProps } from 'react-router-dom';
+import { Signup } from '../components/Signup/Signup';
+import { Signin } from '../components/Signin/Signin';
+import './StartPage.less';
 
-export const MainPage = () => {
+export const StartPage: React.FC<RouteComponentProps> = ({ history }) => {
   return (
-    <div className='main-page-container'>
-      <div className='main-page-content-container'>
+    <div className='start-page-container'>
+      <div className='start-page-content-container'>
         <div>
           <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus, diam vitae
@@ -23,8 +24,8 @@ export const MainPage = () => {
           </p>
         </div>
         <div className='auth-select-container'>
-          <SignupButton />
-          <SigninButton />
+          <Signup history={history} />
+          <Signin history={history} />
         </div>
       </div>
     </div>

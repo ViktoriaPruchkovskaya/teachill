@@ -1,4 +1,11 @@
-import { BaseTeachillClient } from './baseClient';
+import { StorageService } from './storageService';
+import { AuthClient } from '../clients/authClient';
+import { GroupClient } from '../clients/groupClient';
+
+export enum RoleType {
+  Administrator = 1,
+  Member = 2,
+}
 
 interface SigninPayload {
   username: string;
@@ -12,34 +19,52 @@ interface SignupPayload {
   role: number;
 }
 
-export class AuthService extends BaseTeachillClient {
-  /**
-   * signin performs authentication against teachill backend.
-   * @param payload - signin payload.
-   * @returns string containing token.
-   */
-  public async signin(payload: SigninPayload): Promise<string> {
-    const response = await fetch('/api/signin/', {
-      method: 'POST',
-      headers: this.getCommonHeaders(),
-      body: JSON.stringify(payload),
-    });
-    const { token } = await response.json();
-    return token;
+interface UserSignupPayload {
+  fullName: string;
+  username: string;
+  password: string;
+  role: number;
+  name: string;
+}
+
+export class AuthService {
+  private storageService: StorageService;
+  private authClient: AuthClient;
+
+  constructor() {
+    this.storageService = new StorageService();
+    this.authClient = new AuthClient();
   }
 
-  public async signup(payload: SignupPayload): Promise<number> {
-    const response = await fetch('/api/signup/', {
-      method: 'POST',
-      headers: this.getCommonHeaders(),
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      const { errors } = await response.json();
-      const messages = errors.map((error: { message: string }) => error.message);
-      throw new Error(`Authentication error: Reason: ${messages.join(', ')}`);
-    }
-    const { userId } = await response.json();
-    return userId;
+  public async signin(payload: SigninPayload): Promise<void> {
+    const token = await this.authClient.signin(payload);
+    this.storageService.setToken(token);
+  }
+
+  public async signupAdmin(payload: UserSignupPayload): Promise<void> {
+    payload.role = RoleType.Administrator;
+    const userId = await this.authClient.signup(payload);
+
+    await this.signin(payload);
+    const token = this.storageService.getToken();
+
+    const groupService = new GroupClient(token);
+    const groupId = await groupService.createGroup(payload);
+
+    await groupService.assignUserToGroup(groupId, userId);
+
+    const group = await groupService.getCurrentGroup();
+    this.storageService.setUserGroup(group);
+  }
+
+  public async signupUser(payload: UserSignupPayload): Promise<void> {
+    payload.role = RoleType.Member;
+    const userId = await this.authClient.signup(payload);
+
+    const token = this.storageService.getToken();
+    const { id } = this.storageService.getUserGroup();
+
+    const groupService = new GroupClient(token);
+    await groupService.assignUserToGroup(id, userId);
   }
 }

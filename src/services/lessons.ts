@@ -72,7 +72,7 @@ export class LessonService {
       throw new NotFoundError('Group not found');
     }
 
-    const lessons = await lessonsRepository.getGroupLessons(currentGroup);
+    const lessons = await lessonsRepository.getGroupLessons(currentGroup.id);
     return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,

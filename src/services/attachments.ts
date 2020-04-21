@@ -3,6 +3,7 @@ import { getGroupLessonById } from '../repositories/lessons';
 import { getMembershipById } from '../repositories/groups';
 import { NotFoundError } from '../errors';
 import { User } from './users';
+import { Group } from './groups';
 
 export interface Attachment {
   id: number;
@@ -32,13 +33,13 @@ export class AttachmentService {
       throw new NotFoundError('Attachment not found');
     }
 
-    return attachmentsRepository.assignAttachmentToLesson(attachmentId, lessonId, group);
+    return attachmentsRepository.assignAttachmentToLesson(attachmentId, lessonId, group.id);
   }
 
   public async getLessonAttachments(currentUser: User, lessonId: number): Promise<Attachment[]> {
     const group = await this.getGroupIfLessonExist(currentUser.id, lessonId);
 
-    const attachments = await attachmentsRepository.getLessonAttachments(lessonId, group);
+    const attachments = await attachmentsRepository.getLessonAttachments(lessonId, group.id);
     return attachments.map(attachment => ({
       id: attachment.id,
       name: attachment.name,
@@ -80,7 +81,7 @@ export class AttachmentService {
   ): Promise<Attachment> {
     const currentGroup = await getMembershipById(currentUserId);
     const attachment = await attachmentsRepository.getAttachmentById(attachmentId);
-    if (!attachment || currentGroup !== attachment.groupId) {
+    if (!attachment || currentGroup.id !== attachment.groupId) {
       throw new NotFoundError('Attachment not found');
     }
 
@@ -92,12 +93,12 @@ export class AttachmentService {
     };
   }
 
-  private async getGroupIfLessonExist(userId: number, lessonId: number): Promise<number> {
+  private async getGroupIfLessonExist(userId: number, lessonId: number): Promise<Group> {
     const currentGroup = await getMembershipById(userId);
-    const lesson = await getGroupLessonById(currentGroup, lessonId);
+    const lesson = await getGroupLessonById(currentGroup.id, lessonId);
     if (!lesson) {
       throw new NotFoundError('Lesson not found');
     }
-    return currentGroup;
+    return { id: currentGroup.id, name: currentGroup.name };
   }
 }

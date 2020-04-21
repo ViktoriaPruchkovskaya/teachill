@@ -2,7 +2,7 @@ import * as userRepository from '../repositories/users';
 import { getMembershipById } from '../repositories/groups';
 import { PasswordService } from './password';
 import { JWTService } from './jwt';
-import { GroupService } from './groups';
+import { GroupService, Group } from './groups';
 import * as errorTypes from '../errors';
 
 export enum RoleType {
@@ -19,6 +19,13 @@ export interface User {
 
 interface UpdateInformation {
   fullName?: string;
+}
+
+interface SignupData {
+  username: string;
+  password: string;
+  fullName: string;
+  role: number;
 }
 
 export class UserService {
@@ -66,7 +73,6 @@ export class UserService {
    * @param targetUserId - User ID of entity that change role.
    * @param roleType - Type of role that are going to be applied to user.
    **/
-
   public async changeRole(
     currentUser: User,
     targetUserId: number,
@@ -81,8 +87,8 @@ export class UserService {
   }
 
   public async deleteUserById(user: User, userIdForDelete: number): Promise<void> {
-    const groupId = await this.getGroupIfCommon(user.id, userIdForDelete);
-    const groupMembers = await this.groupService.getGroupMembers(groupId);
+    const group = await this.getGroupIfCommon(user.id, userIdForDelete);
+    const groupMembers = await this.groupService.getGroupMembers(group.id);
 
     if (
       user.role === RoleType.Administrator &&
@@ -127,7 +133,7 @@ export class UserService {
     };
   }
 
-  private async getGroupIfCommon(userIdA: number, userIdB: number): Promise<number> {
+  private async getGroupIfCommon(userIdA: number, userIdB: number): Promise<Group> {
     const membershipA = await getMembershipById(userIdA);
     const membershipB = await getMembershipById(userIdB);
     if (!membershipA || membershipA !== membershipB) {
@@ -144,20 +150,19 @@ export class SignupService {
     this.passwordService = new PasswordService();
   }
 
-  public async doSignup(
-    username: string,
-    password: string,
-    fullName: string,
-    role: number
-  ): Promise<number> {
-    const user = await userRepository.getUserByUsername(username);
+  public async doSignup(userInfo: SignupData): Promise<number> {
+    const user = await userRepository.getUserByUsername(userInfo.username);
     if (user) {
       throw new errorTypes.ExistError('Username already exists');
     }
 
-    const passwordHash = await this.passwordService.hashPassword(password);
-    const userId = await userRepository.createUser(username, passwordHash, fullName);
-    await this.createUserRole(userId, RoleType[RoleType[role]]);
+    const passwordHash = await this.passwordService.hashPassword(userInfo.password);
+    const userId = await userRepository.createUser(
+      userInfo.username,
+      passwordHash,
+      userInfo.password
+    );
+    await this.createUserRole(userId, RoleType[RoleType[userInfo.role]]);
     return userId;
   }
 
