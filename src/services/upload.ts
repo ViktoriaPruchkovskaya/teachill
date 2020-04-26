@@ -8,11 +8,24 @@ export interface FileUploadService {
 }
 
 export class LocalFileUploadService implements FileUploadService {
+  public static DEFAULT_UPLOAD_PATH = 'uploads/';
+
   public async upload(file: multer.File): Promise<string> {
+    await this.createPathIfNotExists(LocalFileUploadService.DEFAULT_UPLOAD_PATH);
     const fileName = this.generateName(file);
-    const filePath = `uploads/${fileName}`;
+    const filePath = `${LocalFileUploadService.DEFAULT_UPLOAD_PATH}${fileName}`;
     await fs.promises.writeFile(filePath, file.buffer);
     return filePath;
+  }
+
+  private async createPathIfNotExists(path: string) {
+    try {
+      await fs.promises.stat(path);
+    } catch (e) {
+      await fs.promises.mkdir(path, {
+        recursive: true,
+      });
+    }
   }
 
   private generateName(file: multer.File): string {
