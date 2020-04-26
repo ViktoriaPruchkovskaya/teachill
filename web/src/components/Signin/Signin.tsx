@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Form, Button, message } from 'antd';
 import { SigninForm } from './SigninForm';
 import { AuthService } from '../../services/authService';
 import { History } from 'history';
+import { UserContext } from '../../contexts/userContext';
 
 export interface SigninData {
   username: string;
@@ -16,6 +17,7 @@ interface SigninProps {
 
 export const Signin: React.FC<SigninProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
+  const userContext = useContext(UserContext);
   const [form] = Form.useForm();
 
   const toggleModal = (): void => {
@@ -27,6 +29,7 @@ export const Signin: React.FC<SigninProps> = ({ history }) => {
       const authService = new AuthService();
       await authService.signin(values);
 
+      await userContext.refreshUserData();
       history.push('/schedule');
     } catch (error) {
       message.error(error.message);

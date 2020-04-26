@@ -20,4 +20,8 @@ export class StorageService {
   public setUserGroup(group: Group): void {
     localStorage.setItem(this.groupKey, JSON.stringify(group));
   }
+
+  public tokenAvailability(): boolean {
+    return localStorage.hasOwnProperty(this.tokenKey);
+  }
 }
