@@ -1,4 +1,5 @@
 import Router = require('koa-router');
+import { Context } from 'koa';
 import * as usersControllers from './controllers/users';
 import * as groupsControllers from './controllers/groups';
 import * as teachersControllers from './controllers/teachers';
@@ -7,8 +8,9 @@ import * as lessonsControllers from './controllers/lessons';
 import { authMiddleware } from './middlewares/authentication';
 import { shouldHaveRole } from './middlewares/permissions';
 import { RoleType } from './services/users';
+import { State } from './state';
 
-const router = new Router();
+const router = new Router<State, Context>();
 const shouldHaveAdminRole = shouldHaveRole([RoleType.Administrator]);
 
 router.get('/', authMiddleware, shouldHaveAdminRole, usersControllers.getUsers);

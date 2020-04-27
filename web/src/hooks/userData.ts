@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { GroupService } from '../services/groupService';
 
 interface UserData {
+  fullName?: string;
   username?: string;
   groupName?: string;
 }
@@ -22,6 +23,7 @@ export function useUserData(): [UserData, () => Promise<void>] {
       ]);
 
       setUser({
+        fullName: results[0].fullName,
         username: results[0].username,
         groupName: results[1].name,
       });

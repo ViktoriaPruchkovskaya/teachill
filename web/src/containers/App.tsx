@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { StartPage } from './StartPage';
-import { UserService } from '../services/userService';
 import { UserContext } from '../contexts/userContext';
-import { StorageService } from '../services/storageService';
 import { Header } from '../components/Header/Header';
 import { SchedulePage } from './SchedulePage';
 import './App.less';
@@ -16,6 +13,7 @@ export const App = () => {
   return (
     <UserContext.Provider
       value={{
+        fullName: user.fullName,
         username: user.username,
         group: user.groupName,
         refreshUserData: refreshUser,
