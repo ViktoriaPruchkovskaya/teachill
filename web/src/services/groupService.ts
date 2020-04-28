@@ -45,9 +45,10 @@ export class GroupService {
     await this.groupClient.assignUserToGroup(groupId, userId);
   }
 
-  public async getCurrentGroup(): Promise<void> {
+  public async getCurrentGroup(): Promise<Group> {
     const group = await this.groupClient.getCurrentGroup();
     this.storageService.setUserGroup(group);
+    return group;
   }
 
   private async getLessons(): Promise<Lesson[]> {
