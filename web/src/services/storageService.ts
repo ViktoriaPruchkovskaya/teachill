@@ -21,7 +21,7 @@ export class StorageService {
     localStorage.setItem(this.groupKey, JSON.stringify(group));
   }
 
-  public tokenAvailability(): boolean {
+  public isTokenInStorage(): boolean {
     return localStorage.hasOwnProperty(this.tokenKey);
   }
 }

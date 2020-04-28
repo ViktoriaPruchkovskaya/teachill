@@ -35,7 +35,7 @@ export function useUserData(): [UserData, () => Promise<void>] {
   useEffect(() => {
     (async function() {
       const storageService = new StorageService();
-      const tokenAvailable = storageService.tokenAvailability();
+      const tokenAvailable = storageService.isTokenInStorage();
       if (tokenAvailable) {
         await refreshUser();
       }
