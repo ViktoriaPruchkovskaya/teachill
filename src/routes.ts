@@ -1,5 +1,5 @@
-import Router = require('koa-router');
-import { Context } from 'koa';
+import * as Router from 'koa-router';
+import * as koamulter from '@koa/multer';
 import * as usersControllers from './controllers/users';
 import * as groupsControllers from './controllers/groups';
 import * as teachersControllers from './controllers/teachers';
@@ -8,9 +8,13 @@ import * as lessonsControllers from './controllers/lessons';
 import { authMiddleware } from './middlewares/authentication';
 import { shouldHaveRole } from './middlewares/permissions';
 import { RoleType } from './services/users';
+import { fileUploadHandler } from './controllers/upload';
+import { Context } from 'koa';
 import { State } from './state';
 
 const router = new Router<State, Context>();
+
+const upload = koamulter();
 const shouldHaveAdminRole = shouldHaveRole([RoleType.Administrator]);
 
 router.get('/', authMiddleware, shouldHaveAdminRole, usersControllers.getUsers);
@@ -93,4 +97,5 @@ router.patch(
   shouldHaveAdminRole,
   attachmentsControllers.editAttachment
 );
+router.post('/upload', upload.single('file'), fileUploadHandler);
 export { router };
