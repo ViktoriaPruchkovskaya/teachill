@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as bodyParser from 'koa-bodyparser';
 import * as koastatic from 'koa-static';
 import * as mount from 'koa-mount';
+import * as logger from 'koa-logger';
 import { DatabaseConnection, DatabaseConfiguration } from './db/connection';
 import { router } from './routes';
 import { errorHandler } from './middlewares/errorHandler';
@@ -22,8 +23,9 @@ const dbConfig: DatabaseConfiguration = {
 
 DatabaseConnection.initConnection(dbConfig);
 
+app.use(logger());
 app.use(bodyParser());
 app.use(errorHandler);
 app.use(mount('/uploads', koastatic(LocalFileUploadService.DEFAULT_UPLOAD_PATH)));
 app.use(router.prefix('/api').routes());
-app.listen(3000, () => console.log('Server started'));
+app.listen(3000, () => console.log('[INFO] Server is ready to accept connections.'));
