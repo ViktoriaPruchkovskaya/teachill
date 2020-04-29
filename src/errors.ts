@@ -53,3 +53,12 @@ export class GroupMismatchError extends Error {
     Object.setPrototypeOf(this, GroupMismatchError.prototype);
   }
 }
+
+export class InternalServerError extends Error {
+  constructor() {
+    super();
+    this.message =
+      'Internal server error happened. If problem persists, please contact administrators.';
+    Object.setPrototypeOf(this, InternalServerError.prototype);
+  }
+}

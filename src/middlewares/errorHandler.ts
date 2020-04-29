@@ -1,5 +1,6 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
+import { InternalServerError } from '../errors';
 
 const errorToHttpMapping = {
   NotFoundError: httpCodes.NOT_FOUND,
@@ -15,7 +16,7 @@ export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next
   try {
     await next();
   } catch (err) {
-    const errorCode = errorToHttpMapping[err.constructor.name] | httpCodes.INTERNAL_SERVER_ERROR;
+    const errorCode = errorToHttpMapping[err.constructor.name] || httpCodes.INTERNAL_SERVER_ERROR;
     ctx.response.status = errorCode;
     if (errorCode == httpCodes.INTERNAL_SERVER_ERROR) {
       // eslint-disable-next-line no-console
@@ -23,8 +24,7 @@ export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next
       // eslint-disable-next-line no-console
       console.error(err);
       ctx.body = {
-        message:
-          'Internal server error happened. If problem persists, please contact administrators.',
+        errors: [new InternalServerError()],
       };
       return;
     }
