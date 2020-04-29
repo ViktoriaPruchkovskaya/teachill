@@ -24,4 +24,8 @@ export class StorageService {
   public isTokenInStorage(): boolean {
     return localStorage.hasOwnProperty(this.tokenKey);
   }
+
+  public clearStorage(): void {
+    localStorage.clear();
+  }
 }

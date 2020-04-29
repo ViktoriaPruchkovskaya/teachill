@@ -160,7 +160,7 @@ export class SignupService {
     const userId = await userRepository.createUser(
       userInfo.username,
       passwordHash,
-      userInfo.password
+      userInfo.fullName
     );
     await this.createUserRole(userId, RoleType[RoleType[userInfo.role]]);
     return userId;

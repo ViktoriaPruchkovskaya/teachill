@@ -3,7 +3,7 @@ import { useContext, useState } from 'react';
 import { UserContext } from '../../contexts/userContext';
 import { PageHeader } from 'antd';
 import { UserInfo } from './UserInfo';
-import { MenuDrawer } from './MenuDrawer';
+import { MenuDrawer } from '../MenuDrawer/MenuDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageButton } from '../Buttons/LanguageButton';
 import './Header.less';

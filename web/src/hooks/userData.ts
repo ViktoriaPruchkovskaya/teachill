@@ -14,6 +14,13 @@ export function useUserData(): [UserData, () => Promise<void>] {
   const [user, setUser] = useState<UserData>({});
 
   async function refreshUser(): Promise<void> {
+    const storageService = new StorageService();
+    const tokenAvailable = storageService.isTokenInStorage();
+    if (!tokenAvailable) {
+      setUser({});
+      return;
+    }
+
     try {
       const userService = new UserService();
       const groupService = new GroupService();
