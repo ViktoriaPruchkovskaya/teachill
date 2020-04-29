@@ -3,5 +3,15 @@
     "settings": "Settings",
     "info": "Info",
     "log out": "Log Out"
+  },
+  "settings": {
+    "update schedule": "Update Schedule",
+    "manage users": "Manage Users",
+    "users permissions": "Users Permissions",
+    "language": "Language"
+  },
+  "forms": {
+    "language": "Change language",
+    "language text": "Current language"
   }
 }
