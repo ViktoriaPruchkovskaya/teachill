@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Button, Form, message } from 'antd';
 import { SignupForm } from './SignupForm';
 import { AuthService } from '../../services/authService';
 import { History } from 'history';
+import { UserContext } from '../../contexts/userContext';
 
 export interface SignupData {
   fullName: string;
@@ -19,6 +20,7 @@ interface SignupProps {
 
 export const Signup: React.FC<SignupProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
+  const userContext = useContext(UserContext);
   const [form] = Form.useForm();
 
   const toggleModal = (): void => {
@@ -30,6 +32,7 @@ export const Signup: React.FC<SignupProps> = ({ history }) => {
       const authService = new AuthService();
       await authService.signupAdmin(values);
 
+      await userContext.refreshUserData();
       history.push('/schedule');
     } catch (error) {
       message.error(error.message);

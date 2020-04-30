@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Drawer } from 'antd';
 import { UserContextProps as UserContextModel } from '../../contexts/userContext';
 import { Settings } from './Settings/Settings';
+import Logout from './Logout/Logout';
 import './MenuDrawer.less';
 
 interface MenuDrawerProps {
@@ -32,7 +33,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibi
       <div className='drawer-options'>
         <Settings />
         <p>{t('drawer.info')}</p>
-        <p>{t('drawer.log out')}</p>
+        <Logout onCancel={onClick} />
       </div>
     </Drawer>
   );
