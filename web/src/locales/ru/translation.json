@@ -3,5 +3,15 @@
     "settings": "Настройки",
     "info": "Информация",
     "log out": "Выйти"
+  },
+  "settings": {
+    "update schedule": "Обновить Расписание",
+    "manage users": "Управление Пользователями",
+    "users permissions": "Полномочия Пользователей",
+    "language": "Язык"
+  },
+  "forms": {
+    "language": "Сменить язык",
+    "language text": "Текущий язык"
   }
 }
