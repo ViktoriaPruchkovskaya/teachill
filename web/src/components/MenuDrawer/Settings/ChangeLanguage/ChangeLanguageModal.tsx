@@ -1,11 +1,10 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Modal, Select } from 'antd';
-import { TFunction } from 'i18next';
 import './ChangeLanguage.less';
 
 interface ChangeLanguageModalProps {
   visible: boolean;
-  t: TFunction;
   languageList: {};
   currentLanguage: string;
   handleChange(language: string): void;
@@ -15,13 +14,13 @@ interface ChangeLanguageModalProps {
 
 export const ChangeLanguageModal: React.FC<ChangeLanguageModalProps> = ({
   visible,
-  t,
   languageList,
   currentLanguage,
   handleChange,
   onSubmit,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const { Option } = Select;
 
   const options = Object.entries(languageList).map((language, index) => (

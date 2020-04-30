@@ -13,7 +13,7 @@ export const Settings: React.FC = () => {
         <p>{t('settings.update schedule')}</p>
         <p>{t('settings.manage users')}</p>
         <p>{t('settings.users permissions')}</p>
-        <ChangeLanguage t={t} />
+        <ChangeLanguage />
       </Panel>
     </Collapse>
   );

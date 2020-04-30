@@ -11,6 +11,8 @@ interface MenuDrawerProps {
   visibility: boolean;
 }
 
+const DRAWER_WIDTH = 270;
+
 export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibility }) => {
   const { t } = useTranslation();
   return (
@@ -25,7 +27,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibi
       closable={false}
       onClose={onClick}
       visible={visibility}
-      width={270}
+      width={DRAWER_WIDTH}
     >
       <div className='drawer-options'>
         <Settings />
