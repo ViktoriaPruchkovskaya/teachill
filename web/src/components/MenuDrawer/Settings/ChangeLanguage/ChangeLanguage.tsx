@@ -1,0 +1,38 @@
+import * as React from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ChangeLanguageModal } from './ChangeLanguageModal';
+
+const languageList = {
+  en: 'English',
+  ru: 'Russian',
+};
+
+export const ChangeLanguage: React.FC = () => {
+  const [visibility, setVisibility] = useState<boolean>(false);
+  const { i18n, t } = useTranslation();
+
+  const toggleModal = (): void => {
+    setVisibility(!visibility);
+  };
+
+  async function handleChange(language: string) {
+    await i18n.changeLanguage(language);
+  }
+
+  const currentLanguage: keyof typeof languageList = i18n.language;
+
+  return (
+    <>
+      <p onClick={toggleModal}>{t('settings.language')}</p>
+      <ChangeLanguageModal
+        visible={visibility}
+        languageList={languageList}
+        currentLanguage={currentLanguage}
+        handleChange={handleChange}
+        onSubmit={toggleModal}
+        onCancel={toggleModal}
+      />
+    </>
+  );
+};
