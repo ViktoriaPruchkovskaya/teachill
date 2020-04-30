@@ -28,7 +28,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibi
     >
       <p>{t('drawer.settings')}</p>
       <p>{t('drawer.info')}</p>
-      <Logout t={t} onCancel={onClick} />
+      <Logout onCancel={onClick} />
     </Drawer>
   );
 };

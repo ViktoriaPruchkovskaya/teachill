@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { TFunction } from 'i18next';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { UserContext } from '../../../contexts/userContext';
 import { StorageService } from '../../../services/storageService';
 
 interface LogoutProps extends RouteComponentProps {
-  t: TFunction;
   onCancel(): void;
 }
 
-const Logout: React.FC<LogoutProps> = ({ t, onCancel, history }) => {
+const Logout: React.FC<LogoutProps> = ({ onCancel, history }) => {
   const userContext = useContext(UserContext);
+  const { t } = useTranslation();
 
   const handleLogout = async (): Promise<void> => {
     const storageService = new StorageService();
