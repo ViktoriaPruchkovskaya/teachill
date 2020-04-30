@@ -7,11 +7,16 @@
   "settings": {
     "update schedule": "Update Schedule",
     "manage users": "Manage Users",
-    "users permissions": "Users Permissions",
+    "account": "Account",
     "language": "Language"
   },
   "forms": {
     "language": "Change language",
-    "language text": "Current language"
+    "language text": "Current language",
+    "add user": "Create an user account",
+    "cancel": "Cancel"
+  },
+  "manage page":{
+    "add user button": "Add User"
   }
 }

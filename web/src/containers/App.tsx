@@ -4,8 +4,9 @@ import { StartPage } from './StartPage';
 import { UserContext } from '../contexts/userContext';
 import { Header } from '../components/Header/Header';
 import { SchedulePage } from './SchedulePage';
-import './App.less';
+import { ManagePage } from './ManagePage';
 import { useUserData } from '../hooks/userData';
+import './App.less';
 
 export const App = () => {
   const [user, refreshUser] = useUserData();
@@ -24,6 +25,7 @@ export const App = () => {
           <Header />
           <Route path='/' exact component={StartPage} />
           <Route path='/schedule' component={SchedulePage} />
+          <Route path='/manage-users' component={ManagePage} />
         </div>
       </Router>
     </UserContext.Provider>

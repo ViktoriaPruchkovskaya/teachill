@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { SignupData } from './Signup';
+import { SignupData } from './SignupAdmin';
 
-interface SignupProps {
+interface SignupAdminProps {
   form: FormInstance;
   visible: boolean;
   onSubmit(values: SignupData): Promise<void>;
   onCancel(event: React.MouseEvent): void;
 }
 
-export const SignupForm: React.FC<SignupProps> = ({ form, visible, onSubmit, onCancel }) => {
+export const SignupAdminForm: React.FC<SignupAdminProps> = ({
+  form,
+  visible,
+  onSubmit,
+  onCancel,
+}) => {
   return (
     <Modal
       visible={visible}
