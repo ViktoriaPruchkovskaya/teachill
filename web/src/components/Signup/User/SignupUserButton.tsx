@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Button, Form, message } from 'antd';
 import { AuthService } from '../../../services/authService';
-import { SignupUserForm } from './SignupUserForm';
+import { SignupUserModal } from './SignupUserModal';
 import { useTranslation } from 'react-i18next';
 
 export interface SignupData {
@@ -13,11 +13,11 @@ export interface SignupData {
   name: string;
 }
 
-interface SignupUserProps {
+interface SignupUserButtonProps {
   refreshMembers(): Promise<void>;
 }
 
-export const SignupUser: React.FC<SignupUserProps> = ({ refreshMembers }) => {
+export const SignupUserButton: React.FC<SignupUserButtonProps> = ({ refreshMembers }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -43,7 +43,7 @@ export const SignupUser: React.FC<SignupUserProps> = ({ refreshMembers }) => {
       <Button block size='large' onClick={toggleModal}>
         {t('manage page.add user button')}
       </Button>
-      <SignupUserForm
+      <SignupUserModal
         form={form}
         visible={visibility}
         onSubmit={handleSubmit}

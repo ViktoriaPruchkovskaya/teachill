@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
-import { SignupData } from './SignupUser';
+import { SignupData } from './SignupUserButton';
 import { FormInstance } from 'antd/lib/form';
 import { useTranslation } from 'react-i18next';
 
-interface SignupUserProps {
+interface SignupUserModalProps {
   form: FormInstance;
   visible: boolean;
   onSubmit(values: SignupData): Promise<void>;
   onCancel(event: React.MouseEvent): void;
 }
-export const SignupUserForm: React.FC<SignupUserProps> = ({
+export const SignupUserModal: React.FC<SignupUserModalProps> = ({
   form,
   visible,
   onSubmit,

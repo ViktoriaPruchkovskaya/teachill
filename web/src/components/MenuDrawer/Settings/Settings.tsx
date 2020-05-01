@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Collapse } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ChangeLanguage } from './ChangeLanguage/ChangeLanguage';
-import ManageUsers from './ManageUsers';
+import ManageUsers from './ManageUsersButton';
 
 interface SettingsProps {
   onCancel(): void;
