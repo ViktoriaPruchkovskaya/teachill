@@ -7,11 +7,16 @@
   "settings": {
     "update schedule": "Обновить Расписание",
     "manage users": "Управление Пользователями",
-    "users permissions": "Полномочия Пользователей",
+    "account": "Аккаунт",
     "language": "Язык"
   },
   "forms": {
     "language": "Сменить язык",
-    "language text": "Текущий язык"
+    "language text": "Текущий язык",
+    "add user": "Создать учетную запись пользователя",
+    "cancel": "Закрыть"
+  },
+  "manage page":{
+    "add user button": "Добавить пользователя"
   }
 }

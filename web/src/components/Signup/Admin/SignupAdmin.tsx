@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useState, useContext } from 'react';
 import { Button, Form, message } from 'antd';
-import { SignupForm } from './SignupForm';
-import { AuthService } from '../../services/authService';
+import { SignupAdminForm } from './SignupAdminForm';
+import { AuthService } from '../../../services/authService';
 import { History } from 'history';
-import { UserContext } from '../../contexts/userContext';
+import { UserContext } from '../../../contexts/userContext';
 
 export interface SignupData {
   fullName: string;
@@ -14,11 +14,11 @@ export interface SignupData {
   name: string;
 }
 
-interface SignupProps {
+interface SignupAdminProps {
   history: History;
 }
 
-export const Signup: React.FC<SignupProps> = ({ history }) => {
+export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const userContext = useContext(UserContext);
   const [form] = Form.useForm();
@@ -43,7 +43,12 @@ export const Signup: React.FC<SignupProps> = ({ history }) => {
       <Button block type='primary' size='large' onClick={toggleModal}>
         Create an account
       </Button>
-      <SignupForm form={form} visible={visibility} onSubmit={handleSubmit} onCancel={toggleModal} />
+      <SignupAdminForm
+        form={form}
+        visible={visibility}
+        onSubmit={handleSubmit}
+        onCancel={toggleModal}
+      />
     </div>
   );
 };

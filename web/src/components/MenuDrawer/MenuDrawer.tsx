@@ -31,7 +31,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibi
       width={DRAWER_WIDTH}
     >
       <div className='drawer-options'>
-        <Settings />
+        <Settings onCancel={onClick} />
         <p>{t('drawer.info')}</p>
         <Logout onCancel={onClick} />
       </div>

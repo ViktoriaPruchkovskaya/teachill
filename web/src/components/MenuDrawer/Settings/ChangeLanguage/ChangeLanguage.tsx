@@ -20,7 +20,7 @@ export const ChangeLanguage: React.FC = () => {
     await i18n.changeLanguage(language);
   }
 
-  const currentLanguage: keyof typeof languageList = i18n.language;
+  const currentLanguage = i18n.language;
 
   return (
     <>

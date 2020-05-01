@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Signup } from '../components/Signup/Signup';
+import { SignupAdmin } from '../components/Signup/Admin/SignupAdmin';
 import { Signin } from '../components/Signin/Signin';
 import './StartPage.less';
 
@@ -24,7 +24,7 @@ export const StartPage: React.FC<RouteComponentProps> = ({ history }) => {
           </p>
         </div>
         <div className='auth-select-container'>
-          <Signup history={history} />
+          <SignupAdmin history={history} />
           <Signin history={history} />
         </div>
       </div>

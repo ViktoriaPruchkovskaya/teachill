@@ -1,5 +1,6 @@
 import { BaseTeachillAuthClient } from './baseClient';
 import { handleError } from '../handleError';
+import { User } from '../services/userService';
 
 interface GroupPayload {
   name: string;
@@ -83,6 +84,24 @@ export class GroupClient extends BaseTeachillAuthClient {
       description: lesson.description,
       teacher: lesson.teacher,
       subgroup: lesson.subgroup,
+    }));
+  }
+
+  public async getMembers(groupId: number): Promise<User[]> {
+    const response = await fetch(`/api/groups/${groupId}/users/`, {
+      method: 'GET',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+    });
+
+    const users: User[] = await response.json();
+    return users.map(user => ({
+      id: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      role: user.role,
     }));
   }
 }

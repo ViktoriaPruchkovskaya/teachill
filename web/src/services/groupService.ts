@@ -1,6 +1,7 @@
 import { GroupClient } from '../clients/groupClient';
 import { StorageService } from './storageService';
 import { organizeLessons } from '../utils/lessons';
+import { User } from './userService';
 
 interface GroupPayload {
   name: string;
@@ -76,5 +77,16 @@ export class GroupService {
     const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
     return organizeLessons(lessons);
+  }
+
+  public async getMembers(): Promise<User[]> {
+    const group = this.storageService.getUserGroup();
+    const users = await this.groupClient.getMembers(group.id);
+    return users.map(user => ({
+      id: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      role: user.role,
+    }));
   }
 }
