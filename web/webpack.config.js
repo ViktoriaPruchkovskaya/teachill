@@ -1,40 +1,32 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const path = require('path');
 
 module.exports = {
   entry: './src/index.tsx',
   mode: 'development',
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: 'bundle.js',
   },
-
   resolve: {
     extensions: ['.json', '.ts', '.tsx', '.js'],
   },
-
   module: {
     rules: [
       {
         test: /\.ts(x?)$/,
-        exclude: /node_modules/,
+        include: path.resolve(__dirname, 'src'),
         use: [
           {
             loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+            },
           },
         ],
-      },
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-      {
-        enforce: 'pre',
-        test: /\.js$/,
-        loader: 'source-map-loader',
-      },
-      {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
@@ -68,8 +60,14 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'static/index.html',
     }),
+    new ForkTsCheckerWebpackPlugin(),
   ],
-
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+    concatenateModules: true,
+  },
   devServer: {
     contentBase: path.join(__dirname, './dist'),
     compress: true,
