@@ -21,6 +21,7 @@
   },
   "manage page":{
     "add user button": "Add User",
-    "delete": "Delete user"
+    "delete": "Delete user",
+    "change role": "Change role"
   }
 }

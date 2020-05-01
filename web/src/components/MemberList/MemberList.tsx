@@ -1,8 +1,8 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { List } from 'antd';
 import { User } from '../../services/userService';
 import { MemberListItem } from './MemberListItem';
-import { useState } from 'react';
 import { ListItemMenu } from './ListItemMenu/ListItemMenu';
 
 interface MemberListProps {

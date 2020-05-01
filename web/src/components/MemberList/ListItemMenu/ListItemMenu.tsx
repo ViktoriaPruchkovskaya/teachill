@@ -1,8 +1,13 @@
 import * as React from 'react';
-import { Dropdown, Menu } from 'antd';
+import { useContext } from 'react';
+import { Dropdown, Menu, message } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { ListItemMenuButton } from './ListItemMenuButton';
 import { DeleteUserButton } from './DeleteUserButton';
-import { User } from '../../../services/userService';
+import { User, UserService } from '../../../services/userService';
+import { RoleType } from '../../../services/authService';
+import { ChangeRoleButton } from './ChangeRoleButton';
+import { MembersContext } from '../../../contexts/membersContext';
 
 interface ListItemMenuProps {
   onClick(event: React.MouseEvent<HTMLSpanElement, MouseEvent>): void;
@@ -10,11 +15,35 @@ interface ListItemMenuProps {
 }
 
 export const ListItemMenu: React.FC<ListItemMenuProps> = ({ onClick, member }) => {
+  const { t } = useTranslation();
+  const membersContext = useContext(MembersContext);
+  const { SubMenu } = Menu;
+
+  const changeRoleHandler = async (role: string | RoleType): Promise<void> => {
+    try {
+      const userService = new UserService();
+      await userService.changeRole({ userId: member.id, roleId: RoleType[role] });
+
+      await membersContext.refreshMembers();
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+
+  const roleList = Object.values(RoleType)
+    .filter(role => typeof role === 'string' && RoleType[role] !== member.role)
+    .map((role, index) => (
+      <Menu.Item key={index}>
+        <ChangeRoleButton role={role} onClick={() => changeRoleHandler(role)} />
+      </Menu.Item>
+    ));
+
   const menu = (
     <Menu>
-      <Menu.Item key='0'>
+      <Menu.Item>
         <DeleteUserButton member={member} />
       </Menu.Item>
+      <SubMenu title={t('manage page.change role')}>{roleList}</SubMenu>
     </Menu>
   );
 
