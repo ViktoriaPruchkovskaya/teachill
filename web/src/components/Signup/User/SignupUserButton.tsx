@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Button, Form, message } from 'antd';
 import { AuthService } from '../../../services/authService';
 import { SignupUserModal } from './SignupUserModal';
 import { useTranslation } from 'react-i18next';
+import { MembersContext } from '../../../contexts/membersContext';
 
 export interface SignupData {
   fullName: string;
@@ -13,13 +14,10 @@ export interface SignupData {
   name: string;
 }
 
-interface SignupUserButtonProps {
-  refreshMembers(): Promise<void>;
-}
-
-export const SignupUserButton: React.FC<SignupUserButtonProps> = ({ refreshMembers }) => {
+export const SignupUserButton: React.FC = () => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const { t } = useTranslation();
+  const membersContext = useContext(MembersContext);
   const [form] = Form.useForm();
 
   const toggleModal = (): void => {
@@ -33,7 +31,7 @@ export const SignupUserButton: React.FC<SignupUserButtonProps> = ({ refreshMembe
 
       toggleModal();
       form.resetFields();
-      await refreshMembers();
+      await membersContext.refreshMembers();
     } catch (error) {
       message.error(error.message);
     }

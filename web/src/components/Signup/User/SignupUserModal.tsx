@@ -27,13 +27,13 @@ export const SignupUserModal: React.FC<SignupUserModalProps> = ({
     >
       <Form form={form}>
         <Form.Item name='fullName'>
-          <Input placeholder='Full Name' />
+          <Input placeholder={t('forms.fullName')} />
         </Form.Item>
         <Form.Item name='username'>
-          <Input placeholder='Username' />
+          <Input placeholder={t('forms.username')} />
         </Form.Item>
         <Form.Item name='password'>
-          <Input.Password placeholder='Password' />
+          <Input.Password placeholder={t('forms.password')} />
         </Form.Item>
       </Form>
     </Modal>

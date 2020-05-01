@@ -1,4 +1,5 @@
 import { BaseTeachillAuthClient } from './baseClient';
+import { handleError } from '../handleError';
 
 interface User {
   id: number;
@@ -23,5 +24,18 @@ export class UserClient extends BaseTeachillAuthClient {
       fullName: user.fullName as string,
       role: user.role as number,
     };
+  }
+
+  public async deleteUser(userId: number): Promise<void> {
+    const response = await fetch(`/api/users/${userId}/`, {
+      method: 'DELETE',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+    });
+    if (!response.ok) {
+      await handleError(response, 'Deleting Error');
+    }
   }
 }

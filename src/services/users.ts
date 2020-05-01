@@ -136,7 +136,7 @@ export class UserService {
   private async getGroupIfCommon(userIdA: number, userIdB: number): Promise<Group> {
     const membershipA = await getMembershipById(userIdA);
     const membershipB = await getMembershipById(userIdB);
-    if (!membershipA || membershipA !== membershipB) {
+    if (!membershipA || membershipA.id !== membershipB.id) {
       throw new errorTypes.GroupMismatchError('Groups do not match');
     }
     return membershipA;

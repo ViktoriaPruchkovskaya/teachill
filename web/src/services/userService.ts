@@ -17,6 +17,7 @@ export class UserService {
     const token = this.storageService.getToken();
     this.userClient = new UserClient(token);
   }
+
   public async getCurrentUser(): Promise<User> {
     const user = await this.userClient.getCurrentUser();
     return {
@@ -25,5 +26,9 @@ export class UserService {
       fullName: user.fullName as string,
       role: user.role as number,
     };
+  }
+
+  public async deleteUser(user: User): Promise<void> {
+    return this.userClient.deleteUser(user.id);
   }
 }

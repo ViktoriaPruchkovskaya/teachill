@@ -14,9 +14,13 @@
     "language": "Change language",
     "language text": "Current language",
     "add user": "Create an user account",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "fullName": "Full Name",
+    "username": "Username",
+    "password": "Password"
   },
   "manage page":{
-    "add user button": "Add User"
+    "add user button": "Add User",
+    "delete": "Delete user"
   }
 }

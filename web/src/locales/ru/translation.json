@@ -14,9 +14,13 @@
     "language": "Сменить язык",
     "language text": "Текущий язык",
     "add user": "Создать учетную запись пользователя",
-    "cancel": "Закрыть"
+    "cancel": "Закрыть",
+    "fullName": "ФИО",
+    "username": "Логин",
+    "password": "Пароль"
   },
   "manage page":{
-    "add user button": "Добавить пользователя"
+    "add user button": "Добавить пользователя",
+    "delete": "Удалить пользователя"
   }
 }
