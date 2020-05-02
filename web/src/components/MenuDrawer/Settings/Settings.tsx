@@ -3,6 +3,7 @@ import { Collapse } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ChangeLanguage } from './ChangeLanguage/ChangeLanguage';
 import ManageUsers from './ManageUsersButton';
+import { AccountButton } from './Account/AccountButton';
 
 interface SettingsProps {
   onCancel(): void;
@@ -17,7 +18,7 @@ export const Settings: React.FC<SettingsProps> = ({ onCancel }) => {
       <Panel header={t('drawer.settings')} key='1' className='drawer-settings'>
         <p>{t('settings.update schedule')}</p>
         <ManageUsers onCancel={onCancel} />
-        <p>{t('settings.account')}</p>
+        <AccountButton />
         <ChangeLanguage />
       </Panel>
     </Collapse>
