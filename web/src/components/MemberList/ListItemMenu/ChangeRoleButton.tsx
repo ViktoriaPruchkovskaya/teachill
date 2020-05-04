@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { RoleType } from '../../../services/authService';
 
 interface ChangeRoleButtonProps {
-  role: string | RoleType;
+  role: string;
   onClick(event: React.MouseEvent<HTMLSpanElement, MouseEvent>): void;
 }
 

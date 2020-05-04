@@ -22,7 +22,7 @@ const Logout: React.FC<LogoutProps> = ({ onCancel, history }) => {
     history.push('/');
   };
 
-  return <p onClick={handleLogout}>{t('drawer.log out')}</p>;
+  return <p onClick={handleLogout}>{t('drawer.log_out')}</p>;
 };
 
 export default withRouter(Logout);

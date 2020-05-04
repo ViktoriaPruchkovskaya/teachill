@@ -39,7 +39,7 @@ export const SignupUserButton: React.FC = () => {
   return (
     <div>
       <Button block size='large' onClick={toggleModal}>
-        {t('manage page.add user button')}
+        {t('manage_page.add_user_button')}
       </Button>
       <SignupUserModal
         form={form}

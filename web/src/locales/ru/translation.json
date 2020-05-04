@@ -2,26 +2,26 @@
   "drawer": {
     "settings": "Настройки",
     "info": "Информация",
-    "log out": "Выйти"
+    "log_out": "Выйти"
   },
   "settings": {
-    "update schedule": "Обновить Расписание",
-    "manage users": "Управление Пользователями",
+    "update_schedule": "Обновить Расписание",
+    "manage_users": "Управление Пользователями",
     "account": "Аккаунт",
     "language": "Язык"
   },
   "forms": {
     "language": "Сменить язык",
-    "language text": "Текущий язык",
-    "add user": "Создать учетную запись пользователя",
+    "language_text": "Текущий язык",
+    "add_user": "Создать учетную запись пользователя",
     "cancel": "Закрыть",
     "fullName": "ФИО",
     "username": "Логин",
     "password": "Пароль"
   },
-  "manage page":{
-    "add user button": "Добавить пользователя",
+  "manage_page": {
+    "add_user_button": "Добавить пользователя",
     "delete": "Удалить пользователя",
-    "change role": "Изменить роль"
+    "change_role": "Изменить роль"
   }
 }

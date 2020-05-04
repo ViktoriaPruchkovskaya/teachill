@@ -19,7 +19,7 @@ export const ListItemMenu: React.FC<ListItemMenuProps> = ({ onClick, member }) =
   const membersContext = useContext(MembersContext);
   const { SubMenu } = Menu;
 
-  const changeRoleHandler = async (role: string | RoleType): Promise<void> => {
+  const changeRoleHandler = async (role: keyof typeof RoleType): Promise<void> => {
     try {
       const userService = new UserService();
       await userService.changeRole({ userId: member.id, roleId: RoleType[role] });
@@ -31,7 +31,10 @@ export const ListItemMenu: React.FC<ListItemMenuProps> = ({ onClick, member }) =
   };
 
   const roleList = Object.values(RoleType)
-    .filter(role => typeof role === 'string' && RoleType[role] !== member.role)
+    .filter(
+      (role): role is keyof typeof RoleType =>
+        typeof role === 'string' && RoleType[role as keyof typeof RoleType] !== member.role
+    )
     .map((role, index) => (
       <Menu.Item key={index}>
         <ChangeRoleButton role={role} onClick={() => changeRoleHandler(role)} />
@@ -43,7 +46,7 @@ export const ListItemMenu: React.FC<ListItemMenuProps> = ({ onClick, member }) =
       <Menu.Item>
         <DeleteUserButton member={member} />
       </Menu.Item>
-      <SubMenu title={t('manage page.change role')}>{roleList}</SubMenu>
+      <SubMenu title={t('manage_page.change_role')}>{roleList}</SubMenu>
     </Menu>
   );
 

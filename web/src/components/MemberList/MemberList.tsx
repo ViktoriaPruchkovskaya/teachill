@@ -17,8 +17,7 @@ export const MemberList: React.FC<MemberListProps> = ({ members }) => {
     role: null,
   });
 
-  const handleClick = (item: JSX.Element): void => {
-    const user = item.props.member;
+  const handleClick = (user: User): void => {
     setMember({ id: user.id, username: user.username, fullName: user.fullName, role: user.role });
   };
 
@@ -31,7 +30,7 @@ export const MemberList: React.FC<MemberListProps> = ({ members }) => {
       renderItem={item => (
         <List.Item>
           {item}
-          <ListItemMenu onClick={() => handleClick(item)} member={member} />
+          <ListItemMenu onClick={() => handleClick(item.props.member)} member={member} />
         </List.Item>
       )}
     />

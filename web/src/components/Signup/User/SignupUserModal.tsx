@@ -21,7 +21,7 @@ export const SignupUserModal: React.FC<SignupUserModalProps> = ({
   return (
     <Modal
       visible={visible}
-      title={t('forms.add user')}
+      title={t('forms.add_user')}
       onOk={() => onSubmit(form.getFieldsValue() as SignupData)}
       onCancel={onCancel}
     >
