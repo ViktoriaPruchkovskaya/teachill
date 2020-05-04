@@ -13,6 +13,10 @@ interface ChangePasswordPayload {
   newPassword: string;
 }
 
+interface ChangeFullNamePayload {
+  fullName: string;
+}
+
 export class UserClient extends BaseTeachillAuthClient {
   public async getCurrentUser(): Promise<User> {
     const response = await fetch('/api/users/me/', {
@@ -41,7 +45,21 @@ export class UserClient extends BaseTeachillAuthClient {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      await handleError(response, 'Changing Error');
+      await handleError(response, 'Change Error');
+    }
+  }
+
+  public async changeFullName(payload: ChangeFullNamePayload): Promise<void> {
+    const response = await fetch('/api//users/me/', {
+      method: 'PATCH',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      await handleError(response, 'Change Error');
     }
   }
 }

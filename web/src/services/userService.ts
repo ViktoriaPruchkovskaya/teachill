@@ -13,6 +13,10 @@ interface ChangePasswordPayload {
   newPassword: string;
 }
 
+interface ChangeFullNamePayload {
+  fullName: string;
+}
+
 export class UserService {
   private userClient: UserClient;
   private storageService: StorageService;
@@ -35,5 +39,9 @@ export class UserService {
 
   public async changePassword(payload: ChangePasswordPayload): Promise<void> {
     return this.userClient.changePassword(payload);
+  }
+
+  public async changeFullName(payload: ChangeFullNamePayload): Promise<void> {
+    return this.userClient.changeFullName(payload);
   }
 }
