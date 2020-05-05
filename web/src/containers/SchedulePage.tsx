@@ -1,27 +1,25 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
-import { useEffect, useState } from 'react';
-import { GroupService, Lesson } from '../services/groupService';
 import { EmptySchedule } from '../components/Schedule/EmptySchedule/EmptySchedule';
 import { FullSchedule } from '../components/Schedule/FullSchedule/FullSchedule';
 import { getCurrentWeekNumber } from '../utils/lessons';
+import { useScheduleData } from '../hooks/scheduleData';
+import { ScheduleContext } from '../contexts/scheduleContext';
 import './SchedulePage.less';
 
 export const SchedulePage = () => {
-  const [schedule, setSchedule] = useState<Lesson[][][]>([]);
   const [weekNumber, setWeekNumber] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [schedule, refreshSchedule] = useScheduleData();
 
   useEffect(() => {
     (async function() {
       try {
         setLoading(true);
 
-        const groupService = new GroupService();
-
-        const organizedLessons = await groupService.getSchedule();
-        setSchedule(organizedLessons);
+        const organizedLessons = await refreshSchedule();
 
         const currentWeek = getCurrentWeekNumber(organizedLessons);
         setWeekNumber(currentWeek);
@@ -56,12 +54,14 @@ export const SchedulePage = () => {
 
     if (schedule.length > 0) {
       return (
-        <FullSchedule
-          prevWeekSwitch={prevWeekSwitch}
-          nextWeekSwitch={nextWeekSwitch}
-          schedule={schedule}
-          weekNumber={weekNumber}
-        />
+        <ScheduleContext.Provider value={{ schedule: schedule, refreshSchedule: refreshSchedule }}>
+          <FullSchedule
+            prevWeekSwitch={prevWeekSwitch}
+            nextWeekSwitch={nextWeekSwitch}
+            schedule={schedule}
+            weekNumber={weekNumber}
+          />
+        </ScheduleContext.Provider>
       );
     }
   };

@@ -104,7 +104,7 @@ export class UserService {
     await userRepository.deleteById(userIdForDelete);
   }
 
-  public async updateUser(username: string, info: UpdateInformation) {
+  public async updateUser(username: string, info: UpdateInformation): Promise<void> {
     const dbUser = await userRepository.getUserByUsername(username);
     const user: User = {
       id: dbUser.id,

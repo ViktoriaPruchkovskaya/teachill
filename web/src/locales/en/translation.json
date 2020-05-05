@@ -14,9 +14,20 @@
     "language": "Change language",
     "language text": "Current language",
     "add user": "Create an user account",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "lesson": "Add a description"
   },
-  "manage page":{
+  "manage page": {
     "add user button": "Add User"
+  },
+  "week_days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
   }
 }

@@ -14,9 +14,20 @@
     "language": "Сменить язык",
     "language text": "Текущий язык",
     "add user": "Создать учетную запись пользователя",
-    "cancel": "Закрыть"
+    "cancel": "Закрыть",
+    "confirm": "Подтвердить",
+    "lesson": "Добавить описание"
   },
-  "manage page":{
+  "manage page": {
     "add user button": "Добавить пользователя"
+  },
+  "week_days": {
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье"
   }
 }

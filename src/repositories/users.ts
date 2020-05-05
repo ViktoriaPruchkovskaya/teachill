@@ -117,7 +117,7 @@ export async function changeRole(userId: number, roleType: number) {
   });
 }
 
-export async function updateUser(username: string, user: RawUser) {
+export async function updateUser(username: string, user: RawUser): Promise<void> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     UPDATE users

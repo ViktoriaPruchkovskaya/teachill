@@ -1,20 +1,43 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { Card } from 'antd';
+import { useContext, useState } from 'react';
+import { Card, Form } from 'antd';
 import { Lesson as LessonModel } from '../../../services/groupService';
 import { LessonModal } from '../../LessonModal/LessonModal';
 import { getTime, addDuration } from '../../../utils/date';
+import { LessonService } from '../../../services/LessonService';
+import { ScheduleContext } from '../../../contexts/scheduleContext';
 import './Lesson.less';
 
 interface LessonProps {
   lesson: LessonModel;
 }
 
+export interface UpdateLessonData {
+  id: number;
+  description: string;
+}
+
 export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
+  const scheduleContext = useContext(ScheduleContext);
+  const [form] = Form.useForm();
 
   const toggleModal = (): void => {
     setVisibility(!visibility);
+
+    if (visibility) {
+      form.resetFields();
+    }
+  };
+
+  const handleSubmit = (values: UpdateLessonData): void => {
+    (async function() {
+      values.id = lesson.id;
+      const lessonService = new LessonService();
+      await lessonService.updateLesson(values);
+      await scheduleContext.refreshSchedule();
+      toggleModal();
+    })();
   };
 
   return (
@@ -32,7 +55,13 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
           </div>
         </div>
       </Card>
-      <LessonModal visible={visibility} lesson={lesson} onCancel={toggleModal} />
+      <LessonModal
+        form={form}
+        visible={visibility}
+        lesson={lesson}
+        onCancel={toggleModal}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };
