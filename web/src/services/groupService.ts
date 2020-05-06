@@ -43,7 +43,7 @@ export class GroupService {
   }
 
   public async assignUserToGroup(groupId: number, userId: number): Promise<void> {
-    await this.groupClient.assignUserToGroup(groupId, userId);
+    return this.groupClient.assignUserToGroup(groupId, userId);
   }
 
   public async getCurrentGroup(): Promise<Group> {

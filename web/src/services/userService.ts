@@ -17,6 +17,11 @@ interface ChangeFullNamePayload {
   fullName: string;
 }
 
+interface ChangeRolePayload {
+  userId: number;
+  roleId: number;
+}
+
 export class UserService {
   private userClient: UserClient;
   private storageService: StorageService;
@@ -43,5 +48,13 @@ export class UserService {
 
   public async changeFullName(payload: ChangeFullNamePayload): Promise<void> {
     return this.userClient.changeFullName(payload);
+  }
+
+  public async deleteUser(user: User): Promise<void> {
+    return this.userClient.deleteUser(user.id);
+  }
+
+  public async changeRole(payload: ChangeRolePayload): Promise<void> {
+    return this.userClient.changeRole(payload);
   }
 }

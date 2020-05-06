@@ -17,6 +17,11 @@ interface ChangeFullNamePayload {
   fullName: string;
 }
 
+interface ChangeRolePayload {
+  userId: number;
+  roleId: number;
+}
+
 export class UserClient extends BaseTeachillAuthClient {
   public async getCurrentUser(): Promise<User> {
     const response = await fetch('/api/users/me/', {
@@ -33,6 +38,33 @@ export class UserClient extends BaseTeachillAuthClient {
       fullName: user.fullName as string,
       role: user.role as number,
     };
+  }
+
+  public async deleteUser(userId: number): Promise<void> {
+    const response = await fetch(`/api/users/${userId}/`, {
+      method: 'DELETE',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+    });
+    if (!response.ok) {
+      await handleError(response, 'Deleting Error');
+    }
+  }
+
+  public async changeRole(payload: ChangeRolePayload): Promise<void> {
+    const response = await fetch(`/api/users/${payload.userId}/changeRole`, {
+      method: 'PUT',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      await handleError(response, 'Changing Error');
+    }
   }
 
   public async changePassword(payload: ChangePasswordPayload): Promise<void> {

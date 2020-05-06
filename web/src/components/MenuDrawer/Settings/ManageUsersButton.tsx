@@ -14,7 +14,7 @@ const ManageUsersButton: React.FC<ManageUsersButtonProps> = ({ onCancel, history
     history.push('/manage-users');
   };
 
-  return <p onClick={handleClick}>{t('settings.manage users')}</p>;
+  return <p onClick={handleClick}>{t('settings.manage_users')}</p>;
 };
 
 export default withRouter(ManageUsersButton);
