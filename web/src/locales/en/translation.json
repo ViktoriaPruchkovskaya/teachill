@@ -13,9 +13,14 @@
   "forms": {
     "language": "Change language",
     "language_text": "Current language",
-    "add_user": "Create an user account",
-    "cancel": "Cancel",
+    "change_password": "Change password",
+    "change_full_name": "Change full name",
+    "account": "Account settings",
+    "current_password": "Current Password",
+    "new_password": "New Password",
     "full_name": "Full Name",
+    "confirm":"Confirm",
+    "add_user": "Create an user account",
     "username": "Username",
     "password": "Password"
   },

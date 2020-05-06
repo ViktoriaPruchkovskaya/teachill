@@ -8,7 +8,16 @@ export interface User {
   role: number;
 }
 
-interface ChangeRoleData {
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface ChangeFullNamePayload {
+  fullName: string;
+}
+
+interface ChangeRolePayload {
   userId: number;
   roleId: number;
 }
@@ -33,11 +42,19 @@ export class UserService {
     };
   }
 
+  public async changePassword(payload: ChangePasswordPayload): Promise<void> {
+    return this.userClient.changePassword(payload);
+  }
+
+  public async changeFullName(payload: ChangeFullNamePayload): Promise<void> {
+    return this.userClient.changeFullName(payload);
+  }
+
   public async deleteUser(user: User): Promise<void> {
     return this.userClient.deleteUser(user.id);
   }
 
-  public async changeRole(changeRoleInfo: ChangeRoleData): Promise<void> {
-    return this.userClient.changeRole(changeRoleInfo);
+  public async changeRole(payload: ChangeRolePayload): Promise<void> {
+    return this.userClient.changeRole(payload);
   }
 }

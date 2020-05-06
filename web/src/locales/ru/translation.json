@@ -13,9 +13,14 @@
   "forms": {
     "language": "Сменить язык",
     "language_text": "Текущий язык",
-    "add_user": "Создать учетную запись пользователя",
-    "cancel": "Закрыть",
+    "account": "Настройки аккаунта",
+    "change_password": "Сменить пароль",
+    "change_full_name": "Сменить ФИО",
+    "current_password": "Текущий Пароль",
+    "new_password": "Новый Пароль",
     "full_name": "ФИО",
+    "confirm":"Подтвердить",
+    "add_user": "Создать учетную запись пользователя",
     "username": "Логин",
     "password": "Пароль"
   },

@@ -8,7 +8,16 @@ interface User {
   role: number;
 }
 
-interface ChangeRoleData {
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface ChangeFullNamePayload {
+  fullName: string;
+}
+
+interface ChangeRolePayload {
   userId: number;
   roleId: number;
 }
@@ -44,7 +53,7 @@ export class UserClient extends BaseTeachillAuthClient {
     }
   }
 
-  public async changeRole(payload: ChangeRoleData): Promise<void> {
+  public async changeRole(payload: ChangeRolePayload): Promise<void> {
     const response = await fetch(`/api/users/${payload.userId}/changeRole`, {
       method: 'PUT',
       headers: {
@@ -55,6 +64,34 @@ export class UserClient extends BaseTeachillAuthClient {
     });
     if (!response.ok) {
       await handleError(response, 'Changing Error');
+    }
+  }
+
+  public async changePassword(payload: ChangePasswordPayload): Promise<void> {
+    const response = await fetch('/api/users/me/changePassword', {
+      method: 'PUT',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      await handleError(response, 'Change Error');
+    }
+  }
+
+  public async changeFullName(payload: ChangeFullNamePayload): Promise<void> {
+    const response = await fetch('/api//users/me/', {
+      method: 'PATCH',
+      headers: {
+        ...this.getCommonHeaders(),
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      await handleError(response, 'Change Error');
     }
   }
 }
