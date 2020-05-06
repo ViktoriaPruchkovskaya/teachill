@@ -43,7 +43,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ visible, onCancel })
       if (values.fullName === userContext.fullName || values.fullName.length === 0) {
         return;
       }
-      console.log(values);
+
       const userService = new UserService();
       await userService.changeFullName(values);
 
