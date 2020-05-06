@@ -23,5 +23,5 @@ export const DeleteUserButton: React.FC<DeleteUserButtonProps> = ({ member }) =>
     }
   };
 
-  return <p onClick={handleClick}> {t('manage page.delete')}</p>;
+  return <p onClick={handleClick}> {t('manage_page.delete')}</p>;
 };
