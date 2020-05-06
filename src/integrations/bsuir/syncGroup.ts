@@ -22,7 +22,9 @@ export class GroupSyncService {
     const groupSchedule = mapper.getSchedule(await client.getGroupSchedule(groupNumber));
 
     const teachers = new Set<string>();
-    groupSchedule.lessons.map(lesson => lesson.teacher.map(teacher => teachers.add(teacher.fio)));
+    groupSchedule.lessons.map(lesson =>
+      lesson.teacher.map(teacher => teachers.add(teacher.fullName))
+    );
     const teachersArray = Array.from(teachers);
 
     const dbTeachers = await this.createNonExistingTeachers(teachersArray);
@@ -41,7 +43,7 @@ export class GroupSyncService {
     dbTeachers: AppTeacher[],
     teacher: Teacher
   ): Promise<void> {
-    const lessonTeacher = dbTeachers.find(dbTeacher => dbTeacher.fullName === teacher.fio);
+    const lessonTeacher = dbTeachers.find(dbTeacher => dbTeacher.fullName === teacher.fullName);
     await this.lessonService.assignTeacherToLesson(createdLesson.id, lessonTeacher.id);
   }
 

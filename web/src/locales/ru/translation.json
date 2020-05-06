@@ -2,24 +2,34 @@
   "drawer": {
     "settings": "Настройки",
     "info": "Информация",
-    "log out": "Выйти"
+    "log_out": "Выйти"
   },
   "settings": {
-    "update schedule": "Обновить Расписание",
-    "manage users": "Управление Пользователями",
+    "update_schedule": "Обновить Расписание",
+    "manage_users": "Управление Пользователями",
     "account": "Аккаунт",
     "language": "Язык"
   },
   "forms": {
     "language": "Сменить язык",
-    "language text": "Текущий язык",
-    "add user": "Создать учетную запись пользователя",
-    "cancel": "Закрыть",
-    "confirm": "Подтвердить",
-    "lesson": "Добавить описание"
+    "language_text": "Текущий язык",
+    "account": "Настройки аккаунта",
+    "change_password": "Сменить пароль",
+    "change_full_name": "Сменить ФИО",
+    "current_password": "Текущий Пароль",
+    "new_password": "Новый Пароль",
+    "full_name": "ФИО",
+    "confirm":"Подтвердить",
+    "add_user": "Создать учетную запись пользователя",
+    "username": "Логин",
+    "password": "Пароль",
+    "lesson": "Добавить описание",
+    "upload": "Загрузить"
   },
-  "manage page": {
-    "add user button": "Добавить пользователя"
+  "manage_page": {
+    "add_user_button": "Добавить пользователя",
+    "delete": "Удалить пользователя",
+    "change_role": "Изменить роль"
   },
   "week_days": {
     "monday": "Понедельник",

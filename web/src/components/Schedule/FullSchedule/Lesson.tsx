@@ -55,13 +55,17 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
           </div>
         </div>
       </Card>
-      <LessonModal
-        form={form}
-        visible={visibility}
-        lesson={lesson}
-        onCancel={toggleModal}
-        onSubmit={handleSubmit}
-      />
+      {!visibility ? (
+        ''
+      ) : (
+        <LessonModal
+          form={form}
+          visible={visibility}
+          lesson={lesson}
+          onCancel={toggleModal}
+          onSubmit={handleSubmit}
+        />
+      )}
     </div>
   );
 };
