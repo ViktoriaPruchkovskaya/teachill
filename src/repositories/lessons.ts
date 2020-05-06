@@ -239,7 +239,9 @@ export async function updateLesson(lesson: LessonForUpdate): Promise<void> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(sql`
     UPDATE lessons
-    SET description = ${lesson.description}
+    SET description = ${lesson.description},
+        name = ${lesson.name},
+        location= ${lesson.location}
     WHERE id = ${lesson.id}
     `);
   });
