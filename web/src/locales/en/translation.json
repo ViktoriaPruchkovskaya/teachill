@@ -2,21 +2,26 @@
   "drawer": {
     "settings": "Settings",
     "info": "Info",
-    "log out": "Log Out"
+    "log_out": "Log Out"
   },
   "settings": {
-    "update schedule": "Update Schedule",
-    "manage users": "Manage Users",
+    "update_schedule": "Update Schedule",
+    "manage_users": "Manage Users",
     "account": "Account",
     "language": "Language"
   },
   "forms": {
     "language": "Change language",
-    "language text": "Current language",
-    "add user": "Create an user account",
-    "cancel": "Cancel"
+    "language_text": "Current language",
+    "add_user": "Create an user account",
+    "cancel": "Cancel",
+    "full_name": "Full Name",
+    "username": "Username",
+    "password": "Password"
   },
-  "manage page":{
-    "add user button": "Add User"
+  "manage_page": {
+    "add_user_button": "Add User",
+    "delete": "Delete user",
+    "change_role": "Change role"
   }
 }

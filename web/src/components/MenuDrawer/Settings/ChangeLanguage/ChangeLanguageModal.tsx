@@ -42,7 +42,7 @@ export const ChangeLanguageModal: React.FC<ChangeLanguageModalProps> = ({
       className='modal-container'
     >
       <div>
-        <span className='current-language-container'>{t('forms.language text')}:</span>
+        <span className='current-language-container'>{t('forms.language_text')}:</span>
         <Select
           defaultValue={currentLanguage}
           optionFilterProp='children'
