@@ -31,6 +31,11 @@
     "delete": "Delete user",
     "change_role": "Change role"
   },
+  "schedule_page": {
+    "subgroup_filter_button": "Subgroup",
+    "subgroup_order": "st subgroup",
+    "full_schedule": "Full schedule"
+  },
   "week_days": {
     "monday": "Monday",
     "tuesday": "Tuesday",

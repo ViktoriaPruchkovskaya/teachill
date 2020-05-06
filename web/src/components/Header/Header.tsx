@@ -8,22 +8,22 @@ import './Header.less';
 
 export const Header: React.FC = () => {
   const [visibility, setVisibility] = useState<boolean>(false);
-  const context = useContext(UserContext);
+  const userContext = useContext(UserContext);
 
   const toggleDrawer = (): void => {
     setVisibility(!visibility);
   };
 
-  const content = context.username ? (
+  const content = userContext.username ? (
     <div className='header-container'>
-      <UserInfo onClick={toggleDrawer} context={context} />
+      <UserInfo onClick={toggleDrawer} context={userContext} />
     </div>
   ) : null;
 
   return (
     <div className='header'>
       <PageHeader title='Teachill' extra={content} />
-      <MenuDrawer onClick={toggleDrawer} context={context} visibility={visibility} />
+      <MenuDrawer onClick={toggleDrawer} context={userContext} visibility={visibility} />
     </div>
   );
 };

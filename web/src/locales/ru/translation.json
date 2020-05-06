@@ -31,6 +31,11 @@
     "delete": "Удалить пользователя",
     "change_role": "Изменить роль"
   },
+  "schedule_page": {
+    "subgroup_filter_button": "Подгруппа",
+    "subgroup_order": "я подгруппа",
+    "full_schedule": "Полное расписание"
+  },
   "week_days": {
     "monday": "Понедельник",
     "tuesday": "Вторник",
