@@ -32,7 +32,11 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
           </div>
         </div>
       </Card>
-      <LessonModal visible={visibility} lesson={lesson} onCancel={toggleModal} />
+      {!visibility ? (
+        ''
+      ) : (
+        <LessonModal visible={visibility} lesson={lesson} onCancel={toggleModal} />
+      )}
     </div>
   );
 };
