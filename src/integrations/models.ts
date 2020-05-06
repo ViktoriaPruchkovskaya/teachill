@@ -14,5 +14,5 @@ export interface Lesson {
 }
 
 export interface Teacher {
-  fio: string;
+  fullName: string;
 }

@@ -51,7 +51,7 @@ export class BSUIRResponseMapper {
             lesson.startLessonTime,
             lesson.endLessonTime
           ),
-          teacher: lesson.employee.map(teacher => ({ fio: teacher.fio })),
+          teacher: lesson.employee.map(teacher => ({ fullName: teacher.fio })),
         };
         return formatedLesson;
       });
