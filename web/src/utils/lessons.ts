@@ -54,7 +54,7 @@ export function organizeLessons(lessons: Lesson[]): Lesson[][][] {
 }
 
 export function getWeekday(order: number): string {
-  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   return weekdays[order];
 }
 

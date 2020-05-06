@@ -22,11 +22,22 @@
     "confirm":"Confirm",
     "add_user": "Create an user account",
     "username": "Username",
-    "password": "Password"
+    "password": "Password",
+    "lesson": "Add a description",
+    "upload": "Upload"
   },
   "manage_page": {
     "add_user_button": "Add User",
     "delete": "Delete user",
     "change_role": "Change role"
+  },
+  "week_days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
   }
 }

@@ -80,6 +80,7 @@ router.post(
   lessonsControllers.assignLessonToGroup
 );
 router.get('/lessons/', authMiddleware, lessonsControllers.getGroupLessons);
+router.patch('/lessons/:lesson_id/', authMiddleware, lessonsControllers.updateLesson);
 router.post(
   '/lessons/:lesson_id/attachments/:attachment_id/',
   authMiddleware,

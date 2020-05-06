@@ -2,7 +2,8 @@ import * as lessonsRepository from '../repositories/lessons';
 import { getGroupById, getMembershipById } from '../repositories/groups';
 import { getTeacherById } from '../repositories/teachers';
 import { NotFoundError } from '../errors';
-import { User } from './users';
+import { User, UserService } from './users';
+import { toUnixFromDate } from '../utils/date';
 
 interface LessonData {
   name: string;
@@ -25,6 +26,18 @@ export interface Lesson {
   subgroup?: number | null;
 }
 
+export interface LessonForUpdate {
+  id: number;
+  name: string;
+  typeId: number;
+  location: string;
+  startTime: string;
+  duration: number;
+  description?: string;
+  teacher?: Teacher[];
+  subgroup?: number | null;
+}
+
 interface LessonType {
   id: number;
   name: string;
@@ -34,7 +47,17 @@ interface Teacher {
   fullName: string;
 }
 
+interface UpdateLessonData {
+  description?: string;
+}
+
 export class LessonService {
+  private userService: UserService;
+
+  constructor() {
+    this.userService = new UserService();
+  }
+
   public async createLesson(lesson: LessonData): Promise<Lesson> {
     const res = await lessonsRepository.createLesson(lesson);
     return {
@@ -105,5 +128,32 @@ export class LessonService {
       throw new NotFoundError('Teacher or lesson does not exist');
     }
     return lessonsRepository.assignTeacherToLesson(lessonId, teacherId);
+  }
+
+  public async updateLesson(user: User, lessonId: number, info: UpdateLessonData): Promise<void> {
+    await this.userService.getUserByUsername(user.username);
+    const dbLesson = await lessonsRepository.getLessonById(lessonId);
+
+    if (!dbLesson) {
+      throw new NotFoundError('Lesson not found');
+    }
+
+    const lesson: LessonForUpdate = {
+      id: dbLesson.id,
+      name: dbLesson.name,
+      typeId: dbLesson.typeId,
+      location: dbLesson.location,
+      startTime: toUnixFromDate(dbLesson.startTime),
+      duration: dbLesson.duration,
+      description: dbLesson.description,
+      teacher: dbLesson.teacher,
+      subgroup: dbLesson.subgroup,
+    };
+
+    for (const key in info) {
+      lesson[key] = info[key];
+    }
+
+    await lessonsRepository.updateLesson(lesson);
   }
 }

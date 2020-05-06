@@ -1,7 +1,13 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { LessonService } from '../services/lessons';
-import { Validator, shouldHaveField, minLengthShouldBe } from '../validations';
+import {
+  Validator,
+  shouldHaveField,
+  minLengthShouldBe,
+  mayHaveFields,
+  optionalFieldShouldHaveType,
+} from '../validations';
 import { State } from '../state';
 
 interface LessonData {
@@ -19,6 +25,10 @@ interface GroupLessonData {
 
 interface TeacherData {
   teacherId: number;
+}
+
+interface UpdateLessonData {
+  description?: string;
 }
 
 export async function createLesson(ctx: Koa.ParameterizedContext, next: Koa.Next) {
@@ -79,6 +89,24 @@ export async function assignTeacherToLesson(ctx: Koa.ParameterizedContext, next:
   await lessonService.assignTeacherToLesson(ctx.params.id, validatedData.teacherId);
   ctx.body = {};
   ctx.response.status = httpCodes.CREATED;
+
+  await next();
+}
+
+export async function updateLesson(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const validator = new Validator<UpdateLessonData>([
+    mayHaveFields(['description']),
+    optionalFieldShouldHaveType('description', 'string'),
+  ]);
+  const validatedData = validator.validate(ctx.request.body);
+
+  const lessonService = new LessonService();
+  await lessonService.updateLesson(ctx.state.user, ctx.params.lesson_id, validatedData);
+  ctx.body = {};
+  ctx.response.status = httpCodes.OK;
 
   await next();
 }

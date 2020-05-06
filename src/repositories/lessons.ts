@@ -24,6 +24,18 @@ export interface DBLesson {
   subgroup?: number | null;
 }
 
+export interface LessonForUpdate {
+  id: number;
+  name: string;
+  typeId: number;
+  location: string;
+  startTime: string;
+  duration: number;
+  description?: string;
+  teacher?: Teacher[];
+  subgroup?: number | null;
+}
+
 interface LessonType {
   id: number;
   name: string;
@@ -220,5 +232,17 @@ export async function assignTeacherToLesson(lessonId: number, teacherId: number)
     await connection.query(
       sql`INSERT INTO lesson_teachers (lesson_id, teacher_id) VALUES (${lessonId}, ${teacherId})`
     );
+  });
+}
+
+export async function updateLesson(lesson: LessonForUpdate): Promise<void> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.query(sql`
+    UPDATE lessons
+    SET description = ${lesson.description},
+        name = ${lesson.name},
+        location= ${lesson.location}
+    WHERE id = ${lesson.id}
+    `);
   });
 }

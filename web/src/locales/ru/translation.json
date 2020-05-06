@@ -22,11 +22,22 @@
     "confirm":"Подтвердить",
     "add_user": "Создать учетную запись пользователя",
     "username": "Логин",
-    "password": "Пароль"
+    "password": "Пароль",
+    "lesson": "Добавить описание",
+    "upload": "Загрузить"
   },
   "manage_page": {
     "add_user_button": "Добавить пользователя",
     "delete": "Удалить пользователя",
     "change_role": "Изменить роль"
+  },
+  "week_days": {
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье"
   }
 }
