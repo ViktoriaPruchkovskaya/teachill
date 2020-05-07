@@ -19,7 +19,7 @@
     "current_password": "Current Password",
     "new_password": "New Password",
     "full_name": "Full Name",
-    "confirm":"Confirm",
+    "confirm": "Confirm",
     "add_user": "Create an user account",
     "username": "Username",
     "password": "Password",
@@ -33,7 +33,7 @@
   },
   "schedule_page": {
     "subgroup_filter_button": "Subgroup",
-    "subgroup_order": "st subgroup",
+    "subgroup_order": " subgroup",
     "full_schedule": "Full schedule"
   },
   "week_days": {
