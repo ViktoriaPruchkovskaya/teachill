@@ -21,6 +21,7 @@ export interface Lesson {
   description?: string;
   teacher?: Teacher[];
   subgroup?: number | null;
+  isAttachmentAssigned?: boolean;
 }
 
 export interface Group {
@@ -64,6 +65,7 @@ export class GroupService {
       description: lesson.description,
       teacher: lesson.teacher,
       subgroup: lesson.subgroup,
+      isAttachmentAssigned: lesson.isAttachmentAssigned,
     }));
   }
 

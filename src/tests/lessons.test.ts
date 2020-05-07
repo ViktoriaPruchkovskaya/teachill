@@ -2,6 +2,7 @@ import { LessonService } from '../services/lessons';
 import * as lessonsRepository from '../repositories/lessons';
 import * as groupsRepository from '../repositories/groups';
 import * as teachersRepository from '../repositories/teachers';
+import * as attachmentsRepository from '../repositories/attachments';
 import * as lessonMocks from './mocks/lessons';
 import {
   getGroupById,
@@ -10,10 +11,12 @@ import {
   getNonexistentMembershipById,
 } from './mocks/groups';
 import { getTeacherById, getNonexistentTeacher } from './mocks/teachers';
+import { getGroupAttachments, getEmptyGroupAttachmentsArray } from './mocks/attachments';
 
 const mockedLessons = lessonsRepository as jest.Mocked<typeof lessonsRepository>;
 const mockedGroups = groupsRepository as jest.Mocked<typeof groupsRepository>;
 const mockedTeachers = teachersRepository as jest.Mocked<typeof teachersRepository>;
+const mockedAttachments = attachmentsRepository as jest.Mocked<typeof attachmentsRepository>;
 
 describe('test lessons service', () => {
   it('test lesson creation', async () => {
@@ -121,11 +124,13 @@ describe('test lessons service', () => {
     const lessonService = new LessonService();
     mockedGroups.getMembershipById = getMembershipById();
     mockedLessons.getGroupLessons = lessonMocks.getGroupLessons();
+    mockedAttachments.getGroupAttachments = getGroupAttachments();
 
     const lessons = await lessonService.getGroupLessons(USER);
 
     expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).toBeCalledTimes(1);
+    expect(mockedAttachments.getGroupAttachments).toBeCalledTimes(1);
     lessons.map(lesson =>
       expect(Object.keys(lesson)).toEqual([
         'id',
@@ -137,9 +142,18 @@ describe('test lessons service', () => {
         'description',
         'teacher',
         'subgroup',
+        'isAttachmentAssigned',
       ])
     );
     expect((await mockedGroups.getMembershipById(USER.id)).id).toBe(2);
+    expect(
+      await mockedAttachments.getGroupAttachments(
+        (await mockedGroups.getMembershipById(USER.id)).id
+      )
+    ).toEqual([
+      { lessonId: 2, attachmentId: 3, name: 'attachment', url: 'https://attachment.com/4vd1o' },
+      { lessonId: 3, attachmentId: 4, name: 'attachment', url: 'https://attachment.com/4vd1o' },
+    ]);
   });
 
   it('test getting lessons of nonexistent group', async () => {
@@ -152,11 +166,13 @@ describe('test lessons service', () => {
     const lessonService = new LessonService();
     mockedGroups.getMembershipById = getNonexistentMembershipById();
     mockedLessons.getGroupLessons = lessonMocks.getGroupLessons();
+    mockedAttachments.getGroupAttachments = getGroupAttachments();
 
     await expect(lessonService.getGroupLessons(USER)).rejects.toThrow('Group not found');
 
     expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).not.toBeCalled();
+    expect(mockedAttachments.getGroupAttachments).not.toBeCalled();
     expect(await mockedGroups.getMembershipById(USER.id)).toBeNull();
   });
 
@@ -170,13 +186,20 @@ describe('test lessons service', () => {
     const lessonService = new LessonService();
     mockedGroups.getMembershipById = getMembershipById();
     mockedLessons.getGroupLessons = lessonMocks.getEmptyLessonsArray();
+    mockedAttachments.getGroupAttachments = getEmptyGroupAttachmentsArray();
 
     const lessons = await lessonService.getGroupLessons(USER);
 
     expect(mockedGroups.getMembershipById).toBeCalledTimes(1);
     expect(mockedLessons.getGroupLessons).toBeCalledTimes(1);
+    expect(mockedAttachments.getGroupAttachments).toBeCalledTimes(1);
     expect((await mockedGroups.getMembershipById(USER.id)).id).toBe(2);
     expect(lessons).toEqual([]);
+    expect(
+      await mockedAttachments.getGroupAttachments(
+        (await mockedGroups.getMembershipById(USER.id)).id
+      )
+    ).toEqual([]);
   });
 
   it('test removing all lessons of group', async () => {

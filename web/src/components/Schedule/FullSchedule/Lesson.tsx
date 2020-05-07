@@ -44,7 +44,10 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
     <div>
       <Card hoverable={true} onClick={toggleModal}>
         <div className={`lesson-card lesson-type-${lesson.typeId}`}>
-          <h4 className='lesson-name'>{lesson.name}</h4>
+          <h4 className='lesson-name'>
+            {lesson.name}
+            {lesson.isAttachmentAssigned || lesson.description.length > 0 ? '📎 ' : null}
+          </h4>
           <div className='lesson-info-side'>
             <span className='lesson-time'>
               {getTime(lesson.startTime)}-{addDuration(lesson.startTime, lesson.duration)}
