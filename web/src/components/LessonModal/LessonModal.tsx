@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Modal, Upload, Button, Form } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Modal, Button, Form } from 'antd';
 import { FormInstance } from 'antd/lib/form';
 import { UploadFile } from 'antd/es/upload/interface';
 import TextArea from 'antd/lib/input/TextArea';
@@ -9,6 +8,7 @@ import { Lesson as LessonModel } from '../../services/groupService';
 import { addDuration, getTime } from '../../utils/date';
 import { AttachmentService } from '../../services/attachmentService';
 import { UpdateLessonData } from '../Schedule/FullSchedule/Lesson';
+import { AttachmentsPanel } from '../AttachmentsPanel/AttachmentsPanel';
 import { useTranslation } from 'react-i18next';
 import './LessonModal.less';
 
@@ -72,40 +72,7 @@ export const LessonModal: React.FC<LessonDescriptionProps> = ({
           <TextArea autoSize allowClear placeholder={t('forms.lesson')} />
         </Form.Item>
       </Form>
-      <Upload
-        action='/api/upload'
-        listType='picture'
-        onChange={param => {
-          setFiles(param.fileList);
-          if (param.file.status === 'done') {
-            (async function() {
-              const attachmentService = new AttachmentService();
-              const attachmentId = await attachmentService.createAttachment({
-                lessonId: lesson.id,
-                name: param.file.name,
-                url: param.file.response.filePath,
-              });
-              const fileList = param.fileList.map(file => {
-                if (file.uid == param.file.uid) {
-                  file.uid = attachmentId.toString();
-                  file.url = file.response.filePath;
-                }
-                return file;
-              });
-              setFiles(fileList);
-            })();
-          }
-        }}
-        onRemove={file => {
-          const attachmentService = new AttachmentService();
-          return attachmentService.deleteAttachment(Number(file.uid));
-        }}
-        fileList={files}
-      >
-        <Button>
-          <UploadOutlined /> {t('forms.upload')}
-        </Button>
-      </Upload>
+      <AttachmentsPanel files={files} setFiles={setFiles} lesson={lesson} />
     </Modal>
   );
 };

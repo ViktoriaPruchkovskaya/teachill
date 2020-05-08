@@ -1,4 +1,5 @@
 import { BaseTeachillAuthClient } from './baseClient';
+import { handleError } from '../handleError';
 
 interface AttachmentPayload {
   name: string;
@@ -21,7 +22,9 @@ export class AttachmentClient extends BaseTeachillAuthClient {
       },
       body: JSON.stringify(payload),
     });
-
+    if (!response.ok) {
+      await handleError(response, 'Attach');
+    }
     const attachment = await response.json();
     return attachment.attachmentId;
   }

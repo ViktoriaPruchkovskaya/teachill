@@ -23,8 +23,7 @@
     "add_user": "Create an user account",
     "username": "Username",
     "password": "Password",
-    "lesson": "Add a description",
-    "upload": "Upload"
+    "lesson": "Add a description"
   },
   "manage_page": {
     "add_user_button": "Add User",
@@ -39,5 +38,14 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "attachments":{
+    "attachment": "Attachment",
+    "attach_from": "Attach from",
+    "computer": "Computer",
+    "attach": "Attach",
+    "paste_a_link": "Paste a link",
+    "link_name": "Link name",
+    "optional": "Optional"
   }
 }
