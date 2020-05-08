@@ -21,6 +21,7 @@ interface Lesson {
   description?: string;
   teacher?: Teacher[];
   subgroup?: number | null;
+  isAttachmentAssigned?: boolean;
 }
 
 interface Teacher {
@@ -84,6 +85,7 @@ export class GroupClient extends BaseTeachillAuthClient {
       description: lesson.description,
       teacher: lesson.teacher,
       subgroup: lesson.subgroup,
+      isAttachmentAssigned: lesson.isAttachmentAssigned,
     }));
   }
 

@@ -4,6 +4,7 @@ import { getTeacherById } from '../repositories/teachers';
 import { NotFoundError } from '../errors';
 import { User, UserService } from './users';
 import { toUnixFromDate } from '../utils/date';
+import { getGroupAttachments } from '../repositories/attachments';
 
 interface LessonData {
   name: string;
@@ -24,6 +25,7 @@ export interface Lesson {
   description?: string;
   teacher?: Teacher[];
   subgroup?: number | null;
+  isAttachmentAssigned?: boolean;
 }
 
 export interface LessonForUpdate {
@@ -96,6 +98,8 @@ export class LessonService {
     }
 
     const lessons = await lessonsRepository.getGroupLessons(currentGroup.id);
+    const attachments = await getGroupAttachments(currentGroup.id);
+
     return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,
@@ -106,6 +110,7 @@ export class LessonService {
       description: lesson.description,
       teacher: lesson.teacher,
       subgroup: lesson.subgroup,
+      isAttachmentAssigned: attachments.some(attachment => attachment.lessonId === lesson.id),
     }));
   }
 

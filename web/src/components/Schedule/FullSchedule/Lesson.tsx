@@ -52,7 +52,10 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
               {getTime(lesson.startTime)}-{addDuration(lesson.startTime, lesson.duration)}
             </span>
             <span>
-              <i>{lesson.location || 'N/A'}</i>
+              <>
+                {lesson.isAttachmentAssigned || lesson.description.length > 0 ? '📚 ' : null}
+                <i>{lesson.location || 'N/A'}</i>
+              </>
             </span>
           </div>
         </div>

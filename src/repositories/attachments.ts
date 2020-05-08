@@ -14,6 +14,13 @@ export interface RawAttachment {
   url: string;
 }
 
+interface GroupAttachment {
+  attachmentId: number;
+  lessonId: number;
+  name: string;
+  url: string;
+}
+
 export async function createAttachment(name: string, url: string): Promise<number> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     const attachment = await connection.one(
@@ -108,5 +115,23 @@ export async function editAttachment(
       url: attachment.url as string,
       groupId: attachment.group_id as number,
     };
+  });
+}
+
+export async function getGroupAttachments(groupId: number): Promise<GroupAttachment[]> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    const rows = await connection.any(sql`
+    SELECT attachment_id, lesson_id, name, url
+    FROM group_lesson_attachments
+    INNER JOIN attachments on group_lesson_attachments.attachment_id = id
+    WHERE group_id= ${groupId}
+    `);
+
+    return rows.map(attachment => ({
+      attachmentId: attachment.attachment_id as number,
+      lessonId: attachment.lesson_id as number,
+      name: attachment.name as string,
+      url: attachment.url as string,
+    }));
   });
 }

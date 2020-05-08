@@ -69,3 +69,14 @@ export const getGroupIfLessonExist = (
     }
     return Promise.resolve(groupId);
   });
+
+export const getGroupAttachments = () =>
+  jest.fn((groupId: number) =>
+    Promise.resolve([
+      { lessonId: 2, attachmentId: 3, name: 'attachment', url: 'https://attachment.com/4vd1o' },
+      { lessonId: 3, attachmentId: 4, name: 'attachment', url: 'https://attachment.com/4vd1o' },
+    ])
+  );
+
+export const getEmptyGroupAttachmentsArray = () =>
+  jest.fn((groupId: number) => Promise.resolve([]));
