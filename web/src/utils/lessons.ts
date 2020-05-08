@@ -91,8 +91,8 @@ export function setDate(lessons: Lesson[][]): Array<string> {
   return daysDate;
 }
 
-export function filterSchedule(filter: number, schedule: Lesson[][][]): Lesson[][][] {
+export function filterScheduleBySubgroup(subgroup: number, schedule: Lesson[][][]): Lesson[][][] {
   return schedule.map(week =>
-    week.map(day => day.filter(lesson => lesson.subgroup === filter || lesson.subgroup === null))
+    week.map(day => day.filter(lesson => lesson.subgroup === subgroup || lesson.subgroup === null))
   );
 }

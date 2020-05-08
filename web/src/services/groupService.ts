@@ -71,7 +71,7 @@ export class GroupService {
     }));
   }
 
-  public getSubgroups(lessons: Lesson[]): Array<number> {
+  private getSubgroups(lessons: Lesson[]): Array<number> {
     const subgroups = new Set<number>();
     lessons.map(lesson => subgroups.add(lesson.subgroup));
     return Array.from(subgroups);

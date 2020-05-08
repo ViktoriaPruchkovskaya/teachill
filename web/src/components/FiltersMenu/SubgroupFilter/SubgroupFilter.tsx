@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import { ScheduleContext } from '../../../contexts/scheduleContext';
@@ -9,8 +9,15 @@ import { useTranslation } from 'react-i18next';
 export const SubgroupFilter: React.FC = () => {
   const { t } = useTranslation();
   const scheduleContext = useContext(ScheduleContext);
-  const storageService = new StorageService();
-  const subgroups = storageService.getSubgroups();
+  const [subgroups, setSubgroups] = useState<Array<number>>([]);
+
+  useEffect(() => {
+    (function() {
+      const storageService = new StorageService();
+      const subgroupsArray = storageService.getSubgroups();
+      setSubgroups(subgroupsArray);
+    })();
+  }, []);
 
   const menu = (
     <Menu>

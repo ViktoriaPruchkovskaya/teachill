@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GroupService, Lesson } from '../services/groupService';
-import { filterSchedule } from '../utils/lessons';
+import { filterScheduleBySubgroup } from '../utils/lessons';
 
 export function useScheduleData(): [Lesson[][][], (filter?: number) => Promise<Lesson[][][]>] {
   const [schedule, setSchedule] = useState<Lesson[][][]>([]);
@@ -9,7 +9,7 @@ export function useScheduleData(): [Lesson[][][], (filter?: number) => Promise<L
     const groupService = new GroupService();
     let schedule = await groupService.getSchedule();
     if (filter) {
-      schedule = filterSchedule(filter, schedule);
+      schedule = filterScheduleBySubgroup(filter, schedule);
     }
     setSchedule(schedule);
     return schedule;

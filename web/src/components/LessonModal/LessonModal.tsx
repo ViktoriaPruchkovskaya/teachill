@@ -50,7 +50,7 @@ export const LessonModal: React.FC<LessonDescriptionProps> = ({
   return (
     <Modal
       visible={visible}
-      title={`${lesson.name} ${lesson.location} ${lesson.subgroup ? `📚 ${lesson.subgroup}` : ''}`}
+      title={`${lesson.name} ${lesson.location} ${lesson.subgroup ? `(${lesson.subgroup})` : ''}`}
       footer={
         <Button type='primary' onClick={() => onSubmit(form.getFieldsValue() as UpdateLessonData)}>
           {t('forms.confirm')}

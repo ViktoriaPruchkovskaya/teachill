@@ -45,7 +45,7 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
       <Card hoverable={true} onClick={toggleModal}>
         <div className={`lesson-card lesson-type-${lesson.typeId}`}>
           <h4 className='lesson-name'>
-            {lesson.name} {lesson.subgroup ? '📚 ' : null}
+            {lesson.name} {lesson.subgroup ? `(${lesson.subgroup}) ` : null}
           </h4>
           <div className='lesson-info-side'>
             <span className='lesson-time'>
