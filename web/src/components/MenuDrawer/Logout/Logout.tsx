@@ -13,13 +13,16 @@ const Logout: React.FC<LogoutProps> = ({ onCancel, history }) => {
   const userContext = useContext(UserContext);
   const { t } = useTranslation();
 
-  const handleLogout = async (): Promise<void> => {
-    const storageService = new StorageService();
-    storageService.clearStorage();
+  const handleLogout = (): void => {
+    (async function() {
+      const storageService = new StorageService();
 
-    onCancel();
-    await userContext.refreshUserData();
-    history.push('/');
+      onCancel();
+      history.push('/');
+
+      storageService.clearStorage();
+      await userContext.refreshUserData();
+    })();
   };
 
   return <p onClick={handleLogout}>{t('drawer.log_out')}</p>;

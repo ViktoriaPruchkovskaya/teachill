@@ -4,6 +4,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import { EmptySchedule } from '../components/Schedule/EmptySchedule/EmptySchedule';
 import { FullSchedule } from '../components/Schedule/FullSchedule/FullSchedule';
+import { FiltersMenu } from '../components/FiltersMenu/FiltersMenu';
 import { getCurrentWeekNumber } from '../utils/lessons';
 import { useScheduleData } from '../hooks/scheduleData';
 import { ScheduleContext } from '../contexts/scheduleContext';
@@ -55,6 +56,7 @@ export const SchedulePage = () => {
     if (schedule.length > 0) {
       return (
         <ScheduleContext.Provider value={{ schedule: schedule, refreshSchedule: refreshSchedule }}>
+          <FiltersMenu />
           <FullSchedule
             prevWeekSwitch={prevWeekSwitch}
             nextWeekSwitch={nextWeekSwitch}
@@ -66,12 +68,12 @@ export const SchedulePage = () => {
     }
   };
 
-  const content = displaySchedule();
+  const schedulePageContent = displaySchedule();
 
   return (
     <div className='schedule-page-container'>
       <Spin size='large' indicator={<LoadingOutlined />} spinning={loading} />
-      <div className='schedule-page-content-container'>{content}</div>
+      {schedulePageContent}
     </div>
   );
 };
