@@ -3,6 +3,7 @@ import { Group } from './groupService';
 export class StorageService {
   private readonly tokenKey = 'teachillToken';
   private readonly groupKey = 'userGroup';
+  private readonly subgroupsKey = 'subgroups';
 
   public getToken(): string {
     return localStorage.getItem(this.tokenKey);
@@ -23,6 +24,14 @@ export class StorageService {
 
   public isTokenInStorage(): boolean {
     return localStorage.hasOwnProperty(this.tokenKey);
+  }
+
+  public getSubgroups(): Array<number> {
+    return JSON.parse(localStorage.getItem(this.subgroupsKey));
+  }
+
+  public setSubgroups(subgroups: Array<number>): void {
+    localStorage.setItem(this.subgroupsKey, JSON.stringify(subgroups));
   }
 
   public clearStorage(): void {

@@ -55,6 +55,10 @@ export class GroupService {
 
   private async getLessons(): Promise<Lesson[]> {
     const lessons = await this.groupClient.getLessons();
+
+    const subgroups = this.getSubgroups(lessons);
+    this.storageService.setSubgroups(subgroups);
+
     return lessons.map(lesson => ({
       id: lesson.id,
       name: lesson.name,
@@ -67,6 +71,12 @@ export class GroupService {
       subgroup: lesson.subgroup,
       isAttachmentAssigned: lesson.isAttachmentAssigned,
     }));
+  }
+
+  private getSubgroups(lessons: Lesson[]): Array<number> {
+    const subgroups = new Set<number>();
+    lessons.map(lesson => subgroups.add(lesson.subgroup));
+    return Array.from(subgroups);
   }
 
   public async getSchedule(): Promise<Lesson[][][]> {

@@ -17,10 +17,10 @@ export const FullSchedule: React.FC<FullScheduleProps> = ({
   weekNumber,
 }) => {
   return (
-    <>
+    <div className='schedule-page-content-container'>
       <WeekPaginationButton onClick={prevWeekSwitch} direction='prev' />
       <WeekSchedule schedule={schedule[weekNumber]} />
       <WeekPaginationButton onClick={nextWeekSwitch} direction='next' />
-    </>
+    </div>
   );
 };

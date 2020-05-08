@@ -4,7 +4,7 @@ import { Card, Form } from 'antd';
 import { Lesson as LessonModel } from '../../../services/groupService';
 import { LessonModal } from '../../LessonModal/LessonModal';
 import { getTime, addDuration } from '../../../utils/date';
-import { LessonService } from '../../../services/LessonService';
+import { LessonService } from '../../../services/lessonService';
 import { ScheduleContext } from '../../../contexts/scheduleContext';
 import './Lesson.less';
 
@@ -45,15 +45,17 @@ export const Lesson: React.FC<LessonProps> = ({ lesson }) => {
       <Card hoverable={true} onClick={toggleModal}>
         <div className={`lesson-card lesson-type-${lesson.typeId}`}>
           <h4 className='lesson-name'>
-            {lesson.name}
-            {lesson.isAttachmentAssigned || lesson.description.length > 0 ? '📎 ' : null}
+            {lesson.name} {lesson.subgroup ? `(${lesson.subgroup}) ` : null}
           </h4>
           <div className='lesson-info-side'>
             <span className='lesson-time'>
               {getTime(lesson.startTime)}-{addDuration(lesson.startTime, lesson.duration)}
             </span>
             <span>
-              <i>{lesson.location || 'N/A'}</i>
+              <>
+                {lesson.isAttachmentAssigned || lesson.description.length > 0 ? '📚 ' : null}
+                <i>{lesson.location || 'N/A'}</i>
+              </>
             </span>
           </div>
         </div>

@@ -1,12 +1,16 @@
-import { GroupService, Lesson } from '../services/groupService';
 import { useEffect, useState } from 'react';
+import { GroupService, Lesson } from '../services/groupService';
+import { filterScheduleBySubgroup } from '../utils/lessons';
 
-export function useScheduleData(): [Lesson[][][], () => Promise<Lesson[][][]>] {
+export function useScheduleData(): [Lesson[][][], (filter?: number) => Promise<Lesson[][][]>] {
   const [schedule, setSchedule] = useState<Lesson[][][]>([]);
 
-  async function refreshSchedule(): Promise<Lesson[][][]> {
+  async function refreshSchedule(filter?: number): Promise<Lesson[][][]> {
     const groupService = new GroupService();
-    const schedule = await groupService.getSchedule();
+    let schedule = await groupService.getSchedule();
+    if (filter) {
+      schedule = filterScheduleBySubgroup(filter, schedule);
+    }
     setSchedule(schedule);
     return schedule;
   }
