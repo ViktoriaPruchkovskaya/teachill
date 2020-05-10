@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'antd';
 import { FormInstance } from 'antd/lib/form';
 import { UploadFile } from 'antd/es/upload/interface';
@@ -9,6 +9,8 @@ import { addDuration, getTime } from '../../utils/date';
 import { AttachmentService } from '../../services/attachmentService';
 import { UpdateLessonData } from '../Schedule/FullSchedule/Lesson';
 import { AttachmentsPanel } from '../AttachmentsPanel/AttachmentsPanel';
+import { UserContext } from '../../contexts/userContext';
+import { RoleType } from '../../services/authService';
 import { useTranslation } from 'react-i18next';
 import './LessonModal.less';
 
@@ -29,6 +31,7 @@ export const LessonModal: React.FC<LessonDescriptionProps> = ({
 }) => {
   const { t } = useTranslation();
   const [files, setFiles] = useState<UploadFile[]>([]);
+  const userContext = useContext(UserContext);
 
   useEffect(() => {
     (async function() {
@@ -47,6 +50,7 @@ export const LessonModal: React.FC<LessonDescriptionProps> = ({
       );
     })();
   }, []);
+
   return (
     <Modal
       visible={visible}
@@ -69,7 +73,12 @@ export const LessonModal: React.FC<LessonDescriptionProps> = ({
       </div>
       <Form form={form} initialValues={{ description: lesson.description }}>
         <Form.Item name='description'>
-          <TextArea autoSize allowClear placeholder={t('forms.lesson')} />
+          <TextArea
+            autoSize
+            allowClear
+            placeholder={t('forms.lesson')}
+            disabled={userContext.role !== RoleType.Administrator}
+          />
         </Form.Item>
       </Form>
       <AttachmentsPanel files={files} setFiles={setFiles} lesson={lesson} />

@@ -22,6 +22,7 @@ export const App = () => {
         value={{
           fullName: user.fullName,
           username: user.username,
+          role: user.role,
           group: user.groupName,
           refreshUserData: refreshUser,
         }}
