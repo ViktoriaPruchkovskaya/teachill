@@ -52,5 +52,17 @@
     "paste_a_link": "Вставьте ссылку",
     "link_name": "Название ссылки",
     "optional": "Необязательно"
+  },
+ "info": {
+   "basic_info": "Основная информация",
+   "colors": "Цвета",
+   "icons": "Иконки",
+   "administrator": "Администратор",
+   "task": "Задание"
+ },
+  "lesson_types": {
+    "lecture": "Лекция",
+    "laboratory": "Лабораторная",
+    "practice": "Практическое занятие"
   }
 }

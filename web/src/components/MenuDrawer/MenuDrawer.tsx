@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useContext } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Drawer } from 'antd';
 import { UserContext, UserContextProps as UserContextModel } from '../../contexts/userContext';
 import { Settings } from './Settings/Settings';
 import Logout from './Logout/Logout';
+import { InfoButton } from './Info/InfoButton';
 import { RoleType } from '../../services/authService';
 import './MenuDrawer.less';
 
@@ -17,7 +17,6 @@ interface MenuDrawerProps {
 const DRAWER_WIDTH = 270;
 
 export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibility }) => {
-  const { t } = useTranslation();
   const userContext = useContext(UserContext);
 
   return (
@@ -38,7 +37,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onClick, context, visibi
     >
       <div className='drawer-options'>
         <Settings onCancel={onClick} />
-        <p>{t('drawer.info')}</p>
+        <InfoButton />
         <Logout onCancel={onClick} />
       </div>
     </Drawer>

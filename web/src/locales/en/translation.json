@@ -52,5 +52,17 @@
     "paste_a_link": "Paste a link",
     "link_name": "Link name",
     "optional": "Optional"
+  },
+  "info": {
+    "basic_info": "Basic information",
+    "colors": "Colors",
+    "icons": "Icons",
+    "administrator": "Administrator",
+    "task": "Task"
+  },
+  "lesson_types": {
+    "lecture": "Lecture",
+    "laboratory": "Laboratory",
+    "practice": "Practical lesson"
   }
 }
