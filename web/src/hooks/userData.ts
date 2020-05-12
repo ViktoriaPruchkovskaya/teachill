@@ -7,6 +7,7 @@ import { GroupService } from '../services/groupService';
 interface UserData {
   fullName?: string;
   username?: string;
+  role?: number;
   groupName?: string;
 }
 
@@ -32,6 +33,7 @@ export function useUserData(): [UserData, () => Promise<void>] {
       setUser({
         fullName: results[0].fullName,
         username: results[0].username,
+        role: results[0].role,
         groupName: results[1].name,
       });
     } catch (error) {
