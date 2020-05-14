@@ -126,6 +126,10 @@ export class LessonService {
     return lessonsRepository.removeAllGroupLessons();
   }
 
+  public async removeGroupSchedule(groupId: number): Promise<void> {
+    return lessonsRepository.removeGroupSchedule(groupId);
+  }
+
   public async assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
     const teacher = await getTeacherById(teacherId);
     const lesson = await lessonsRepository.getLessonById(lessonId);

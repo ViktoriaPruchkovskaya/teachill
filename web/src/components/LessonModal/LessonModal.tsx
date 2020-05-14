@@ -4,7 +4,7 @@ import { Modal, Button, Form } from 'antd';
 import { FormInstance } from 'antd/lib/form';
 import { UploadFile } from 'antd/es/upload/interface';
 import TextArea from 'antd/lib/input/TextArea';
-import { Lesson as LessonModel } from '../../services/groupService';
+import { Lesson as LessonModel } from '../../services/lessonService';
 import { addDuration, getTime } from '../../utils/date';
 import { AttachmentService } from '../../services/attachmentService';
 import { UpdateLessonData } from '../Schedule/FullSchedule/Lesson';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Row } from 'antd';
-import { Lesson } from '../../../services/groupService';
+import { Lesson } from '../../../services/lessonService';
 import { DaySchedule } from './DaySchedule';
 import { setDate } from '../../../utils/lessons';
 

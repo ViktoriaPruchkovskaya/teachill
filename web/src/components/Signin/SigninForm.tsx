@@ -23,7 +23,7 @@ export const SigninForm: React.FC<SigninProps> = ({ form, visible, onSubmit, onC
           <Input placeholder='Username' />
         </Form.Item>
         <Form.Item name='password'>
-          <Input placeholder='Password' />
+          <Input.Password placeholder='Password' />
         </Form.Item>
       </Form>
     </Modal>

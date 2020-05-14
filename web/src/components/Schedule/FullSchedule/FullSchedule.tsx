@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { WeekPaginationButton } from '../../Buttons/WeekPaginationButton';
 import { WeekSchedule } from './WeekSchedule';
-import { Lesson } from '../../../services/groupService';
+import { Lesson } from '../../../services/lessonService';
 
 interface FullScheduleProps {
   prevWeekSwitch(event: React.MouseEvent): void;

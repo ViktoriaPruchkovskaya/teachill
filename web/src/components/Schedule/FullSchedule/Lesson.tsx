@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useContext, useState } from 'react';
 import { Card, Form } from 'antd';
-import { Lesson as LessonModel } from '../../../services/groupService';
+import { Lesson as LessonModel } from '../../../services/lessonService';
 import { LessonModal } from '../../LessonModal/LessonModal';
 import { getTime, addDuration } from '../../../utils/date';
 import { LessonService } from '../../../services/lessonService';

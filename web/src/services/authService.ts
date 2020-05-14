@@ -1,6 +1,7 @@
 import { StorageService } from './storageService';
 import { AuthClient } from '../clients/authClient';
-import { GroupClient } from '../clients/groupClient';
+import { GroupService } from './groupService';
+import { LessonService } from './lessonService';
 
 export enum RoleType {
   Administrator = 1,
@@ -46,12 +47,14 @@ export class AuthService {
     const userId = await this.authClient.signup(payload);
 
     await this.signin(payload);
-    const token = this.storageService.getToken();
 
-    const groupService = new GroupClient(token);
+    const groupService = new GroupService();
+    const lessonService = new LessonService();
     const groupId = await groupService.createGroup(payload);
 
     await groupService.assignUserToGroup(groupId, userId);
+
+    await lessonService.createSchedule(groupId);
 
     const group = await groupService.getCurrentGroup();
     this.storageService.setUserGroup(group);
@@ -61,10 +64,9 @@ export class AuthService {
     payload.role = RoleType.Member;
     const userId = await this.authClient.signup(payload);
 
-    const token = this.storageService.getToken();
     const { id } = this.storageService.getUserGroup();
 
-    const groupService = new GroupClient(token);
+    const groupService = new GroupService();
     await groupService.assignUserToGroup(id, userId);
   }
 }

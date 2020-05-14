@@ -3,6 +3,7 @@ import * as httpCodes from '../constants/httpCodes';
 import { GroupService } from '../services/groups';
 import { Validator, shouldHaveField } from '../validations';
 import { State } from '../state';
+import { SyncBSUIR } from '../integrations/bsuir/sync';
 
 interface GroupMemberData {
   userId: number;
@@ -62,6 +63,28 @@ export async function getGroupMembers(ctx: Koa.ParameterizedContext, next: Koa.N
   const members = await groupService.getGroupMembers(ctx.params.group_id);
   ctx.body = [...members];
   ctx.response.status = httpCodes.OK;
+
+  await next();
+}
+
+export async function createSchedule(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+  const syncBSUIR = new SyncBSUIR();
+  await syncBSUIR.createSchedule(ctx.params.group_id);
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
+
+  await next();
+}
+
+export async function updateSchedule(
+  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
+  next: Koa.Next
+) {
+  const syncBSUIR = new SyncBSUIR();
+
+  await syncBSUIR.updateSchedule(ctx.state.user);
+  ctx.body = {};
+  ctx.response.status = httpCodes.CREATED;
 
   await next();
 }

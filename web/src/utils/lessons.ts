@@ -1,4 +1,4 @@
-import { Lesson } from '../services/groupService';
+import { Lesson } from '../services/lessonService';
 import { getWeek, getDay, addDays } from 'date-fns';
 import { getDate } from './date';
 

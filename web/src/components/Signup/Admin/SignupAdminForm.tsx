@@ -5,6 +5,7 @@ import { SignupData } from './SignupAdmin';
 
 interface SignupAdminProps {
   form: FormInstance;
+  loading: boolean;
   visible: boolean;
   onSubmit(values: SignupData): Promise<void>;
   onCancel(event: React.MouseEvent): void;
@@ -12,6 +13,7 @@ interface SignupAdminProps {
 
 export const SignupAdminForm: React.FC<SignupAdminProps> = ({
   form,
+  loading,
   visible,
   onSubmit,
   onCancel,
@@ -21,6 +23,7 @@ export const SignupAdminForm: React.FC<SignupAdminProps> = ({
       visible={visible}
       title='Create an account'
       onOk={() => onSubmit(form.getFieldsValue() as SignupData)}
+      confirmLoading={loading}
       onCancel={onCancel}
     >
       <Form form={form}>
