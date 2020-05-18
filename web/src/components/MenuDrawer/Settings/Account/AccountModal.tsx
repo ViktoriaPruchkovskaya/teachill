@@ -59,6 +59,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ visible, onCancel })
       title={t('forms.account')}
       onCancel={onCancel}
       footer={null}
+      mask={false}
       className='account-modal-container'
     >
       <Collapse accordion defaultActiveKey={['1']}>

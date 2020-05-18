@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/lib/form';
 import { SignupData } from './SignupAdmin';
+import { useTranslation } from 'react-i18next';
 
 interface SignupAdminProps {
   form: FormInstance;
@@ -16,25 +17,27 @@ export const SignupAdminForm: React.FC<SignupAdminProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Modal
       visible={visible}
-      title='Create an account'
+      title={t('forms.create_an_account')}
       onOk={() => onSubmit(form.getFieldsValue() as SignupData)}
       onCancel={onCancel}
     >
       <Form form={form}>
         <Form.Item name='fullName'>
-          <Input placeholder='Full Name' />
+          <Input placeholder={t('forms.full_name')} />
         </Form.Item>
         <Form.Item name='username'>
-          <Input placeholder='Username' />
+          <Input placeholder={t('forms.username')} />
         </Form.Item>
         <Form.Item name='password'>
-          <Input.Password placeholder='Password' />
+          <Input.Password placeholder={t('forms.password')} />
         </Form.Item>
         <Form.Item name='name'>
-          <Input placeholder='Group' />
+          <Input placeholder={t('forms.group')} />
         </Form.Item>
       </Form>
     </Modal>

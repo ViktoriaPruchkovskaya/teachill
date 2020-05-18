@@ -5,6 +5,7 @@ import { SigninForm } from './SigninForm';
 import { AuthService } from '../../services/authService';
 import { History } from 'history';
 import { UserContext } from '../../contexts/userContext';
+import { useTranslation } from 'react-i18next';
 
 export interface SigninData {
   username: string;
@@ -18,6 +19,7 @@ interface SigninProps {
 export const Signin: React.FC<SigninProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const userContext = useContext(UserContext);
+  const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const toggleModal = (): void => {
@@ -39,7 +41,7 @@ export const Signin: React.FC<SigninProps> = ({ history }) => {
   return (
     <div>
       <Button block type='primary' size='large' onClick={toggleModal}>
-        Log in with an existing account
+        {t('start_page.log_in')}
       </Button>
       <SigninForm form={form} visible={visibility} onSubmit={handleSubmit} onCancel={toggleModal} />
     </div>

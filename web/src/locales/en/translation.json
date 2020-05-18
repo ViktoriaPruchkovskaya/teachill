@@ -23,7 +23,15 @@
     "add_user": "Create an user account",
     "username": "Username",
     "password": "Password",
-    "lesson": "Add a description"
+    "lesson": "Add a description",
+    "group": "Group",
+    "create_an_account": "Create an account",
+    "log_in": "Log in"
+  },
+  "start_page": {
+    "create_an_account": "Create an account",
+    "log_in": "Log in with an existing account",
+    "description": "Teachill — collective task planner for student groups. Application stores study schedule, users information and attachments related to particular lesson as file or link. Teachill is equipped with wide functionality for working with users and schedule, available for administrators. Despite this fact, user has a number of opportunities for full functioning in the system as account settings, change language, view and download attachments and so on."
   },
   "manage_page": {
     "add_user_button": "Add User",
@@ -44,7 +52,7 @@
     "saturday": "Saturday",
     "sunday": "Sunday"
   },
-  "attachments":{
+  "attachments": {
     "attachment": "Attachment",
     "attach_from": "Attach from",
     "computer": "Computer",
