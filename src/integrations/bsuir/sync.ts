@@ -3,7 +3,6 @@ import { DatabaseConnection, DatabaseConfiguration } from '../../db/connection';
 import { GroupService, Group } from '../../services/groups';
 import { GroupSyncService } from './syncGroup';
 import { LessonService } from '../../services/lessons';
-import { User } from '../../services/users';
 
 dotenv.config();
 const dbConfig: DatabaseConfiguration = {
@@ -27,13 +26,8 @@ export class SyncBSUIR {
     this.groupSyncService = new GroupSyncService();
   }
 
-  public async createSchedule(groupId: number): Promise<void> {
+  public async updateSchedule(groupId: number): Promise<void> {
     const group = await this.groupService.getGroupById(groupId);
-    await this.syncBSUIR(group);
-  }
-
-  public async updateSchedule(user: User): Promise<void> {
-    const group = await this.groupService.getCurrentGroup(user);
     await this.lessonService.removeGroupSchedule(group.id);
     await this.syncBSUIR(group);
   }

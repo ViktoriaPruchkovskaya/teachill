@@ -61,21 +61,8 @@ export class LessonClient extends BaseTeachillAuthClient {
     }));
   }
 
-  public async createSchedule(groupId: number): Promise<void> {
-    const response = await fetch(`/api/groups/${groupId}/`, {
-      method: 'POST',
-      headers: {
-        ...this.getCommonHeaders(),
-        ...this.getAuthHeaders(),
-      },
-    });
-    if (!response.ok) {
-      await handleError(response, 'Sync');
-    }
-  }
-
-  public async updateSchedule(): Promise<void> {
-    const response = await fetch('/api/groups/me/updateSchedule/', {
+  public async updateSchedule(groupId: number): Promise<void> {
+    const response = await fetch(`/api/groups/${groupId}/sync/`, {
       method: 'POST',
       headers: {
         ...this.getCommonHeaders(),

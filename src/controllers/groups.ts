@@ -67,22 +67,10 @@ export async function getGroupMembers(ctx: Koa.ParameterizedContext, next: Koa.N
   await next();
 }
 
-export async function createSchedule(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const syncBSUIR = new SyncBSUIR();
-  await syncBSUIR.createSchedule(ctx.params.group_id);
-  ctx.body = {};
-  ctx.response.status = httpCodes.CREATED;
-
-  await next();
-}
-
-export async function updateSchedule(
-  ctx: Koa.ParameterizedContext<State, Koa.DefaultContext>,
-  next: Koa.Next
-) {
+export async function updateSchedule(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const syncBSUIR = new SyncBSUIR();
 
-  await syncBSUIR.updateSchedule(ctx.state.user);
+  await syncBSUIR.updateSchedule(ctx.params.group_id);
   ctx.body = {};
   ctx.response.status = httpCodes.CREATED;
 

@@ -76,11 +76,8 @@ export class LessonService {
     return organizeLessons(lessons);
   }
 
-  public async createSchedule(groupId: number): Promise<void> {
-    await this.lessonClient.createSchedule(groupId);
-  }
-
   public async updateSchedule(): Promise<void> {
-    await this.lessonClient.updateSchedule();
+    const group = this.storageService.getUserGroup();
+    await this.lessonClient.updateSchedule(group.id);
   }
 }

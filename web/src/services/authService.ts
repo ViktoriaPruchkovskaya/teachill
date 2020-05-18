@@ -54,10 +54,10 @@ export class AuthService {
 
     await groupService.assignUserToGroup(groupId, userId);
 
-    await lessonService.createSchedule(groupId);
-
     const group = await groupService.getCurrentGroup();
     this.storageService.setUserGroup(group);
+
+    await lessonService.updateSchedule();
   }
 
   public async signupUser(payload: UserSignupPayload): Promise<void> {
