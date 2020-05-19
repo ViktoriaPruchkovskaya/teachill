@@ -39,6 +39,7 @@ export const ChangeLanguageModal: React.FC<ChangeLanguageModalProps> = ({
           OK
         </Button>
       }
+      mask={false}
     >
       <div>
         <span className='current-language-container'>{t('forms.language_text')}:</span>

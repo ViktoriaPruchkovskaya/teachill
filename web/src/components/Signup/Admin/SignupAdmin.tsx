@@ -5,6 +5,7 @@ import { SignupAdminForm } from './SignupAdminForm';
 import { AuthService } from '../../../services/authService';
 import { History } from 'history';
 import { UserContext } from '../../../contexts/userContext';
+import { useTranslation } from 'react-i18next';
 
 export interface SignupData {
   fullName: string;
@@ -22,6 +23,7 @@ export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const userContext = useContext(UserContext);
+  const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const toggleModal = (): void => {
@@ -44,7 +46,7 @@ export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
   return (
     <div>
       <Button block type='primary' size='large' onClick={toggleModal}>
-        Create an account
+        {t('start_page.create_an_account')}
       </Button>
       <SignupAdminForm
         form={form}

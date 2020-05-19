@@ -17,7 +17,7 @@ export const App = () => {
   const [user, refreshUser] = useUserData();
 
   return (
-    <ConfigProvider locale={i18n.language == 'ru' ? ruRu : enUs}>
+    <ConfigProvider locale={i18n.language == 'ru-RU' ? ruRu : enUs}>
       <UserContext.Provider
         value={{
           fullName: user.fullName,

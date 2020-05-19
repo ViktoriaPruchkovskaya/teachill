@@ -4,6 +4,7 @@ export class StorageService {
   private readonly tokenKey = 'teachillToken';
   private readonly groupKey = 'userGroup';
   private readonly subgroupsKey = 'subgroups';
+  private readonly languageKey = 'language';
 
   public getToken(): string {
     return localStorage.getItem(this.tokenKey);
@@ -32,6 +33,10 @@ export class StorageService {
 
   public setSubgroups(subgroups: Array<number>): void {
     localStorage.setItem(this.subgroupsKey, JSON.stringify(subgroups));
+  }
+
+  public setLanguage(lang: string): void {
+    localStorage.setItem(this.languageKey, lang);
   }
 
   public clearStorage(): void {

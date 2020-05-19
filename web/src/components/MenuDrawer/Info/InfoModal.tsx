@@ -26,7 +26,13 @@ export const InfoModal: React.FC<InfoModalProps> = ({ visibility, onCancel }) =>
     ));
 
   return (
-    <Modal title={t('info.basic_info')} visible={visibility} onCancel={onCancel} footer={null}>
+    <Modal
+      title={t('info.basic_info')}
+      visible={visibility}
+      onCancel={onCancel}
+      footer={null}
+      mask={false}
+    >
       <div className='info-modal-container'>
         <p className='info-title'>{t('info.colors')}</p>
         <div className='info-modal-description'>{lessonTypes}</div>
