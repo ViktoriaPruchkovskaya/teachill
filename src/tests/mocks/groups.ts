@@ -52,3 +52,11 @@ export const getGroupMembersMethod = () =>
       role: RoleType[groupMember.role],
     }));
   });
+
+export const getGroupByIdMethod = (isExist: boolean) =>
+  jest.fn((groupId: number) => {
+    if (!isExist) {
+      throw new Error('Group does not exist');
+    }
+    return Promise.resolve({ id: groupId, name: 'group' });
+  });

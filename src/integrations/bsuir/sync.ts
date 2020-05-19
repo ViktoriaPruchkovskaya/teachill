@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { DatabaseConnection, DatabaseConfiguration } from '../../db/connection';
-import { GroupService } from '../../services/groups';
+import { GroupService, Group } from '../../services/groups';
 import { GroupSyncService } from './syncGroup';
 import { LessonService } from '../../services/lessons';
 
@@ -15,13 +15,24 @@ const dbConfig: DatabaseConfiguration = {
 
 DatabaseConnection.initConnection(dbConfig);
 
-const lessonService = new LessonService();
-const groupService = new GroupService();
-const groupSyncService = new GroupSyncService();
-lessonService.removeAllGroupLessons();
-groupService
-  .getGroups()
-  .then(groups =>
-    Promise.all(groups.map(group => groupSyncService.syncGroup(group.id, Number(group.name))))
-  )
-  .catch(err => console.error(err));
+export class SyncBSUIR {
+  private lessonService: LessonService;
+  private groupService: GroupService;
+  private groupSyncService: GroupSyncService;
+
+  constructor() {
+    this.lessonService = new LessonService();
+    this.groupService = new GroupService();
+    this.groupSyncService = new GroupSyncService();
+  }
+
+  public async updateSchedule(groupId: number): Promise<void> {
+    const group = await this.groupService.getGroupById(groupId);
+    await this.lessonService.removeGroupSchedule(group.id);
+    await this.syncBSUIR(group);
+  }
+
+  private async syncBSUIR(group: Group): Promise<void> {
+    await this.groupSyncService.syncGroup(group.id, Number(group.name));
+  }
+}

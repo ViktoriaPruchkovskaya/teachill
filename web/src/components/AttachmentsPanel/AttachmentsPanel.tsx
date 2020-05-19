@@ -3,7 +3,7 @@ import { useState, useContext } from 'react';
 import { UploadFile } from 'antd/es/upload/interface';
 import { Button, Upload } from 'antd';
 import { AttachmentService } from '../../services/attachmentService';
-import { Lesson } from '../../services/groupService';
+import { Lesson } from '../../services/lessonService';
 import { AttachDrawer } from './AttachDrawer';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../../contexts/userContext';
