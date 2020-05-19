@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Lesson } from '../services/groupService';
+import { Lesson } from '../services/lessonService';
 
 export interface ScheduleContextProps {
   schedule: Lesson[][][];

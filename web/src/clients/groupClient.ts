@@ -11,23 +11,6 @@ interface Group {
   name: string;
 }
 
-interface Lesson {
-  id: number;
-  name: string;
-  typeId: number;
-  location: string;
-  startTime: Date;
-  duration: number;
-  description?: string;
-  teacher?: Teacher[];
-  subgroup?: number | null;
-  isAttachmentAssigned?: boolean;
-}
-
-interface Teacher {
-  fullName: string;
-}
-
 export class GroupClient extends BaseTeachillAuthClient {
   public async createGroup(payload: GroupPayload): Promise<number> {
     const response = await fetch('/api/groups/', {
@@ -64,29 +47,6 @@ export class GroupClient extends BaseTeachillAuthClient {
 
     const group = await response.json();
     return { id: group.id as number, name: group.name as string };
-  }
-
-  public async getLessons(): Promise<Lesson[]> {
-    const response = await fetch('/api/lessons/', {
-      method: 'GET',
-      headers: {
-        ...this.getCommonHeaders(),
-        ...this.getAuthHeaders(),
-      },
-    });
-    const lessons: Lesson[] = await response.json();
-    return lessons.map(lesson => ({
-      id: lesson.id,
-      name: lesson.name,
-      typeId: lesson.typeId,
-      location: lesson.location,
-      startTime: new Date(lesson.startTime),
-      duration: lesson.duration,
-      description: lesson.description,
-      teacher: lesson.teacher,
-      subgroup: lesson.subgroup,
-      isAttachmentAssigned: lesson.isAttachmentAssigned,
-    }));
   }
 
   public async getMembers(groupId: number): Promise<User[]> {

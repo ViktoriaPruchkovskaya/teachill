@@ -21,6 +21,7 @@ interface SignupAdminProps {
 
 export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
   const [visibility, setVisibility] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const userContext = useContext(UserContext);
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -30,6 +31,7 @@ export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
   };
 
   const handleSubmit = async (values: SignupData): Promise<void> => {
+    setLoading(true);
     try {
       const authService = new AuthService();
       await authService.signupAdmin(values);
@@ -39,6 +41,7 @@ export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
     } catch (error) {
       message.error(error.message);
     }
+    setLoading(false);
   };
   return (
     <div>
@@ -47,6 +50,7 @@ export const SignupAdmin: React.FC<SignupAdminProps> = ({ history }) => {
       </Button>
       <SignupAdminForm
         form={form}
+        loading={loading}
         visible={visibility}
         onSubmit={handleSubmit}
         onCancel={toggleModal}

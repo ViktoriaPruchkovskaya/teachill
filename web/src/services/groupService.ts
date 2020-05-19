@@ -1,27 +1,9 @@
 import { GroupClient } from '../clients/groupClient';
 import { StorageService } from './storageService';
-import { organizeLessons } from '../utils/lessons';
 import { User } from './userService';
 
 interface GroupPayload {
   name: string;
-}
-
-interface Teacher {
-  fullName: string;
-}
-
-export interface Lesson {
-  id: number;
-  name: string;
-  typeId: number;
-  location: string;
-  startTime: Date;
-  duration: number;
-  description?: string;
-  teacher?: Teacher[];
-  subgroup?: number | null;
-  isAttachmentAssigned?: boolean;
 }
 
 export interface Group {
@@ -51,44 +33,6 @@ export class GroupService {
     const group = await this.groupClient.getCurrentGroup();
     this.storageService.setUserGroup(group);
     return group;
-  }
-
-  private async getLessons(): Promise<Lesson[]> {
-    const lessons = await this.groupClient.getLessons();
-
-    const subgroups = this.getSubgroups(lessons);
-    this.storageService.setSubgroups(subgroups);
-
-    return lessons.map(lesson => ({
-      id: lesson.id,
-      name: lesson.name,
-      typeId: lesson.typeId,
-      location: lesson.location,
-      startTime: new Date(lesson.startTime),
-      duration: lesson.duration,
-      description: lesson.description,
-      teacher: lesson.teacher,
-      subgroup: lesson.subgroup,
-      isAttachmentAssigned: lesson.isAttachmentAssigned,
-    }));
-  }
-
-  private getSubgroups(lessons: Lesson[]): Array<number> {
-    const subgroups = new Set<number>();
-    lessons.map(lesson => subgroups.add(lesson.subgroup));
-    return Array.from(subgroups);
-  }
-
-  public async getSchedule(): Promise<Lesson[][][]> {
-    /**
-     * @name lessons - Array of lessons sorted by date
-     * @function organizedLessons returns an array, that contains array of lessons formed by weeks
-     */
-
-    const groupLessons = await this.getLessons();
-    const lessons = groupLessons.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-
-    return organizeLessons(lessons);
   }
 
   public async getMembers(): Promise<User[]> {

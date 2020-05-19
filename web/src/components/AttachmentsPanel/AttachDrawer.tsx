@@ -3,7 +3,7 @@ import { Drawer, Divider } from 'antd';
 import { UploadFile } from 'antd/es/upload/interface';
 import { FileUpload } from './FileUpload';
 import { AttachLinkForm } from './AttachLinkForm';
-import { Lesson } from '../../services/groupService';
+import { Lesson } from '../../services/lessonService';
 import { useTranslation } from 'react-i18next';
 import './AttachDrawer.less';
 

@@ -227,6 +227,32 @@ export async function removeAllGroupLessons(): Promise<void> {
   });
 }
 
+export async function removeGroupSchedule(groupId: number): Promise<void> {
+  return DatabaseConnection.getConnectionPool().connect(async connection => {
+    await connection.transaction(async transaction => {
+      const rows = await transaction.any(
+        sql`SELECT lesson_id FROM lesson_groups WHERE group_id = ${groupId}`
+      );
+      if (rows.length === 0) {
+        return;
+      }
+
+      const lessonIds = rows.map(row => Number(row.lesson_id));
+
+      await transaction.query(
+        sql`DELETE FROM lesson_teachers WHERE lesson_id IN (${sql.join(lessonIds, sql`,`)})`
+      );
+      await transaction.query(sql`DELETE FROM lesson_groups WHERE group_id = ${groupId}`);
+      await transaction.query(
+        sql`DELETE FROM group_lesson_attachments WHERE group_id = ${groupId}`
+      );
+      await transaction.query(
+        sql`DELETE FROM lessons WHERE id IN (${sql.join(lessonIds, sql`,`)})`
+      );
+    });
+  });
+}
+
 export async function assignTeacherToLesson(lessonId: number, teacherId: number): Promise<void> {
   return DatabaseConnection.getConnectionPool().connect(async connection => {
     await connection.query(

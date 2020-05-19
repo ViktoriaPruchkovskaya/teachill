@@ -27,6 +27,12 @@ router.get('/me/group/', authMiddleware, groupsControllers.getCurrentGroup);
 router.post('/groups/', authMiddleware, shouldHaveAdminRole, groupsControllers.createGroup);
 router.get('/groups/', authMiddleware, groupsControllers.getGroups);
 router.post(
+  '/groups/:group_id/sync/',
+  authMiddleware,
+  shouldHaveAdminRole,
+  groupsControllers.updateSchedule
+);
+router.post(
   '/groups/:group_id/users/',
   authMiddleware,
   shouldHaveAdminRole,

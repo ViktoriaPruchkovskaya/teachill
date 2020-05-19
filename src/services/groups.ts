@@ -33,10 +33,10 @@ export class GroupService {
   }
 
   public async createGroupMember(userId: number, groupId: number): Promise<void> {
-    const group = await groupsRepository.getGroupById(groupId);
+    await this.getGroupById(groupId);
     const user = await getUserById(userId);
-    if (!group || !user) {
-      throw new NotFoundError('Group or user does not exist');
+    if (!user) {
+      throw new NotFoundError('User not found');
     }
     const membership = await groupsRepository.getMembershipById(userId);
     if (membership) {
@@ -46,10 +46,7 @@ export class GroupService {
   }
 
   public async getGroupMembers(groupId: number): Promise<GroupMember[]> {
-    const group = await groupsRepository.getGroupById(groupId);
-    if (!group) {
-      throw new NotFoundError('Group does not exist');
-    }
+    await this.getGroupById(groupId);
     const members = await groupsRepository.getGroupMembers(groupId);
     return members.map(groupMember => ({
       id: groupMember.id,
@@ -61,6 +58,14 @@ export class GroupService {
 
   public async getGroupByName(name: string): Promise<Group> {
     const group = await groupsRepository.getGroupByName(name);
+    if (!group) {
+      throw new NotFoundError('Group does not exist');
+    }
+    return { id: group.id, name: group.name };
+  }
+
+  public async getGroupById(groupId: number): Promise<Group> {
+    const group = await groupsRepository.getGroupById(groupId);
     if (!group) {
       throw new NotFoundError('Group does not exist');
     }

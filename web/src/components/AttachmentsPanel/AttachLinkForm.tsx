@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Form, Input, message, Tooltip } from 'antd';
 import { UploadFile } from 'antd/es/upload/interface';
-import { Lesson } from '../../services/groupService';
+import { Lesson } from '../../services/lessonService';
 import { AttachmentService } from '../../services/attachmentService';
 import { useTranslation } from 'react-i18next';
 

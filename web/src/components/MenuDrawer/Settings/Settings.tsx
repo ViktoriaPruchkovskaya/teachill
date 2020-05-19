@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ChangeLanguage } from './ChangeLanguage/ChangeLanguage';
 import ManageUsers from './ManageUsersButton';
 import { AccountButton } from './Account/AccountButton';
+import { UpdateScheduleButton } from './UpdateScheduleButton';
 import { UserContext } from '../../../contexts/userContext';
 import { RoleType } from '../../../services/authService';
 
@@ -20,7 +21,7 @@ export const Settings: React.FC<SettingsProps> = ({ onCancel }) => {
   const settings =
     userContext.role === RoleType.Administrator ? (
       <>
-        <p>{t('settings.update_schedule')}</p>
+        <UpdateScheduleButton />
         <ManageUsers onCancel={onCancel} />
         <AccountButton />
         <ChangeLanguage />
