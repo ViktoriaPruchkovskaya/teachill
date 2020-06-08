@@ -5,9 +5,11 @@ import * as koastatic from 'koa-static';
 import * as mount from 'koa-mount';
 import * as logger from 'koa-logger';
 import { DatabaseConnection, DatabaseConfiguration } from './db/connection';
+import { MongoConfiguration, MongoConnection } from './mongo/connection';
 import { router } from './routes';
 import { errorHandler } from './middlewares/errorHandler';
 import { LocalFileUploadService } from './services/upload';
+import { accessLogger } from './middlewares/accessLog';
 
 dotenv.config();
 
@@ -21,8 +23,18 @@ const dbConfig: DatabaseConfiguration = {
   database: process.env.POSTGRES_DATABASE,
 };
 
-DatabaseConnection.initConnection(dbConfig);
+const mongoConfig: MongoConfiguration = {
+  database: process.env.MONGODB_DATABASE,
+  host: process.env.MONGODB_HOST,
+  password: process.env.MONGODB_ROOT_PASSWORD,
+  port: process.env.MONGODB_PORT,
+  username: process.env.MONGODB_ROOT_USERNAME,
+};
 
+DatabaseConnection.initConnection(dbConfig);
+MongoConnection.initConnection(mongoConfig).catch(err => console.error(err));
+
+app.use(accessLogger);
 app.use(logger());
 app.use(bodyParser());
 app.use(errorHandler);
