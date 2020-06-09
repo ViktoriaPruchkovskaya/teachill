@@ -3,17 +3,18 @@ import { MongoConnection } from '../mongo/connection';
 import { performance } from 'perf_hooks';
 
 export async function accessLogger(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const requestTime = performance.now();
-  const collection = MongoConnection.getDb().collection('accessLog');
+  const requestTime = Date.now();
 
+  const responseStartTime = performance.now();
   await next();
 
-  const responseTime = performance.now();
+  const responseEndTime = performance.now();
 
+  const collection = MongoConnection.getDb().collection('accessLog');
   await collection.insertOne({
     ip: ctx.request.ip,
     url: ctx.url,
-    circulation_time: requestTime,
-    duration: responseTime - requestTime,
+    request_time: requestTime,
+    duration: responseEndTime - responseStartTime,
   });
 }
