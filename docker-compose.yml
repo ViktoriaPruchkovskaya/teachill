@@ -9,7 +9,7 @@ services:
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
     env_file:
-      - .env
+      - db.env
 
   server:
     build:
@@ -28,4 +28,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - '80:80'
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    env_file:
+      - mongo.env
 
