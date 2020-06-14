@@ -27,9 +27,10 @@ export class SyncBSUIR {
     this.groupSyncService = new GroupSyncService();
   }
 
-  @syncLogger()
+  @syncLogger
   public async updateSchedule(groupId: number): Promise<void> {
     const group = await this.groupService.getGroupById(groupId);
+
     await this.lessonService.removeGroupSchedule(group.id);
     await this.syncBSUIR(group);
   }

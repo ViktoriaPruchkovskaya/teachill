@@ -1,9 +1,10 @@
 import * as Koa from 'koa';
 import { MongoConnection } from '../mongo/connection';
 import { performance } from 'perf_hooks';
+import { Int32 } from 'mongodb';
 
 export async function accessLogger(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  const requestTime = Date.now();
+  const requestTime = new Date();
 
   const responseStartTime = performance.now();
   await next();
@@ -15,6 +16,6 @@ export async function accessLogger(ctx: Koa.ParameterizedContext, next: Koa.Next
     ip: ctx.request.ip,
     url: ctx.url,
     request_time: requestTime,
-    duration: responseEndTime - responseStartTime,
+    duration: new Int32(responseEndTime - responseStartTime),
   });
 }

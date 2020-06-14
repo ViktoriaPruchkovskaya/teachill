@@ -6,7 +6,6 @@
     "test": "jest",
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "sync-bsuir": "ts-node src/integrations/bsuir/sync.ts",
     "lint": "eslint . --ext .js,.ts,.tsx,.jsx",
     "lint:fix": "eslint . --ext .js,.ts,.tsx,.jsx --fix"
   },
