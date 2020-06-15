@@ -1,7 +1,7 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { GroupService } from '../services/groups';
-import { Validator, shouldHaveField } from '../validations';
+import { Validator, shouldHaveField, ValidationError } from '../validations';
 import { State } from '../state';
 import { SyncBSUIR } from '../integrations/bsuir/sync';
 
@@ -69,8 +69,13 @@ export async function getGroupMembers(ctx: Koa.ParameterizedContext, next: Koa.N
 
 export async function updateSchedule(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   const syncBSUIR = new SyncBSUIR();
+  const groupId = Number(ctx.params.group_id);
 
-  await syncBSUIR.updateSchedule(ctx.params.group_id);
+  if (isNaN(groupId)) {
+    throw new ValidationError('Group id is should be of type number');
+  }
+
+  await syncBSUIR.updateSchedule(groupId);
   ctx.body = {};
   ctx.response.status = httpCodes.CREATED;
 

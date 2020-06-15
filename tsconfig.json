@@ -2,6 +2,8 @@
   "include": ["src/**/*"],
   "compilerOptions": {
     "outDir": "dist/",
-    "sourceMap": true
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "target": "ES5"
   }
 }
