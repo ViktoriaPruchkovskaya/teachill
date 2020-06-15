@@ -1,6 +1,7 @@
 import * as Koa from 'koa';
 import * as httpCodes from '../constants/httpCodes';
 import { InternalServerError } from '../errors';
+import { errorLogger } from './errorLog';
 
 const errorToHttpMapping = {
   NotFoundError: httpCodes.NOT_FOUND,
@@ -12,7 +13,7 @@ const errorToHttpMapping = {
   ValidationFailed: httpCodes.BAD_REQUEST,
 };
 
-export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next): Promise<void> {
   try {
     await next();
   } catch (err) {
@@ -26,6 +27,9 @@ export async function errorHandler(ctx: Koa.ParameterizedContext, next: Koa.Next
       ctx.body = {
         errors: [new InternalServerError()],
       };
+
+      await errorLogger(ctx, err);
+
       return;
     }
     ctx.body = {

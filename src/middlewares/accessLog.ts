@@ -3,7 +3,7 @@ import { MongoConnection } from '../mongo/connection';
 import { performance } from 'perf_hooks';
 import { Int32 } from 'mongodb';
 
-export async function accessLogger(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function accessLogger(ctx: Koa.ParameterizedContext, next: Koa.Next): Promise<void> {
   const requestTime = new Date();
 
   const responseStartTime = performance.now();
